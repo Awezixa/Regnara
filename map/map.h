@@ -9,7 +9,7 @@
 #define WATER_TILE 'W'
 #define SPAWN_POINT 'S'
 
-
+extern char map_data[MAP_ROWS][MAP_COLS];
 void loadMap(const char* filename);
 
 #endif

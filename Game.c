@@ -16,11 +16,7 @@
 #define APP_NAME "Regnara"
 #define WINDOW_WIDTH 1920
 #define WINDOW_HEIGHT 1080
-
-//texture initialization
-
-//sound initialization
-
+#define TILE_SIZE 32
 
 //can move to other files later
 typedef struct InputState
@@ -40,23 +36,18 @@ typedef struct AppState
     SDL_Window *window;
     SDL_Renderer *renderer;
     TTF_Font *font;
-    SDL_Texture *playerTexture;
-    SDL_Texture *collectibleTexture;
+    //temporary texture loading
+    SDL_Texture *grassTexture;
+    SDL_Texture *waterTexture;
+    SDL_Texture *bridgeTexture;
     InputState input;
     Uint64 lastTicksMS;
     float dt;
-    //Player *player;
-    float cameraX, cameraY;
-
-    //GameState gameState;
-    float timeLeft;
-    int score;
-
-    //Collectibles rings[20];
-    float spawnTImer;
-    int activeCount;// how many in world
 
 } AppState;
+
+//other functions (to be moved elsewhere)
+void renderMap(SDL_Renderer *renderer, AppState *app);
 
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
@@ -86,12 +77,39 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     }
 
     // create window and renderer
-    if (!SDL_CreateWindowAndRenderer("My Game", WINDOW_WIDTH, WINDOW_HEIGHT, 0, &app->window, &app->renderer))
+    if (!SDL_CreateWindowAndRenderer("Regnara", WINDOW_WIDTH, WINDOW_HEIGHT, 0, &app->window, &app->renderer))
     {
         SDL_Log("SDL_CreateWindowAndRenderer failed: %s", SDL_GetError());
         return SDL_APP_FAILURE;
     }
 
+    //font loading
+    app->font = TTF_OpenFont("FORCED SQUARE.ttf", 30);
+    if (!app->font)
+    {
+        SDL_Log("TTF_OpenFont failed: %s", SDL_GetError());
+        return SDL_APP_FAILURE;
+    }
+
+    //texture loading
+    app->grassTexture = IMG_LoadTexture(app->renderer, "Assets/images/grassTile.png");
+    if (!app->grassTexture) {
+        SDL_Log("IMG_LoadTexture failed for grass: %s", SDL_GetError());
+        return SDL_APP_FAILURE;
+    }
+
+    app->waterTexture = IMG_LoadTexture(app->renderer, "Assets/images/waterTile.png");
+    if (!app->waterTexture) {
+        SDL_Log("IMG_LoadTexture failed for water: %s", SDL_GetError());
+        return SDL_APP_FAILURE;
+    }
+    app->bridgeTexture = IMG_LoadTexture(app->renderer, "Assets/images/bridgeTile.png");
+    if (!app->bridgeTexture) {
+        SDL_Log("IMG_LoadTexture failed for bridge: %s", SDL_GetError());
+        return SDL_APP_FAILURE;
+    }
+
+    loadMap("map/maps/map1.txt");
 
     app->lastTicksMS = SDL_GetTicks();
     app->dt = 0.0f;
@@ -178,6 +196,10 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     Uint64 elapsedMS = nowMS - app->lastTicksMS;
     app->lastTicksMS = nowMS;
 
+    SDL_SetRenderDrawColor(app->renderer, 0, 0, 0, 255);
+    SDL_RenderClear(app->renderer);
+
+    renderMap(app->renderer, app);
     SDL_RenderPresent(app->renderer);
     // reset edge flagsW
     Input_BeginFrame(&app->input);
@@ -190,10 +212,12 @@ void SDL_AppQuit(void *appstate, SDL_AppResult result)
     AppState *app = (AppState *)appstate;
     if (!app)
         return;
-    if (app->playerTexture)
-        SDL_DestroyTexture(app->playerTexture);
-    if (app->collectibleTexture)
-        SDL_DestroyTexture(app->collectibleTexture);
+    if (app->grassTexture)
+        SDL_DestroyTexture(app->grassTexture);
+    if (app->waterTexture)
+        SDL_DestroyTexture(app->waterTexture);
+    if (app->bridgeTexture)
+        SDL_DestroyTexture(app->bridgeTexture);
     if (app->font)
         TTF_CloseFont(app->font);
     if (app->renderer)
@@ -203,4 +227,32 @@ void SDL_AppQuit(void *appstate, SDL_AppResult result)
     TTF_Quit();
     SDL_Quit();
     SDL_free(app);
+}
+
+//made with Gemini (Xavier) ask Cesar about it
+void renderMap(SDL_Renderer *renderer, AppState *app) {
+    for (int row = 0; row < MAP_ROWS; row++) {
+        for (int col = 0; col < MAP_COLS; col++) {
+            SDL_FRect destRect = {
+                (float)(col * TILE_SIZE), 
+                (float)(row * TILE_SIZE), 
+                (float)TILE_SIZE, 
+                (float)TILE_SIZE
+            };
+
+            SDL_Texture *targetTexture = NULL;
+
+            // Map the character in the txt file to the loaded texture
+            switch (map_data[row][col]) {
+                case 'G': targetTexture = app->grassTexture; break;
+                case 'W': targetTexture = app->waterTexture; break;
+                case 'B': targetTexture = app->bridgeTexture; break;
+                default: break; 
+            }
+
+            if (targetTexture) {
+                SDL_RenderTexture(renderer, targetTexture, NULL, &destRect);
+            }
+        }
+    }
 }
