@@ -8,7 +8,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-//#include "tech_Tree/techTree.h"
+#include "gameStates/gameState.h"
 #include "map/map.h"
 //#include "camera/camera.h"
 
@@ -36,13 +36,17 @@ typedef struct AppState
     SDL_Window *window;
     SDL_Renderer *renderer;
     TTF_Font *font;
+    InputState input;
+    Uint64 lastTicksMS;
+    float dt;
+    GameState gameState;
+
     //temporary texture loading
     SDL_Texture *grassTexture;
     SDL_Texture *waterTexture;
     SDL_Texture *bridgeTexture;
-    InputState input;
-    Uint64 lastTicksMS;
-    float dt;
+    SDL_Texture *logoTexture;
+
 
 } AppState;
 
@@ -97,7 +101,6 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
         SDL_Log("IMG_LoadTexture failed for grass: %s", SDL_GetError());
         return SDL_APP_FAILURE;
     }
-
     app->waterTexture = IMG_LoadTexture(app->renderer, "Assets/images/waterTile.png");
     if (!app->waterTexture) {
         SDL_Log("IMG_LoadTexture failed for water: %s", SDL_GetError());
@@ -108,8 +111,14 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
         SDL_Log("IMG_LoadTexture failed for bridge: %s", SDL_GetError());
         return SDL_APP_FAILURE;
     }
+    app->logoTexture = IMG_LoadTexture(app->renderer, "Assets/images/Rengara_Logo.png");
+    if (!app->logoTexture) {
+        SDL_Log("IMG_LoadTexture failed for logo: %s", SDL_GetError());
+        return SDL_APP_FAILURE;
+    }
 
-    loadMap("map/maps/map1.txt");
+    //other game initializations
+    app->gameState = STATE_MENU;
 
     app->lastTicksMS = SDL_GetTicks();
     app->dt = 0.0f;
@@ -198,6 +207,39 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 
     SDL_SetRenderDrawColor(app->renderer, 0, 0, 0, 255);
     SDL_RenderClear(app->renderer);
+    
+    /*
+        to load map, add to Appiterate
+        loadMap("map/maps/map1.txt");
+    */
+
+    //gamestate swaps
+    switch (app->gameState)
+    {
+    case STATE_MENU:
+        // draw menu first
+        // drawMenu(app);
+        // if (app->input.keyPressed[SDL_SCANCODE_SPACE])
+        // {
+            
+        //     app->gameState = STATE_PLAYING;
+        // }
+        break;
+    case STATE_PLAYING:
+        // updateGameLogic(app);, add similar function to this for movement and other things that will be used
+        break;
+
+    case STATE_END:
+        // drawEndScreen(app);
+        // if (app->input.keyPressed[SDL_SCANCODE_RETURN])
+        // {
+        //     app->gameState = STATE_MENU;
+        // }
+        break;
+    default:
+        break;
+    }
+
 
     renderMap(app->renderer, app);
     SDL_RenderPresent(app->renderer);
@@ -208,10 +250,12 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 
 void SDL_AppQuit(void *appstate, SDL_AppResult result)
 {
+    //clean up
     (void)result;
     AppState *app = (AppState *)appstate;
     if (!app)
         return;
+    //add function to destroy all textures
     if (app->grassTexture)
         SDL_DestroyTexture(app->grassTexture);
     if (app->waterTexture)
@@ -229,7 +273,7 @@ void SDL_AppQuit(void *appstate, SDL_AppResult result)
     SDL_free(app);
 }
 
-//made with Gemini (Xavier) ask Cesar about it
+//made with Gemini (Xavier), ask Cesar if it ok
 void renderMap(SDL_Renderer *renderer, AppState *app) {
     for (int row = 0; row < MAP_ROWS; row++) {
         for (int col = 0; col < MAP_COLS; col++) {
@@ -253,6 +297,10 @@ void renderMap(SDL_Renderer *renderer, AppState *app) {
             if (targetTexture) {
                 SDL_RenderTexture(renderer, targetTexture, NULL, &destRect);
             }
+
+            //to create grid texture to map
+            SDL_SetRenderDrawColor(renderer, 0, 0, 0, 50);
+            SDL_RenderRect(renderer, &destRect);
         }
     }
 }

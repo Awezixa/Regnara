@@ -2,15 +2,15 @@
 #define GAMESTATE_H
 
 #include <stdbool.h>
-
+// ask cesar about this
 typedef enum GameState{
-    INITIAL_SCREEN,
-    MAIN_MENU,
-    INGAME,
-    FINISHED
+    STATE_MENU,
+    STATE_PLAYING,
+    STATE_PAUSED,
+    STATE_OPTIONS,
+    STATE_END
 } GameState;
 
-GameState gameState();
-void setGameState(GameState newState);
+//other functions if needed
 
-#endif /* GAMESTATE_H */
+#endif
