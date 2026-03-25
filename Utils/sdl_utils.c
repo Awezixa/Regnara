@@ -133,4 +133,4 @@ void showText(SDL_Renderer *renderer, int x, int y, const char *text, SDL_Color 
 {
     SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
     SDL_RenderDebugText(renderer, x, y, text);
-}}
+}

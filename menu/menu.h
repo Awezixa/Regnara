@@ -3,6 +3,9 @@
 
 typedef struct AppState AppState;
 
-void drawMenu(AppState *app);
+void drawMainMenu(AppState *app);
+void drawPauseMenu(AppState *app);
+void drawOptions(AppState *app);
+void drawEndScreen(AppState *app);
 
 #endif 

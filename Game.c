@@ -4,9 +4,6 @@
 //file includes
 #include "game.h"
 
-//other functions (to be moved elsewhere)
-void drawMenu(AppState *app);
-
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 {
     (void)argc;
@@ -167,29 +164,43 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     {
     case STATE_MENU:
         // draw menu first
-        //drawMenu(app);
-        // if (app->input.keyPressed[SDL_SCANCODE_SPACE])
-        // {
+        drawMainMenu(app);
+        if (app->input.keyPressed[SDL_SCANCODE_SPACE])
+        {
             
-        //     app->gameState = STATE_PLAYING;
-        // }
+            app->gameState = STATE_PLAYING;
+        }
         break;
     case STATE_PLAYING:
         
         // updateGameLogic(app);, add similar function to this for movement and other things that will be used
+        renderMap(app->renderer, app);
+        if (app->input.keyPressed[SDL_SCANCODE_ESCAPE])
+        {
+            app->gameState = STATE_PAUSED;
+            //add draw pause menu
+        }
+        
         break;
-
+    case STATE_PAUSED:
+        //drawPauseMenu(app);
+        if (app->input.keyPressed[SDL_SCANCODE_ESCAPE])
+        {
+            app->gameState = STATE_PLAYING;
+            //add draw pause menu
+        }
+        break;
     case STATE_END:
         // drawEndScreen(app);
-        // if (app->input.keyPressed[SDL_SCANCODE_RETURN])
-        // {
-        //     app->gameState = STATE_MENU;
-        // }
+        if (app->input.keyPressed[SDL_SCANCODE_RETURN])
+        {
+            app->gameState = STATE_MENU;
+        }
         break;
     default:
         break;
     }
-    renderMap(app->renderer, app);
+
     SDL_RenderPresent(app->renderer);
     //reset edge flags
     Input_BeginFrame(&app->input);
