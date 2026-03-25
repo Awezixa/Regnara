@@ -8,8 +8,8 @@
 // =======================================================
 // SDL SYSTEMS
 // =======================================================
-SDL_Window *sdl_initialize_window(char* APP_NAME, int APP_WIDTH, int APP_HEIGHT);
-SDL_Renderer *sdl_initialize_renderer(SDL_Window* window);
+SDL_Window *sdl_initialize_window(const char *app_name, int app_width, int app_height);
+SDL_Renderer *sdl_initialize_renderer(SDL_Window *window);
 
 // =======================================================
 // SOUND
@@ -39,4 +39,4 @@ SDL_Texture *sdl_load_texture(SDL_Renderer *renderer, const char *file_path);
 // =======================================================
 void showText(SDL_Renderer *renderer, int x, int y, const char *text, SDL_Color color);
 
-#endif // SDL_UTILS_H
+#endif // SDL_UTILS_H#endif // SDL_UTILS_H

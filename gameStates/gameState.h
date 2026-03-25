@@ -1,6 +1,6 @@
 #ifndef GAMESTATE_H
 #define GAMESTATE_H
-#include "../game.h"
+
 #include <stdbool.h>
 
 

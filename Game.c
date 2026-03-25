@@ -1,3 +1,6 @@
+#define SDL_MAIN_USE_CALLBACKS 1
+#include <SDL3/SDL_main.h>
+
 //file includes
 #include "game.h"
 
@@ -31,7 +34,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     }
 
     // create window and renderer
-    if (!SDL_CreateWindowAndRenderer("Regnara", WINDOW_WIDTH, WINDOW_HEIGHT, 0, &app->window, &app->renderer))
+    if (!SDL_CreateWindowAndRenderer(APP_NAME, WINDOW_WIDTH, WINDOW_HEIGHT, 0, &app->window, &app->renderer))
     {
         SDL_Log("SDL_CreateWindowAndRenderer failed: %s", SDL_GetError());
         return SDL_APP_FAILURE;

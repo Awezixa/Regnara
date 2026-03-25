@@ -2,7 +2,6 @@
 #define GAME_H
 
 //definitions and library includes
-#define SDL_MAIN_USE_CALLBACKS 1
 #define APP_NAME "Regnara"
 #define WINDOW_WIDTH 1920
 #define WINDOW_HEIGHT 1080
@@ -13,12 +12,14 @@
 #include <SDL3_image/SDL_image.h>
 #include "Utils/sdl_utils.h"
 #include <SDL3_ttf/SDL_ttf.h>
-#include <SDL3/SDL_main.h>
 #include <stdbool.h>
 #include <stdlib.h>
 
 //other file includes
 #include "gameStates/gameState.h"
+// We need to define this here because map.h and menu.h will use it.
+// If gameState uses it, then it should be included AFTER this definition!
+typedef struct AppState AppState;
 #include "map/map.h"
 #include "menu/menu.h"
 //#include "camera/camera.h"

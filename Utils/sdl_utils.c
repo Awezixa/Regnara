@@ -3,24 +3,26 @@
 
 static SDL_AudioDeviceID audio_device = 0;
 
-SDL_Window *sdl_initialize_window(char *APP_NAME, int APP_WIDTH, int APP_HEIGHT)
+SDL_Window *sdl_initialize_window(const char *app_name, int app_width, int app_height)
 {
     SDL_Window *newWindow = NULL;
     if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO))
     {
         SDL_Log("SDL_Init error: %s", SDL_GetError());
+        return NULL;
     }
 
     newWindow = SDL_CreateWindow(
-        APP_NAME,
-        APP_WIDTH,
-        APP_HEIGHT,
+        app_name,
+        app_width,
+        app_height,
         SDL_WINDOW_RESIZABLE);
 
     if (!newWindow)
     {
         SDL_Log("SDL_CreateWindow error: %s", SDL_GetError());
         SDL_Quit();
+        return NULL;
     }
 
     SDL_SetWindowPosition(newWindow, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
@@ -131,4 +133,4 @@ void showText(SDL_Renderer *renderer, int x, int y, const char *text, SDL_Color 
 {
     SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
     SDL_RenderDebugText(renderer, x, y, text);
-}
+}}
