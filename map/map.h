@@ -1,6 +1,9 @@
 #ifndef MAP_H
 #define MAP_H
 
+#include "../game.h"
+
+
 #define MAP_ROWS 25
 #define MAP_COLS 20
 
@@ -11,5 +14,6 @@
 
 extern char map_data[MAP_ROWS][MAP_COLS];
 void loadMap(const char* filename);
+void renderMap(SDL_Renderer *renderer, AppState *app);
 
 #endif
