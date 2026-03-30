@@ -62,7 +62,10 @@ typedef struct AppState
     //menu textures
     SDL_Texture *buttonOn;
     SDL_Texture *buttonHovered;
+    SDL_FRect playbutton;
 
+
+    
 } AppState;
 
 

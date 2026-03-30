@@ -51,6 +51,9 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     app->bridgeTexture = LoadTexture(app->renderer, "Assets/images/bridgeTile.png");
     app->logoTexture   = LoadTexture(app->renderer, "Assets/images/Rengara_Logo.png");
     app->pawnTexture   = LoadTexture(app->renderer, "Assets/images/PawnP.png");
+    app->buttonOn      = LoadTexture(app->renderer, "Assets/images/buttons/buttonOn.png");
+    app->buttonHovered = LoadTexture(app->renderer, "Assets/images/buttons/button.png");
+
     //final check that all textures there and load
     if (!app->logoTexture || !app->grassTexture) {
         SDL_Log("CRITICAL ERROR: Core assets missing. Closing app.");
@@ -157,6 +160,16 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     case STATE_MENU:
         // draw menu first
         drawMainMenu(app);
+        if (app->input.mouseLeftPressed)
+        {
+            SDL_FPoint mousePos = {app->input.mouseX, app->input.mouseY};
+            if (SDL_PointInRectFloat(&mousePos, &app->playbutton))
+            {
+                app->gameState = STATE_PLAYING;
+            }
+            
+        }
+        
         if (app->input.keyPressed[SDL_SCANCODE_SPACE])
         {
             
