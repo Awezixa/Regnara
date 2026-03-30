@@ -22,6 +22,7 @@
 typedef struct AppState AppState;
 #include "map/map.h"
 #include "menu/menu.h"
+#include "Pieces/piece.h"
 //#include "camera/camera.h"
 
 
@@ -53,6 +54,11 @@ typedef struct AppState
     SDL_Texture *waterTexture;
     SDL_Texture *bridgeTexture;
     SDL_Texture *logoTexture;
+    //where borrow stock piece textures https://nulltale.itch.io/heroes-chess
+    SDL_Texture *pawnTexture;
+    bool piecePlaced;
+    float pieceX, pieceY;
+    
 
 } AppState;
 

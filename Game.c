@@ -66,9 +66,15 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
         SDL_Log("IMG_LoadTexture failed for logo: %s", SDL_GetError());
         return SDL_APP_FAILURE;
     }
-
+    app->pawnTexture = IMG_LoadTexture(app->renderer, "Assets/images/BishopPiece.png");
+    if (!app->pawnTexture) {
+        SDL_Log("IMG_LoadTexture failed for player: %s", SDL_GetError());
+        return SDL_APP_FAILURE;
+    }
     //other game initializations
     app->gameState = STATE_MENU;
+    loadMap("map/maps/map1.txt");
+    app->piecePlaced = false;
 
     app->lastTicksMS = SDL_GetTicks();
     app->dt = 0.0f;
@@ -157,7 +163,7 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 
     SDL_SetRenderDrawColor(app->renderer, 0, 0, 0, 255);
     SDL_RenderClear(app->renderer);
-    loadMap("map/maps/map1.txt");
+    
 
     //gamestate swaps
     switch (app->gameState)
@@ -175,6 +181,9 @@ SDL_AppResult SDL_AppIterate(void *appstate)
         
         // updateGameLogic(app);, add similar function to this for movement and other things that will be used
         renderMap(app->renderer, app);
+        //test to spawn pieces
+        spawnPiece(app);
+        renderPiece(app);
         if (app->input.keyPressed[SDL_SCANCODE_ESCAPE])
         {
             app->gameState = STATE_PAUSED;
