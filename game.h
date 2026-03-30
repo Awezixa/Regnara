@@ -5,7 +5,7 @@
 #define APP_NAME "Regnara"
 #define WINDOW_WIDTH 1920
 #define WINDOW_HEIGHT 1080
-#define TILE_SIZE 32
+#define TILE_SIZE 40
 
 #include <stdio.h>
 #include <SDL3/SDL.h>
@@ -58,7 +58,10 @@ typedef struct AppState
     SDL_Texture *pawnTexture;
     bool piecePlaced;
     float pieceX, pieceY;
-    
+
+    //menu textures
+    SDL_Texture *buttonOn;
+    SDL_Texture *buttonHovered;
 
 } AppState;
 

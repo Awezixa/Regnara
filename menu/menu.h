@@ -7,5 +7,6 @@ void drawMainMenu(AppState *app);
 void drawPauseMenu(AppState *app);
 void drawOptions(AppState *app);
 void drawEndScreen(AppState *app);
+void loadButtons(AppState *app);
 
 #endif 

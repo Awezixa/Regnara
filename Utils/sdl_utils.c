@@ -134,3 +134,13 @@ void showText(SDL_Renderer *renderer, int x, int y, const char *text, SDL_Color 
     SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
     SDL_RenderDebugText(renderer, x, y, text);
 }
+
+SDL_Texture* LoadTexture(SDL_Renderer *renderer, const char *path) {
+    SDL_Texture *texture = IMG_LoadTexture(renderer, path);
+    if (!texture) {
+        SDL_Log("ERROR: Failed to load texture at %s: %s", path, SDL_GetError());
+    } else {
+        SDL_Log("SUCCESS: Loaded texture: %s", path);
+    }
+    return texture;
+}

@@ -33,7 +33,7 @@ void stopSound(Sound *sound);
 // Load a texture from a PNG/JPG/etc in the same folder as the executable.
 // Returns NULL on error.
 SDL_Texture *sdl_load_texture(SDL_Renderer *renderer, const char *file_path);
-
+SDL_Texture* LoadTexture(SDL_Renderer *renderer, const char *path);
 // =======================================================
 // TEXT RENDERING
 // =======================================================

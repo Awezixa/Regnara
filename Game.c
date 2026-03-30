@@ -46,31 +46,17 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     }
 
     //texture loading
-    app->grassTexture = IMG_LoadTexture(app->renderer, "Assets/images/grassTile.png");
-    if (!app->grassTexture) {
-        SDL_Log("IMG_LoadTexture failed for grass: %s", SDL_GetError());
+    app->grassTexture  = LoadTexture(app->renderer, "Assets/images/grassTile.png");
+    app->waterTexture  = LoadTexture(app->renderer, "Assets/images/waterTile.png");
+    app->bridgeTexture = LoadTexture(app->renderer, "Assets/images/bridgeTile.png");
+    app->logoTexture   = LoadTexture(app->renderer, "Assets/images/Rengara_Logo.png");
+    app->pawnTexture   = LoadTexture(app->renderer, "Assets/images/PawnP.png");
+    //final check that all textures there and load
+    if (!app->logoTexture || !app->grassTexture) {
+        SDL_Log("CRITICAL ERROR: Core assets missing. Closing app.");
         return SDL_APP_FAILURE;
     }
-    app->waterTexture = IMG_LoadTexture(app->renderer, "Assets/images/waterTile.png");
-    if (!app->waterTexture) {
-        SDL_Log("IMG_LoadTexture failed for water: %s", SDL_GetError());
-        return SDL_APP_FAILURE;
-    }
-    app->bridgeTexture = IMG_LoadTexture(app->renderer, "Assets/images/bridgeTile.png");
-    if (!app->bridgeTexture) {
-        SDL_Log("IMG_LoadTexture failed for bridge: %s", SDL_GetError());
-        return SDL_APP_FAILURE;
-    }
-    app->logoTexture = IMG_LoadTexture(app->renderer, "Assets/images/Rengara_Logo.png");
-    if (!app->logoTexture) {
-        SDL_Log("IMG_LoadTexture failed for logo: %s", SDL_GetError());
-        return SDL_APP_FAILURE;
-    }
-    app->pawnTexture = IMG_LoadTexture(app->renderer, "Assets/images/BishopPiece.png");
-    if (!app->pawnTexture) {
-        SDL_Log("IMG_LoadTexture failed for player: %s", SDL_GetError());
-        return SDL_APP_FAILURE;
-    }
+
     //other game initializations
     app->gameState = STATE_MENU;
     loadMap("map/maps/map1.txt");
