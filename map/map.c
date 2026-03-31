@@ -43,12 +43,13 @@ void loadMap(const char *filename)
 void renderMap(SDL_Renderer *renderer, AppState *app) {
     for (int row = 0; row < MAP_ROWS; row++) {
         for (int col = 0; col < MAP_COLS; col++) {
-            SDL_FRect destRect = {
+            SDL_FRect destRect = camera2d_world_to_screen_rect(
+                &app->camera,
                 (float)(col * TILE_SIZE), 
                 (float)(row * TILE_SIZE), 
                 (float)TILE_SIZE, 
                 (float)TILE_SIZE
-            };
+            );
 
             SDL_Texture *targetTexture = NULL;
 

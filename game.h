@@ -6,6 +6,9 @@
 #define WINDOW_WIDTH 1920
 #define WINDOW_HEIGHT 1080
 #define TILE_SIZE 40
+#define WORLD_WIDTH (MAP_COLS * TILE_SIZE)
+#define WORLD_HEIGHT (MAP_ROWS * TILE_SIZE)
+
 
 #include <stdio.h>
 #include <SDL3/SDL.h>
@@ -19,11 +22,12 @@
 #include "gameStates/gameState.h"
 // We need to define this here because map.h and menu.h will use it.
 // If gameState uses it, then it should be included AFTER this definition!
-typedef struct AppState AppState;
+typedef struct AppState AppState;// added this too all files that use appstate
 #include "map/map.h"
 #include "menu/menu.h"
 #include "Pieces/piece.h"
-//#include "camera/camera.h"
+#include "camera/camera.h"
+#include "camera/transform.h"
 
 
 
@@ -66,6 +70,9 @@ typedef struct AppState
     SDL_FRect quitbutton;
 
 
+    //camera stuff
+    Camera camera;
+    Vec2 worldSize;
     
 } AppState;
 

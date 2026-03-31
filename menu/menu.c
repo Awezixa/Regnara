@@ -10,7 +10,7 @@ void drawMainMenu(AppState *app){
     SDL_RenderTexture(app->renderer,app->logoTexture,NULL, &dst);
 
     playButton(app);//play button
-    quitButton(app);
+    //quitButton(app);
 }
 
 

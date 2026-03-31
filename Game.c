@@ -3,6 +3,9 @@
 
 //file includes
 #include "game.h"
+static void UpdateCamera(AppState *app);
+//clamp function = restriction of value to specific range
+
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 {
@@ -64,7 +67,11 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     app->gameState = STATE_MENU;
     loadMap("map/maps/map1.txt");
     app->piecePlaced = false;
-
+    //world size initializations
+    app->worldSize.x = (float)(MAP_COLS * TILE_SIZE);
+    app->worldSize.y = (float)(MAP_ROWS * TILE_SIZE);
+    //camera initial ization 
+    camera2d_init(&app->camera, 0.0f, 0.0f, 1.0f);
     app->lastTicksMS = SDL_GetTicks();
     app->dt = 0.0f;
     return SDL_APP_CONTINUE;
@@ -149,6 +156,7 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     Uint64 nowMS = SDL_GetTicks();
     Uint64 elapsedMS = nowMS - app->lastTicksMS;
     app->lastTicksMS = nowMS;
+    app->dt = (float)elapsedMS/1000.0f;
 
     SDL_SetRenderDrawColor(app->renderer, 0, 0, 0, 255);
     SDL_RenderClear(app->renderer);
@@ -181,7 +189,7 @@ SDL_AppResult SDL_AppIterate(void *appstate)
         }
         break;
     case STATE_PLAYING:
-        
+        UpdateCamera(app);
         // updateGameLogic(app);, add similar function to this for movement and other things that will be used
         renderMap(app->renderer, app);
         //test to spawn pieces
@@ -242,4 +250,25 @@ void SDL_AppQuit(void *appstate, SDL_AppResult result)
     TTF_Quit();
     SDL_Quit();
     SDL_free(app);
+}
+
+void UpdateCamera(AppState *app){
+    InputState *in = &app->input;
+    Camera *camera = &app->camera;
+
+    //for camera zooming and following
+    //updating every second on screen
+    float zoomDelta = 0.0f;
+    float zoomSpeed = 2.0f;
+    if (in->keyDown[SDL_SCANCODE_Q]) zoomDelta += zoomSpeed;
+    if (in->keyDown[SDL_SCANCODE_E]) zoomDelta -= zoomSpeed;
+    camera2d_add_zoom(camera, zoomDelta * app->dt, 0.4f, 3.0f);//adjusts camera clamp range then follows player with new clamped range
+    camera2d_follow_target(
+        camera,
+        app->input.mouseX,
+        app->input.mouseY,
+        (float)WINDOW_WIDTH,
+        (float)WINDOW_HEIGHT,
+        app->worldSize.x,
+        app->worldSize.y);
 }
