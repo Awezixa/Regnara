@@ -1,6 +1,8 @@
 #ifndef SDL_UTILS_H
 #define SDL_UTILS_H
 
+typedef struct AppState AppState;
+
 #include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h>
 #include <stdbool.h>

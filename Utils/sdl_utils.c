@@ -1,6 +1,7 @@
 #include "sdl_utils.h"
 #include <stdio.h>
 
+
 static SDL_AudioDeviceID audio_device = 0;
 
 SDL_Window *sdl_initialize_window(const char *app_name, int app_width, int app_height)

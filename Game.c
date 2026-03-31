@@ -167,7 +167,11 @@ SDL_AppResult SDL_AppIterate(void *appstate)
             {
                 app->gameState = STATE_PLAYING;
             }
-            
+            // if (SDL_PointInRectFloat(&mousePos, &app->quitbutton))
+            // {
+            //     //add confirmation to quit screen
+            //     return SDL_APP_SUCCESS;
+            // }
         }
         
         if (app->input.keyPressed[SDL_SCANCODE_SPACE])
