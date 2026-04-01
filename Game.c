@@ -70,8 +70,21 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     //world size initializations
     app->worldSize.x = (float)(MAP_COLS * TILE_SIZE);
     app->worldSize.y = (float)(MAP_ROWS * TILE_SIZE);
+
+    float centerX = (app->worldSize.x - WINDOW_WIDTH) / 2.0f;
+    float centerY = (app->worldSize.y - WINDOW_HEIGHT) / 2.0f;
     //camera initial ization 
     camera2d_init(&app->camera, 0.0f, 0.0f, 1.0f);
+
+    //piece array initialization
+    for (int i = 0; i < MAX_PIECES; i++){
+        app->pieces[i].active = false;
+    }
+    app->pieceCount = 0;
+
+
+
+
     app->lastTicksMS = SDL_GetTicks();
     app->dt = 0.0f;
     return SDL_APP_CONTINUE;

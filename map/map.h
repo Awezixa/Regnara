@@ -5,8 +5,8 @@
 
 typedef struct AppState AppState;
 
-#define MAP_ROWS 25
-#define MAP_COLS 20
+#define MAP_ROWS 20
+#define MAP_COLS 25
 
 #define GRASS_TILE 'G'
 #define BRIDGE_TILE 'B'

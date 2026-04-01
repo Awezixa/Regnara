@@ -28,6 +28,7 @@ typedef struct AppState AppState;// added this too all files that use appstate
 #include "Pieces/piece.h"
 #include "camera/camera.h"
 #include "camera/transform.h"
+#include "player/player.h"
 
 
 
@@ -69,6 +70,8 @@ typedef struct AppState
     SDL_FRect playbutton;
     SDL_FRect quitbutton;
 
+    Piece pieces[MAX_PIECES];
+    int pieceCount;
 
     //camera stuff
     Camera camera;

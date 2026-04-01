@@ -1,5 +1,6 @@
 #ifndef PIECE_H
 #define PIECE_H
+#define MAX_PIECES 8
 #include <stdbool.h>
 typedef struct AppState AppState;
 
@@ -17,9 +18,9 @@ Other needed things
 
 typedef struct Piece
 {
-    bool piecePlaced;
     float pieceX, pieceY;
-    int count, max;
+    bool active;
+    //int count, max;
     //properties
 } Piece;
 
