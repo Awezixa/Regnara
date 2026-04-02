@@ -20,3 +20,4 @@ After each programming session, all code WILL BE PUSHED as to keep everyone up t
 - add more functionality to menus and hud
 - piece movement and capturing
 - other game pieces + their movement and capturing
+- fog of war and revealing
