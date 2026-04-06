@@ -60,7 +60,19 @@ typedef struct AppState
     SDL_Texture *bridgeTexture;
     SDL_Texture *logoTexture;
     //where borrow stock piece textures https://nulltale.itch.io/heroes-chess
-    SDL_Texture *pawnTexture;
+    SDL_Texture *WpawnTexture;
+    SDL_Texture *WrookTexture;
+    SDL_Texture *WknightTexture;
+    SDL_Texture *WbishopTexture;
+    SDL_Texture *WkingTexture;
+    SDL_Texture *WqueenTexture;
+    //black piece textures
+    SDL_Texture *BpawnTexture;
+    SDL_Texture *BrookTexture;
+    SDL_Texture *BknightTexture;
+    SDL_Texture *BbishopTexture;
+    SDL_Texture *BkingTexture;
+    SDL_Texture *BqueenTexture;
     bool piecePlaced;
     float pieceX, pieceY;
 

@@ -53,10 +53,22 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     app->waterTexture  = LoadTexture(app->renderer, "Assets/images/waterTile.png");
     app->bridgeTexture = LoadTexture(app->renderer, "Assets/images/bridgeTile.png");
     app->logoTexture   = LoadTexture(app->renderer, "Assets/images/Rengara_Logo.png");
-    app->pawnTexture   = LoadTexture(app->renderer, "Assets/images/PawnP.png");
     app->buttonOn      = LoadTexture(app->renderer, "Assets/images/buttons/buttonOn.png");
     app->buttonHovered = LoadTexture(app->renderer, "Assets/images/buttons/button.png");
-
+    //white piece loading
+    app->WpawnTexture  = LoadTexture(app->renderer, "Assets/images/whitePiece/WPawnP.png");
+    app->WrookTexture  = LoadTexture(app->renderer, "Assets/images/whitePiece/WRookP.png");
+    app->WknightTexture  = LoadTexture(app->renderer, "Assets/images/whitePiece/WKnightP.png");
+    app->WbishopTexture  = LoadTexture(app->renderer, "Assets/images/whitePiece/WMageP.png");
+    app->WkingTexture  = LoadTexture(app->renderer, "Assets/images/whitePiece/WKingP.png");
+    app->WqueenTexture  = LoadTexture(app->renderer, "Assets/images/whitePiece/WQueenP.png");
+    //black piece loading
+    app->BpawnTexture  = LoadTexture(app->renderer, "Assets/images/blackPieces/BPawn.png");
+    app->BrookTexture  = LoadTexture(app->renderer, "Assets/images/blackPieces/BRook.png");
+    app->BknightTexture  = LoadTexture(app->renderer, "Assets/images/blackPieces/BKnight.png");
+    app->BbishopTexture  = LoadTexture(app->renderer, "Assets/images/blackPieces/BBishop.png");
+    app->BkingTexture  = LoadTexture(app->renderer, "Assets/images/blackPieces/BKing.png");
+    app->BqueenTexture  = LoadTexture(app->renderer, "Assets/images/blackPieces/BQueen.png");
     //final check that all textures there and load
     if (!app->logoTexture || !app->grassTexture) {
         SDL_Log("CRITICAL ERROR: Core assets missing. Closing app.");

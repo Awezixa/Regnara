@@ -36,7 +36,7 @@ void renderPiece(AppState *app) {
                 32.0f, 32.0f // World size of the piece
             );
 
-            SDL_RenderTexture(app->renderer, app->pawnTexture, NULL, &p);
+            SDL_RenderTexture(app->renderer, app->WpawnTexture, NULL, &p);
         }
     }
 }
