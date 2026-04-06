@@ -93,8 +93,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
         app->pieces[i].active = false;
     }
     app->pieceCount = 0;
-
-
+    app->turnCounter = 1;
 
 
     app->lastTicksMS = SDL_GetTicks();
@@ -200,11 +199,11 @@ SDL_AppResult SDL_AppIterate(void *appstate)
             {
                 app->gameState = STATE_PLAYING;
             }
-            // if (SDL_PointInRectFloat(&mousePos, &app->quitbutton))
-            // {
-            //     //add confirmation to quit screen
-            //     return SDL_APP_SUCCESS;
-            // }
+            if (SDL_PointInRectFloat(&mousePos, &app->quitbutton))
+            {
+                //add confirmation to quit screen
+                return SDL_APP_SUCCESS;
+            }
         }
         
         if (app->input.keyPressed[SDL_SCANCODE_SPACE])
@@ -225,7 +224,16 @@ SDL_AppResult SDL_AppIterate(void *appstate)
             app->gameState = STATE_PAUSED;
             //add draw pause menu
         }
-        
+        //Xavier
+        endTurnButton(app);
+        turnUI(app);
+        if (app->input.mouseLeftPressed) {
+            SDL_FPoint mousePos = { app->input.mouseX, app->input.mouseY };
+            if (SDL_PointInRectFloat(&mousePos, &app->endTurnButton)){
+                app->turnCounter++;
+                // Place turn-swapping logic here later (Anis Part add here)
+            }
+        }
         break;
     case STATE_PAUSED:
         //drawPauseMenu(app);
@@ -296,4 +304,8 @@ void UpdateCamera(AppState *app){
         (float)WINDOW_HEIGHT,
         app->worldSize.x,
         app->worldSize.y);
+}
+
+void UpdateGame(AppState *app){
+
 }

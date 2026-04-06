@@ -30,8 +30,6 @@ typedef struct AppState AppState;// added this too all files that use appstate
 #include "camera/transform.h"
 #include "player/player.h"
 
-
-
 typedef struct InputState
 {
     float mouseX;
@@ -53,6 +51,15 @@ typedef struct AppState
     Uint64 lastTicksMS;
     float dt;
     GameState gameState;
+
+    //other structs used/ be accessed here
+    Player1 P1;
+    Player2 P2;
+    int turnCounter;
+
+    Piece pieces[MAX_PIECES];
+    int pieceCount;
+    
 
     //temporary texture loading
     SDL_Texture *grassTexture;
@@ -81,15 +88,18 @@ typedef struct AppState
     SDL_Texture *buttonHovered;
     SDL_FRect playbutton;
     SDL_FRect quitbutton;
-
-    Piece pieces[MAX_PIECES];
-    int pieceCount;
-
+    SDL_FRect endTurnButton;
+    SDL_FRect turnCount;
+    
     //camera stuff
     Camera camera;
     Vec2 worldSize;
     
 } AppState;
+
+
+//other functions here
+void UpdateGame(AppState *app); // should deal with movement spawning etc
 
 
 #endif
