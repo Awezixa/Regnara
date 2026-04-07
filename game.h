@@ -90,6 +90,7 @@ typedef struct AppState
     SDL_FRect quitbutton;
     SDL_FRect endTurnButton;
     SDL_FRect turnCount;
+    SDL_FRect pauseTxt;
     
     //camera stuff
     Camera camera;

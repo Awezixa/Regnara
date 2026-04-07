@@ -222,7 +222,6 @@ SDL_AppResult SDL_AppIterate(void *appstate)
         if (app->input.keyPressed[SDL_SCANCODE_ESCAPE])
         {
             app->gameState = STATE_PAUSED;
-            //add draw pause menu
         }
         //Xavier
         endTurnButton(app);
@@ -236,7 +235,7 @@ SDL_AppResult SDL_AppIterate(void *appstate)
         }
         break;
     case STATE_PAUSED:
-        //drawPauseMenu(app);
+        drawPauseMenu(app);
         if (app->input.keyPressed[SDL_SCANCODE_ESCAPE])
         {
             app->gameState = STATE_PLAYING;

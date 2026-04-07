@@ -97,3 +97,15 @@ void turnUI(AppState *app){
 
     drawText(app, turnStr, app->turnCount);
 }
+
+void drawPauseMenu(AppState *app){
+    char pauseUI[32];
+    snprintf(pauseUI, sizeof(pauseUI), "PAUSED");
+
+    app->pauseTxt.x = (float)(WINDOW_WIDTH/2) - 10.0f;
+    app->pauseTxt.y = 200.0f;
+    app->pauseTxt.h = 50.0f;
+    app->pauseTxt.w = 180.0f;
+
+    drawText(app, pauseUI, app->pauseTxt);
+}
