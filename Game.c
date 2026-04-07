@@ -86,7 +86,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     float centerX = (app->worldSize.x - WINDOW_WIDTH) / 2.0f;
     float centerY = (app->worldSize.y - WINDOW_HEIGHT) / 2.0f;
     //camera initial ization 
-    camera2d_init(&app->camera, 0.0f, 0.0f, 1.0f);
+    camera2d_init(&app->camera, centerX, centerY, 1.0f);
 
     //piece array initialization
     for (int i = 0; i < MAX_PIECES; i++){
@@ -293,17 +293,28 @@ void UpdateCamera(AppState *app){
     //updating every second on screen
     float zoomDelta = 0.0f;
     float zoomSpeed = 2.0f;
+
     if (in->keyDown[SDL_SCANCODE_Q]) zoomDelta += zoomSpeed;
     if (in->keyDown[SDL_SCANCODE_E]) zoomDelta -= zoomSpeed;
-    camera2d_add_zoom(camera, zoomDelta * app->dt, 0.4f, 3.0f);//adjusts camera clamp range then follows player with new clamped range
-    camera2d_follow_target(
-        camera,
-        app->input.mouseX,
-        app->input.mouseY,
-        (float)WINDOW_WIDTH,
-        (float)WINDOW_HEIGHT,
-        app->worldSize.x,
-        app->worldSize.y);
+    camera2d_add_zoom(camera, zoomDelta * app->dt, 0.4f, 5.0f);//adjusts camera clamp range then follows player with new clamped range
+
+    float offsetX = (app->worldSize.x - WINDOW_WIDTH) / 2.0f;
+    float offsetY = (app->worldSize.y - WINDOW_HEIGHT) / 2.0f;
+
+    // Move camera to follow mouse, but add the offset to keep the map in view
+    camera->x = (in->mouseX / camera->zoom) + offsetX - (WINDOW_WIDTH / (1.5f * camera->zoom));
+    camera->y = (in->mouseY / camera->zoom) + offsetY - (WINDOW_HEIGHT / (1.5f * camera->zoom));
+
+    //alternative way to have mouse be followed. causes map to load in top corner instead of center
+    // camera2d_follow_target(
+    //     camera,
+    //     app->input.mouseX,
+    //     app->input.mouseY,
+    //     (float)WINDOW_WIDTH,
+    //     (float)WINDOW_HEIGHT,
+    //     app->worldSize.x,
+    //     app->worldSize.y
+    // );
 }
 
 void UpdateGame(AppState *app){
