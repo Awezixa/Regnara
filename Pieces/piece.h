@@ -1,6 +1,6 @@
 #ifndef PIECE_H
 #define PIECE_H
-#define MAX_PIECES 8
+#define MAX_PIECES 16
 #include <stdbool.h>
 typedef struct AppState AppState;
 
@@ -11,8 +11,6 @@ typedef struct AppState AppState;
 - upgrade
 
 Other needed things
-- piece struct
-- piece limit
 - figure out how to swap piece textures
 */
 

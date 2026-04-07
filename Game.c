@@ -301,7 +301,7 @@ void UpdateCamera(AppState *app){
     float offsetX = (app->worldSize.x - WINDOW_WIDTH) / 2.0f;
     float offsetY = (app->worldSize.y - WINDOW_HEIGHT) / 2.0f;
 
-    // Move camera to follow mouse, but add the offset to keep the map in view
+    // // Move camera to follow mouse, but add the offset to keep the map in view
     camera->x = (in->mouseX / camera->zoom) + offsetX - (WINDOW_WIDTH / (1.5f * camera->zoom));
     camera->y = (in->mouseY / camera->zoom) + offsetY - (WINDOW_HEIGHT / (1.5f * camera->zoom));
 
