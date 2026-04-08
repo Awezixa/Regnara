@@ -34,6 +34,7 @@ typedef struct InputState
 {
     float mouseX;
     float mouseY;
+    float mouseWheelY;
     bool mouseLeftDown;
     bool mouseLeftPressed;
     bool mouseLeftReleased;
@@ -66,6 +67,8 @@ typedef struct AppState
     SDL_Texture *grassTexture;
     SDL_Texture *waterTexture;
     SDL_Texture *bridgeTexture;
+    SDL_Texture *castleTexture;
+    SDL_Texture *townTexture;
     SDL_Texture *logoTexture;
     
     //Pieces

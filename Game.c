@@ -55,6 +55,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     app->logoTexture   = LoadTexture(app->renderer, "Assets/images/Rengara_Logo.png");
     app->buttonOn      = LoadTexture(app->renderer, "Assets/images/buttons/buttonOn.png");
     app->buttonHovered = LoadTexture(app->renderer, "Assets/images/buttons/button.png");
+    app->castleTexture = LoadTexture(app->renderer, "Assets/images/castle.png");
+    app->townTexture = LoadTexture(app->renderer, "Assets/images/town.png");
     //white piece loading
     app->WpawnTexture  = LoadTexture(app->renderer, "Assets/images/whitePiece/WPawnP.png");
     app->WrookTexture  = LoadTexture(app->renderer, "Assets/images/whitePiece/WRookP.png");
@@ -152,6 +154,10 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
             in->mouseLeftReleased = true;
         }
         break;
+    case SDL_EVENT_MOUSE_WHEEL:
+        // event.wheel.y is positive for up (zoom in) and negative for down (zoom out)
+        in->mouseWheelY = event->wheel.y;
+        break;
     default:
         break;
     }
@@ -164,6 +170,7 @@ void Input_BeginFrame(InputState *input)
 {
     input->mouseLeftPressed = false;
     input->mouseLeftReleased = false;
+    input->mouseWheelY = 0.0f;
 
     for (int i = 0; i < SDL_SCANCODE_COUNT; ++i)
     {
@@ -300,7 +307,7 @@ void UpdateCamera(AppState *app){
 
     //for camera zooming and following
     //updating every second on screen
-    float zoomDelta = 0.0f;
+    float zoomDelta = in->mouseWheelY * 10.0f;
     float zoomSpeed = 2.0f;
 
     if (in->keyDown[SDL_SCANCODE_Q]) zoomDelta += zoomSpeed;
@@ -310,9 +317,16 @@ void UpdateCamera(AppState *app){
     float offsetX = (app->worldSize.x - WINDOW_WIDTH) / 2.0f;
     float offsetY = (app->worldSize.y - WINDOW_HEIGHT) / 2.0f;
 
-    // // Move camera to follow mouse, but add the offset to keep the map in view
+
     camera->x = (in->mouseX / camera->zoom) + offsetX - (WINDOW_WIDTH / (1.5f * camera->zoom));
     camera->y = (in->mouseY / camera->zoom) + offsetY - (WINDOW_HEIGHT / (1.5f * camera->zoom));
+    // Move camera to follow mouse, but add the offset to keep the map in view
+    // if (in->mouseLeftDown)
+    // {
+    //     /* code */
+    // }
+    
+    
 
     //alternative way to have mouse be followed. causes map to load in top corner instead of center
     // camera2d_follow_target(

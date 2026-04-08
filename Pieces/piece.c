@@ -18,38 +18,49 @@ void spawnPiece(AppState *app)
             char tile = map_data[row][col];
             for (int i = 0; i < MAX_PIECES; i++)
             {
-                if (tile == GRASS_TILE || tile == BRIDGE_TILE || tile == SPAWN_POINT)
+                float relX, relY;
+                SDL_GetGlobalMouseState(NULL, NULL); // Refresh relative state
+                SDL_GetRelativeMouseState(&relX, &relY);
+                if (app->input.mouseLeftPressed && SDL_fabsf(relX) < 2.0f && SDL_fabsf(relY) < 2.0f)
                 {
-                    float targetX = (float)(col * TILE_SIZE);
-                    float targetY = (float)(row * TILE_SIZE);
-
-                    //check if new piece is ontop of another piece
-                    bool occupied = false;
-
-                    for (int j = 0; j < MAX_PIECES; j++) {
-                    if (app->pieces[j].active && 
-                        app->pieces[j].pieceX == targetX && 
-                        app->pieces[j].pieceY == targetY) {
-                        occupied = true;
-                        break;
-                        }
-                    }
-                    if(occupied){return;}
-
-                    if (!app->pieces[i].active)
+                    if (tile == GRASS_TILE || tile == BRIDGE_TILE || tile == SPAWN_POINT)
                     {
-                        // CONVERT SCREEN TO WORLD:
-                        // Math: (ScreenPos / Zoom) + CameraOffset
-                        app->pieces[i].pieceX = (float)(col * TILE_SIZE);
-                        app->pieces[i].pieceY = (float)(row * TILE_SIZE);
+                        float targetX = (float)(col * TILE_SIZE);
+                        float targetY = (float)(row * TILE_SIZE);
 
-                        app->pieces[i].active = true;
+                        // check if new piece is ontop of another piece
+                        bool occupied = false;
 
-                        //to select kind of piece to spawn
-                        app->pieces[i].type = app->selectedPiece;
+                        for (int j = 0; j < MAX_PIECES; j++)
+                        {
+                            if (app->pieces[j].active &&
+                                app->pieces[j].pieceX == targetX &&
+                                app->pieces[j].pieceY == targetY)
+                            {
+                                occupied = true;
+                                break;
+                            }
+                        }
+                        if (occupied)
+                        {
+                            return;
+                        }
 
-                        app->pieceCount++;
-                        break;
+                        if (!app->pieces[i].active)
+                        {
+                            // CONVERT SCREEN TO WORLD:
+                            // Math: (ScreenPos / Zoom) + CameraOffset
+                            app->pieces[i].pieceX = (float)(col * TILE_SIZE);
+                            app->pieces[i].pieceY = (float)(row * TILE_SIZE);
+
+                            app->pieces[i].active = true;
+
+                            // to select kind of piece to spawn
+                            app->pieces[i].type = app->selectedPiece;
+
+                            app->pieceCount++;
+                            break;
+                        }
                     }
                 }
             }
@@ -116,18 +127,18 @@ void renderPiece(AppState *app)
             SDL_Texture *tex = NULL;
             switch (app->pieces[i].type)
             {
-                case PAWN: tex = app->WpawnTexture; break;
-                case KING: tex = app->WkingTexture; break;
-                case QUEEN: tex = app->WqueenTexture; break;
-                case ROOK: tex = app->WrookTexture; break;
-                case KNIGHT: tex = app->WknightTexture; break;
-                case BISHOP: tex = app->WbishopTexture; break;
-
-            default:
-                break;
+                case PAWN:tex = app->WpawnTexture;break;
+                case KING:tex = app->WkingTexture;break;
+                case QUEEN:tex = app->WqueenTexture;break;
+                case ROOK:tex = app->WrookTexture;break;
+                case KNIGHT:tex = app->WknightTexture;break;
+                case BISHOP:tex = app->WbishopTexture;break;
+                default:
+                    break;
             }
 
-            if (tex) SDL_RenderTexture(app->renderer, tex, NULL, &p);
+            if (tex)
+                SDL_RenderTexture(app->renderer, tex, NULL, &p);
         }
     }
 }

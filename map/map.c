@@ -58,6 +58,8 @@ void renderMap(SDL_Renderer *renderer, AppState *app) {
                 case 'G': targetTexture = app->grassTexture; break;
                 case 'W': targetTexture = app->waterTexture; break;
                 case 'B': targetTexture = app->bridgeTexture; break;
+                case 'T': targetTexture = app->townTexture; break;
+                case 'S': targetTexture = app->castleTexture; break;
                 default: break; 
             }
 
