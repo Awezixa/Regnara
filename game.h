@@ -62,10 +62,14 @@ typedef struct AppState
     
 
     //temporary texture loading
+    //Map
     SDL_Texture *grassTexture;
     SDL_Texture *waterTexture;
     SDL_Texture *bridgeTexture;
     SDL_Texture *logoTexture;
+    
+    //Pieces
+    pieceType selectedPiece;
     //where borrow stock piece textures https://nulltale.itch.io/heroes-chess
     SDL_Texture *WpawnTexture;
     SDL_Texture *WrookTexture;

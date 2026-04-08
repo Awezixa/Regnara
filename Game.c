@@ -219,6 +219,16 @@ SDL_AppResult SDL_AppIterate(void *appstate)
         //test to spawn pieces
         spawnPiece(app);
         renderPiece(app);
+
+        // selection to swap pieces being spawned
+        if (app->input.keyDown[SDL_SCANCODE_1]) app->selectedPiece = PAWN;
+        if (app->input.keyDown[SDL_SCANCODE_2]) app->selectedPiece = KNIGHT;
+        if (app->input.keyDown[SDL_SCANCODE_3]) app->selectedPiece = ROOK;
+        if (app->input.keyDown[SDL_SCANCODE_4]) app->selectedPiece = BISHOP;
+        if (app->input.keyDown[SDL_SCANCODE_5]) app->selectedPiece = QUEEN;
+        if (app->input.keyDown[SDL_SCANCODE_6]) app->selectedPiece = KING;
+
+
         if (app->input.keyPressed[SDL_SCANCODE_ESCAPE])
         {
             app->gameState = STATE_PAUSED;
@@ -317,5 +327,12 @@ void UpdateCamera(AppState *app){
 }
 
 void UpdateGame(AppState *app){
-
+    /* funtions added here will simplify what goes into appiterate
+    to add:
+    * update camera
+    * movement
+    * turn passing
+    * tech tree unlocks
+    * etc
+    */
 }

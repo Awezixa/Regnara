@@ -13,11 +13,25 @@ typedef struct AppState AppState;
 Other needed things
 - figure out how to swap piece textures
 */
+typedef enum pieceType{
+    KING,
+    QUEEN,
+    PAWN,
+    ROOK,
+    BISHOP,
+    KNIGHT,
+    /*
+    * MAGE
+    * FLANKER
+    * CATAPAULT
+    */
 
+} pieceType;
 typedef struct Piece
 {
     float pieceX, pieceY;
     bool active;
+    pieceType type;
     //int count, max;
     //properties
 } Piece;

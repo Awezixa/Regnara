@@ -28,6 +28,10 @@ void spawnPiece(AppState *app)
                         app->pieces[i].pieceY = (float)(row * TILE_SIZE);
 
                         app->pieces[i].active = true;
+
+                        //to select kind of piece to spawn
+                        app->pieces[i].type = app->selectedPiece;
+
                         app->pieceCount++;
                         break;
                     }
@@ -93,7 +97,21 @@ void renderPiece(AppState *app)
                 32.0f, 32.0f // World size of the piece
             );
 
-            SDL_RenderTexture(app->renderer, app->WpawnTexture, NULL, &p);
+            SDL_Texture *tex = NULL;
+            switch (app->pieces[i].type)
+            {
+                case PAWN: tex = app->WpawnTexture; break;
+                case KING: tex = app->WkingTexture; break;
+                case QUEEN: tex = app->WqueenTexture; break;
+                case ROOK: tex = app->WrookTexture; break;
+                case KNIGHT: tex = app->WknightTexture; break;
+                case BISHOP: tex = app->WbishopTexture; break;
+                
+            default:
+                break;
+            }
+
+            if (tex) SDL_RenderTexture(app->renderer, tex, NULL, &p);
         }
     }
 }
