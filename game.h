@@ -23,9 +23,9 @@
 // We need to define this here because map.h and menu.h will use it.
 // If gameState uses it, then it should be included AFTER this definition!
 typedef struct AppState AppState;// added this too all files that use appstate
+#include "Pieces/piece.h"
 #include "map/map.h"
 #include "menu/menu.h"
-#include "Pieces/piece.h"
 #include "camera/camera.h"
 #include "camera/transform.h"
 #include "player/player.h"
@@ -59,7 +59,9 @@ typedef struct AppState
 
     Piece pieces[MAX_PIECES];
     int pieceCount;
-    
+
+    SDL_Point possibleMoves[32];
+    int possibleMoveCount;
 
     //temporary texture loading
     SDL_Texture *grassTexture;

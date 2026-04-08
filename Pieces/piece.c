@@ -81,19 +81,31 @@ void spawnPiece(AppState *app)
 
 void renderPiece(AppState *app)
 {
-    for (int i = 0; i < MAX_PIECES; i++)
-    {
-        if (app->pieces[i].active)
-        {
-            // Convert the stored world coordinates back to screen pixels for drawing
-            SDL_FRect p = camera2d_world_to_screen_rect(
-                &app->camera,
-                app->pieces[i].pieceX,
-                app->pieces[i].pieceY,
-                32.0f, 32.0f // World size of the piece
-            );
+    int cellSize = TILE_SIZE;
 
-            SDL_RenderTexture(app->renderer, app->WpawnTexture, NULL, &p);
-        }
+    for (int i = 0; i < app->pieceCount; i++)
+    {
+        Piece *p = &app->pieces[i];
+
+        SDL_FRect rect = {
+            p->pieceX * cellSize,
+            p->pieceY * cellSize,
+            cellSize,
+            cellSize
+        };
+
+        SDL_Texture *tex = app->WkingTexture; // temp
+
+        SDL_RenderTexture(app->renderer, tex, NULL, &rect);
     }
+}
+
+SDL_FRect GetPieceRect(Piece *p, int cellSize)
+{
+    return (SDL_FRect){
+        p->pieceX * cellSize,
+        p->pieceY * cellSize,
+        cellSize,
+        cellSize
+    };
 }
