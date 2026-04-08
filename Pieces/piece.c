@@ -20,6 +20,22 @@ void spawnPiece(AppState *app)
             {
                 if (tile == GRASS_TILE || tile == BRIDGE_TILE || tile == SPAWN_POINT)
                 {
+                    float targetX = (float)(col * TILE_SIZE);
+                    float targetY = (float)(row * TILE_SIZE);
+
+                    //check if new piece is ontop of another piece
+                    bool occupied = false;
+
+                    for (int j = 0; j < MAX_PIECES; j++) {
+                    if (app->pieces[j].active && 
+                        app->pieces[j].pieceX == targetX && 
+                        app->pieces[j].pieceY == targetY) {
+                        occupied = true;
+                        break;
+                        }
+                    }
+                    if(occupied){return;}
+
                     if (!app->pieces[i].active)
                     {
                         // CONVERT SCREEN TO WORLD:
@@ -106,7 +122,7 @@ void renderPiece(AppState *app)
                 case ROOK: tex = app->WrookTexture; break;
                 case KNIGHT: tex = app->WknightTexture; break;
                 case BISHOP: tex = app->WbishopTexture; break;
-                
+
             default:
                 break;
             }

@@ -71,3 +71,9 @@ void renderMap(SDL_Renderer *renderer, AppState *app) {
         }
     }
 }
+
+
+/*
+can make map in Tiled then export as CSV.
+replace commas with spaces and then associate csv ids to what you want and then load map that way
+*/
