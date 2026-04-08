@@ -314,18 +314,40 @@ void UpdateCamera(AppState *app){
     if (in->keyDown[SDL_SCANCODE_E]) zoomDelta -= zoomSpeed;
     camera2d_add_zoom(camera, zoomDelta * app->dt, 0.4f, 5.0f);//adjusts camera clamp range then follows player with new clamped range
 
-    float offsetX = (app->worldSize.x - WINDOW_WIDTH) / 2.0f;
+    float offsetX;
+    if (app->finaloffsetX == 0)
+     offsetX = (app->worldSize.x - WINDOW_WIDTH) / 2.0f + app->finaloffsetX;
+
     float offsetY = (app->worldSize.y - WINDOW_HEIGHT) / 2.0f;
 
+        if(in->mouseLeftPressed)
+        {
+            app->pivotX = in->mouseX;
+            app->pivotY = in->mouseY;
+        }
 
-    camera->x = (in->mouseX / camera->zoom) + offsetX - (WINDOW_WIDTH / (1.5f * camera->zoom));
-    camera->y = (in->mouseY / camera->zoom) + offsetY - (WINDOW_HEIGHT / (1.5f * camera->zoom));
     // Move camera to follow mouse, but add the offset to keep the map in view
-    // if (in->mouseLeftDown)
-    // {
-    //     /* code */
-    // }
+    if (in->mouseLeftDown)
+    {
+        // offsetX = app->pivotX - in->mouseX - app->camera.x;
+        // offsetY = app->pivotY - in->mouseY - app->camera.y;
+        
+        offsetX += in->mouseX - app->pivotX;
+        // offsetY = app->pivotY;
+    }
+
+    if (in->mouseLeftReleased)    {
+        // offsetX = app->pivotX - in->mouseX - app->camera.x;
+        // offsetY = app->pivotY - in->mouseY - app->camera.y;
+        
+        app->finaloffsetX = camera->x;
+        // offsetY = app->pivotY;
+    }
+
     
+        camera->x = (app->camX / camera->zoom) - (WINDOW_WIDTH / (1.5f * camera->zoom) + offsetX);
+        camera->y = (app->camY / camera->zoom) - (WINDOW_HEIGHT / (1.5f * camera->zoom) + offsetY);
+  
     
 
     //alternative way to have mouse be followed. causes map to load in top corner instead of center

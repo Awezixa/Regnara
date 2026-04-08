@@ -102,6 +102,12 @@ typedef struct AppState
     //camera stuff
     Camera camera;
     Vec2 worldSize;
+
+    int camX;
+    int camY;
+    int pivotX;
+    int pivotY;
+    int finaloffsetX;
     
 } AppState;
 
