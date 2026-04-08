@@ -314,52 +314,24 @@ void UpdateCamera(AppState *app){
     if (in->keyDown[SDL_SCANCODE_E]) zoomDelta -= zoomSpeed;
     camera2d_add_zoom(camera, zoomDelta * app->dt, 0.4f, 5.0f);//adjusts camera clamp range then follows player with new clamped range
 
-    float offsetX;
-    if (app->finaloffsetX == 0)
-     offsetX = (app->worldSize.x - WINDOW_WIDTH) / 2.0f + app->finaloffsetX;
+    if (in->mouseLeftPressed)
+    {
+        app->pivotX = in->mouseX;
+        app->pivotY = in->mouseY;
+        app->camX = camera->x;
+        app->camY = camera->y;
+    }
 
-    float offsetY = (app->worldSize.y - WINDOW_HEIGHT) / 2.0f;
-
-        if(in->mouseLeftPressed)
-        {
-            app->pivotX = in->mouseX;
-            app->pivotY = in->mouseY;
-        }
-
-    // Move camera to follow mouse, but add the offset to keep the map in view
     if (in->mouseLeftDown)
     {
-        // offsetX = app->pivotX - in->mouseX - app->camera.x;
-        // offsetY = app->pivotY - in->mouseY - app->camera.y;
-        
-        offsetX += in->mouseX - app->pivotX;
-        // offsetY = app->pivotY;
+        float mouseDeltaX = in->mouseX - app->pivotX;
+        float mouseDeltaY = in->mouseY - app->pivotY;
+
+        // Convert screen-space drag into world-space camera movement.
+        camera->x = app->camX - (mouseDeltaX / camera->zoom);
+        camera->y = app->camY - (mouseDeltaY / camera->zoom);
     }
 
-    if (in->mouseLeftReleased)    {
-        // offsetX = app->pivotX - in->mouseX - app->camera.x;
-        // offsetY = app->pivotY - in->mouseY - app->camera.y;
-        
-        app->finaloffsetX = camera->x;
-        // offsetY = app->pivotY;
-    }
-
-    
-        camera->x = (app->camX / camera->zoom) - (WINDOW_WIDTH / (1.5f * camera->zoom) + offsetX);
-        camera->y = (app->camY / camera->zoom) - (WINDOW_HEIGHT / (1.5f * camera->zoom) + offsetY);
-  
-    
-
-    //alternative way to have mouse be followed. causes map to load in top corner instead of center
-    // camera2d_follow_target(
-    //     camera,
-    //     app->input.mouseX,
-    //     app->input.mouseY,
-    //     (float)WINDOW_WIDTH,
-    //     (float)WINDOW_HEIGHT,
-    //     app->worldSize.x,
-    //     app->worldSize.y
-    // );
 }
 
 void UpdateGame(AppState *app){
