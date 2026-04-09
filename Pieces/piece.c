@@ -3,63 +3,67 @@
 
 void spawnPiece(AppState *app)
 {
-    // change made to convert mouse screen position to world mouse position, to prevent pieces spawning wrong place
+    // 1. Initial check for click and capacity
     if (app->input.mouseLeftPressed && app->pieceCount < MAX_PIECES)
     {
-        // need to add check for map data to only allow spawn towns and area around towns
-        float worldX = (app->input.mouseX / app->camera.zoom) + app->camera.x;
-        float worldY = (app->input.mouseY / app->camera.zoom) + app->camera.y;
+        // 2. Refresh relative mouse state to distinguish click from drag
+        float relX, relY;
+        SDL_GetGlobalMouseState(NULL, NULL); 
+        SDL_GetRelativeMouseState(&relX, &relY);
 
-        int col = (int)(worldX / TILE_SIZE); // world units to grid loactions
-        int row = (int)(worldY / TILE_SIZE);
-
-        if (row >= 0 && row < MAP_ROWS && col >= 0 && col < MAP_COLS)
+        // Only proceed if the mouse stayed relatively still (not a camera drag)
+        if (SDL_fabsf(relX) < 2.0f && SDL_fabsf(relY) < 2.0f)
         {
-            char tile = map_data[row][col];
-            for (int i = 0; i < MAX_PIECES; i++)
+            // 3. Convert screen position to world/grid coordinates
+            float worldX = (app->input.mouseX / app->camera.zoom) + app->camera.x;
+            float worldY = (app->input.mouseY / app->camera.zoom) + app->camera.y;
+
+            int col = (int)(worldX / TILE_SIZE);
+            int row = (int)(worldY / TILE_SIZE);
+
+            // 4. Bounds Check
+            if (row >= 0 && row < MAP_ROWS && col >= 0 && col < MAP_COLS)
             {
-                float relX, relY;
-                SDL_GetGlobalMouseState(NULL, NULL); // Refresh relative state
-                SDL_GetRelativeMouseState(&relX, &relY);
-                if (app->input.mouseLeftPressed && SDL_fabsf(relX) < 2.0f && SDL_fabsf(relY) < 2.0f)
+                char tile = map_data[row][col];
+
+                // 5. Tile Type Validation
+                if (tile == GRASS_TILE || tile == BRIDGE_TILE || tile == SPAWN_POINT)
                 {
-                    if (tile == GRASS_TILE || tile == BRIDGE_TILE || tile == SPAWN_POINT)
+                    float targetX = (float)(col * TILE_SIZE);
+                    float targetY = (float)(row * TILE_SIZE);
+
+                    // 6. Occupancy Check (is there already a piece here?)
+                    bool occupied = false;
+                    for (int j = 0; j < MAX_PIECES; j++)
                     {
-                        float targetX = (float)(col * TILE_SIZE);
-                        float targetY = (float)(row * TILE_SIZE);
-
-                        // check if new piece is ontop of another piece
-                        bool occupied = false;
-
-                        for (int j = 0; j < MAX_PIECES; j++)
+                        if (app->pieces[j].active &&
+                            app->pieces[j].pieceX == targetX &&
+                            app->pieces[j].pieceY == targetY)
                         {
-                            if (app->pieces[j].active &&
-                                app->pieces[j].pieceX == targetX &&
-                                app->pieces[j].pieceY == targetY)
+                            occupied = true;
+                            break;
+                        }
+                    }
+
+                    if (!occupied)
+                    {
+                        // 7. Find an empty slot and spawn
+                        for (int i = 0; i < MAX_PIECES; i++)
+                        {
+                            if (!app->pieces[i].active)
                             {
-                                occupied = true;
+                                app->pieces[i].pieceX = targetX;
+                                app->pieces[i].pieceY = targetY;
+                                app->pieces[i].col = col;
+                                app->pieces[i].row = row;
+                                app->pieces[i].active = true;
+
+                                // FIX: Use selectedPieceType (enum) not selectedPiece (pointer)
+                                app->pieces[i].type = app->selectedPieceType;
+
+                                app->pieceCount++;
                                 break;
                             }
-                        }
-                        if (occupied)
-                        {
-                            return;
-                        }
-
-                        if (!app->pieces[i].active)
-                        {
-                            // CONVERT SCREEN TO WORLD:
-                            // Math: (ScreenPos / Zoom) + CameraOffset
-                            app->pieces[i].pieceX = (float)(col * TILE_SIZE);
-                            app->pieces[i].pieceY = (float)(row * TILE_SIZE);
-
-                            app->pieces[i].active = true;
-
-                            // to select kind of piece to spawn
-                            app->pieces[i].type = app->selectedPiece;
-
-                            app->pieceCount++;
-                            break;
                         }
                     }
                 }
@@ -110,35 +114,34 @@ void spawnPiece(AppState *app)
 //     }
 // }
 
-void renderPiece(AppState *app)
-{
+void renderPiece(AppState *app) {
     for (int i = 0; i < MAX_PIECES; i++)
     {
         if (app->pieces[i].active)
         {
-            // Convert the stored world coordinates back to screen pixels for drawing
+            // Convert stored world coordinates back to screen pixels
             SDL_FRect p = camera2d_world_to_screen_rect(
                 &app->camera,
                 app->pieces[i].pieceX,
                 app->pieces[i].pieceY,
-                32.0f, 32.0f // World size of the piece
+                32.0f, 32.0f 
             );
 
             SDL_Texture *tex = NULL;
             switch (app->pieces[i].type)
             {
-                case PAWN:tex = app->WpawnTexture;break;
-                case KING:tex = app->WkingTexture;break;
-                case QUEEN:tex = app->WqueenTexture;break;
-                case ROOK:tex = app->WrookTexture;break;
-                case KNIGHT:tex = app->WknightTexture;break;
-                case BISHOP:tex = app->WbishopTexture;break;
-                default:
-                    break;
+                case PAWN:   tex = app->WpawnTexture;   break;
+                case KING:   tex = app->WkingTexture;   break;
+                case QUEEN:  tex = app->WqueenTexture;  break;
+                case ROOK:   tex = app->WrookTexture;   break;
+                case KNIGHT: tex = app->WknightTexture; break;
+                case BISHOP: tex = app->WbishopTexture; break;
+                default: break;
             }
 
-            if (tex)
+            if (tex) {
                 SDL_RenderTexture(app->renderer, tex, NULL, &p);
+            }
         }
     }
 }

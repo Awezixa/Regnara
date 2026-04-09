@@ -27,9 +27,12 @@ typedef enum pieceType{
     */
 
 } pieceType;
+
 typedef struct Piece
 {
-    float pieceX, pieceY;
+    float pieceX, pieceY; // world position
+    int col, row;         // grid position (NEW)
+
     bool active;
     pieceType type;
     //int count, max;

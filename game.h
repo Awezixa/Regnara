@@ -58,8 +58,6 @@ typedef struct AppState
     Player2 P2;
     int turnCounter;
 
-    Piece pieces[MAX_PIECES];
-    int pieceCount;
     
 
     //temporary texture loading
@@ -72,7 +70,11 @@ typedef struct AppState
     SDL_Texture *logoTexture;
     
     //Pieces
-    pieceType selectedPiece;
+    Piece pieces[MAX_PIECES];
+    int pieceCount;
+    pieceType selectedPieceType;
+    Piece *selectedPiece;
+    
     //where borrow stock piece textures https://nulltale.itch.io/heroes-chess
     SDL_Texture *WpawnTexture;
     SDL_Texture *WrookTexture;
@@ -107,6 +109,10 @@ typedef struct AppState
     float camY;
     float pivotX;
     float pivotY;
+    SDL_Point possibleMoves[32];
+    int possibleMoveCount;
+
+    SDL_Texture *possibleMovesTexture;
     
 } AppState;
 

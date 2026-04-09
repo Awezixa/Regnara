@@ -3,6 +3,7 @@
 
 //file includes
 #include "game.h"
+#include "Pieces/moves.h"
 static void UpdateCamera(AppState *app);
 //clamp function = restriction of value to specific range
 
@@ -183,96 +184,222 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 {
     AppState *app = (AppState *)appstate;
 
-    // compute dt
+    // =========================
+    // Delta time
+    // =========================
     Uint64 nowMS = SDL_GetTicks();
     Uint64 elapsedMS = nowMS - app->lastTicksMS;
     app->lastTicksMS = nowMS;
-    app->dt = (float)elapsedMS/1000.0f;
+    app->dt = (float)elapsedMS / 1000.0f;
 
     SDL_SetRenderDrawColor(app->renderer, 0, 0, 0, 255);
     SDL_RenderClear(app->renderer);
-    
 
-    //gamestate swaps
+    // =========================
+    // GAME STATES
+    // =========================
     switch (app->gameState)
     {
     case STATE_MENU:
-        // draw menu first
+    {
         drawMainMenu(app);
+
         if (app->input.mouseLeftPressed)
         {
             SDL_FPoint mousePos = {app->input.mouseX, app->input.mouseY};
+
             if (SDL_PointInRectFloat(&mousePos, &app->playbutton))
-            {
                 app->gameState = STATE_PLAYING;
-            }
+
             if (SDL_PointInRectFloat(&mousePos, &app->quitbutton))
-            {
-                //add confirmation to quit screen
                 return SDL_APP_SUCCESS;
+        }
+
+        if (app->input.keyPressed[SDL_SCANCODE_SPACE])
+            app->gameState = STATE_PLAYING;
+
+        break;
+    }
+
+    case STATE_PLAYING:
+    {
+        UpdateCamera(app);
+
+        // =========================
+        // WORLD RENDER
+        // =========================
+        renderMap(app->renderer, app);
+
+        // =========================
+        // PIECE TYPE SELECTION
+        // =========================
+        if (app->input.keyDown[SDL_SCANCODE_1]) app->selectedPieceType = PAWN;
+        if (app->input.keyDown[SDL_SCANCODE_2]) app->selectedPieceType = KNIGHT;
+        if (app->input.keyDown[SDL_SCANCODE_3]) app->selectedPieceType = ROOK;
+        if (app->input.keyDown[SDL_SCANCODE_4]) app->selectedPieceType = BISHOP;
+        if (app->input.keyDown[SDL_SCANCODE_5]) app->selectedPieceType = QUEEN;
+        if (app->input.keyDown[SDL_SCANCODE_6]) app->selectedPieceType = KING;
+
+        // =========================
+        // SPAWN + RENDER
+        // =========================
+        spawnPiece(app);
+
+        // =========================
+        // MOUSE → GRID CONVERSION
+        // =========================
+        int mouseCol = (int)((app->input.mouseX / app->camera.zoom + app->camera.x) / TILE_SIZE);
+        int mouseRow = (int)((app->input.mouseY / app->camera.zoom + app->camera.y) / TILE_SIZE);
+
+        bool wasPieceSelected = (app->selectedPiece != NULL);
+
+        // =========================
+        // SELECT PIECE
+        // =========================
+        for (int i = 0; i < MAX_PIECES; i++)
+        {
+            Piece *p = &app->pieces[i];
+
+            if (p->active &&
+                p->col == mouseCol &&
+                p->row == mouseRow)
+            {
+                if (app->input.mouseLeftPressed && app->selectedPiece == NULL)
+                {
+                    app->selectedPiece = p;
+                    GenerateMoves(app, p);
+                }
             }
         }
-        
-        if (app->input.keyPressed[SDL_SCANCODE_SPACE])
+
+        // =========================
+        // MOVE PIECE
+        // =========================
+        if (app->selectedPiece && app->input.mouseLeftPressed && wasPieceSelected)
         {
-            
-            app->gameState = STATE_PLAYING;
+            bool moved = false;
+
+            for (int i = 0; i < app->possibleMoveCount; i++)
+            {
+                SDL_Point m = app->possibleMoves[i];
+
+                if (m.x == mouseCol && m.y == mouseRow)
+                {
+                    app->selectedPiece->col = m.x;
+                    app->selectedPiece->row = m.y;
+
+                    app->selectedPiece->pieceX = m.x * TILE_SIZE;
+                    app->selectedPiece->pieceY = m.y * TILE_SIZE;
+
+                    moved = true;
+                    break;
+                }
+            }
+
+            // cancel if clicking same tile
+            if (!moved &&
+                mouseCol == app->selectedPiece->col &&
+                mouseRow == app->selectedPiece->row)
+            {
+                moved = true;
+            }
+
+            app->selectedPiece = NULL;
+            app->possibleMoveCount = 0;
         }
-        break;
-    case STATE_PLAYING:
-        UpdateCamera(app);
-        // updateGameLogic(app);, add similar function to this for movement and other things that will be used
-        renderMap(app->renderer, app);
-        //test to spawn pieces
-        spawnPiece(app);
+
+        // =========================
+        // DRAW PIECES
+        // =========================
         renderPiece(app);
 
-        // selection to swap pieces being spawned
-        if (app->input.keyDown[SDL_SCANCODE_1]) app->selectedPiece = PAWN;
-        if (app->input.keyDown[SDL_SCANCODE_2]) app->selectedPiece = KNIGHT;
-        if (app->input.keyDown[SDL_SCANCODE_3]) app->selectedPiece = ROOK;
-        if (app->input.keyDown[SDL_SCANCODE_4]) app->selectedPiece = BISHOP;
-        if (app->input.keyDown[SDL_SCANCODE_5]) app->selectedPiece = QUEEN;
-        if (app->input.keyDown[SDL_SCANCODE_6]) app->selectedPiece = KING;
-
-
-        if (app->input.keyPressed[SDL_SCANCODE_ESCAPE])
+        for (int i = 0; i < app->possibleMoveCount; i++)
         {
-            app->gameState = STATE_PAUSED;
+            SDL_FRect r = {
+                app->possibleMoves[i].x * TILE_SIZE,
+                app->possibleMoves[i].y * TILE_SIZE,
+                TILE_SIZE,
+                TILE_SIZE
+            };
+
+            r = camera2d_world_to_screen_rect(
+                &app->camera,
+                r.x, r.y,
+                r.w, r.h
+            );
+
+            SDL_RenderTexture(app->renderer, app->possibleMovesTexture, NULL, &r);
         }
-        //Xavier
+
+        // =========================
+        // DRAW POSSIBLE MOVES
+        // =========================
+        for (int i = 0; i < app->possibleMoveCount; i++)
+        {
+            SDL_FRect r = {
+                app->possibleMoves[i].x * TILE_SIZE,
+                app->possibleMoves[i].y * TILE_SIZE,
+                TILE_SIZE,
+                TILE_SIZE
+            };
+
+            r = camera2d_world_to_screen_rect(
+                &app->camera,
+                r.x, r.y,
+                r.w, r.h
+            );
+
+            SDL_RenderTexture(app->renderer, app->possibleMovesTexture, NULL, &r);
+        }
+
+        // =========================
+        // UI
+        // =========================
         endTurnButton(app);
         turnUI(app);
-        if (app->input.mouseLeftPressed) {
-            SDL_FPoint mousePos = { app->input.mouseX, app->input.mouseY };
-            if (SDL_PointInRectFloat(&mousePos, &app->endTurnButton)){
+
+        if (app->input.mouseLeftPressed)
+        {
+            SDL_FPoint mousePos = {app->input.mouseX, app->input.mouseY};
+            if (SDL_PointInRectFloat(&mousePos, &app->endTurnButton))
+            {
                 app->turnCounter++;
-                // Place turn-swapping logic here later (Anis Part add here)
             }
         }
-        break;
-    case STATE_PAUSED:
-        drawPauseMenu(app);
+
         if (app->input.keyPressed[SDL_SCANCODE_ESCAPE])
-        {
+            app->gameState = STATE_PAUSED;
+
+        break;
+    }
+
+    case STATE_PAUSED:
+    {
+        drawPauseMenu(app);
+
+        if (app->input.keyPressed[SDL_SCANCODE_ESCAPE])
             app->gameState = STATE_PLAYING;
-            //add draw pause menu
-        }
+
         break;
+    }
+
     case STATE_END:
-        // drawEndScreen(app);
+    {
         if (app->input.keyPressed[SDL_SCANCODE_RETURN])
-        {
             app->gameState = STATE_MENU;
-        }
+
         break;
+    }
+
     default:
         break;
     }
 
     SDL_RenderPresent(app->renderer);
-    //reset edge flags
+
+    // reset input
     Input_BeginFrame(&app->input);
+
     return SDL_APP_CONTINUE;
 }
 
