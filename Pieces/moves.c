@@ -1,6 +1,22 @@
-#include "moves.h"
-#include "piece.h"
 #include "../game.h"
+#include "piece.h"
+#include "moves.h"
+
+void GenerateMoves(AppState *app, Piece *p)
+{
+    switch (p->type)
+    {
+        case KING:
+            GenerateKingMoves(app, p);
+            break;
+        case KNIGHT:
+            // later
+            break;
+        case PAWN:
+            // later
+            break;
+    }
+}
 
 void GenerateKingMoves(AppState *app, Piece *p)
 {
@@ -11,28 +27,15 @@ void GenerateKingMoves(AppState *app, Piece *p)
 
             if (dx == 0 && dy == 0) continue;
 
-            int newCol = p->pieceX + dx;
-            int newRow = p->pieceY + dy;
+            int newCol = p->col + dx;
+            int newRow = p->row + dy;
 
-            if (newCol < 0 || newCol >= 8 || newRow < 0 || newRow >= 8)
+            // Stay inside board
+            if (newCol < 0 || newCol >= MAP_COLS || newRow < 0 || newRow >= MAP_ROWS)
                 continue;
 
             app->possibleMoves[app->possibleMoveCount++] =
                 (SDL_Point){newCol, newRow};
         }
-    }
-}
-
-void GenerateMoves(AppState *app, Piece *p)
-{
-    switch (p->type)
-    {
-        case PIECE_KING:
-            GenerateKingMoves(app, p);
-            break;
-        case PIECE_KNIGHT:
-            break;
-        case PIECE_PAWN:
-            break;
     }
 }

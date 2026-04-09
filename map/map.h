@@ -12,6 +12,7 @@ typedef struct AppState AppState;
 #define BRIDGE_TILE 'B'
 #define WATER_TILE 'W'
 #define SPAWN_POINT 'S'
+#define TOWN_TILE 'T'
 
 extern char map_data[MAP_ROWS][MAP_COLS];
 void loadMap(const char *filename);

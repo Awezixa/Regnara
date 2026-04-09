@@ -1,27 +1,43 @@
-#ifndef PIECES_H
-#define PIECES_H
-
-#define MAX_PIECES 32
-
-#include <SDL3/SDL.h>
-
+#ifndef PIECE_H
+#define PIECE_H
+#define MAX_PIECES 16
+#include <stdbool.h>
 typedef struct AppState AppState;
 
-typedef enum {
-    PIECE_KING,
-    PIECE_KNIGHT,
-    PIECE_PAWN
-} PieceType;
+/* Needed functions
+- piece spawning
+- piece movement
+- capturing  
+- upgrade
 
-typedef struct Piece {
-    int pieceX, pieceY;
+Other needed things
+- figure out how to swap piece textures
+*/
+typedef enum pieceType{
+    KING,
+    QUEEN,
+    PAWN,
+    ROOK,
+    BISHOP,
+    KNIGHT,
+    /*
+    * MAGE
+    * FLANKER
+    * CATAPAULT
+    */
+
+} pieceType;
+typedef struct Piece
+{
+    float pieceX, pieceY; // world position
+    int col, row;         // grid position (NEW)
+
     bool active;
-    PieceType type;
+    pieceType type;
 } Piece;
-
-SDL_FRect GetPieceRect(Piece *p, int cellSize);
 
 void spawnPiece(AppState *app);
 void renderPiece(AppState *app);
+
 
 #endif

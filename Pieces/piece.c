@@ -20,14 +20,36 @@ void spawnPiece(AppState *app)
             {
                 if (tile == GRASS_TILE || tile == BRIDGE_TILE || tile == SPAWN_POINT)
                 {
+                    float targetX = (float)(col * TILE_SIZE);
+                    float targetY = (float)(row * TILE_SIZE);
+
+                    //check if new piece is ontop of another piece
+                    bool occupied = false;
+
+                    for (int j = 0; j < MAX_PIECES; j++) {
+                    if (app->pieces[j].active && 
+                        app->pieces[j].pieceX == targetX && 
+                        app->pieces[j].pieceY == targetY) {
+                        occupied = true;
+                        break;
+                        }
+                    }
+                    if(occupied){return;}
+
                     if (!app->pieces[i].active)
                     {
-                        // CONVERT SCREEN TO WORLD:
-                        // Math: (ScreenPos / Zoom) + CameraOffset
+                        // ✅ SET GRID POSITION (THIS WAS MISSING)
+                        app->pieces[i].col = col;
+                        app->pieces[i].row = row;
+
+                        // world position
                         app->pieces[i].pieceX = (float)(col * TILE_SIZE);
                         app->pieces[i].pieceY = (float)(row * TILE_SIZE);
 
                         app->pieces[i].active = true;
+
+                        app->pieces[i].type = app->selectedPieceType; // make sure you renamed this
+
                         app->pieceCount++;
                         break;
                     }
@@ -81,31 +103,33 @@ void spawnPiece(AppState *app)
 
 void renderPiece(AppState *app)
 {
-    int cellSize = TILE_SIZE;
-
-    for (int i = 0; i < app->pieceCount; i++)
+    for (int i = 0; i < MAX_PIECES; i++)
     {
-        Piece *p = &app->pieces[i];
+        if (app->pieces[i].active)
+        {
+            // Convert the stored world coordinates back to screen pixels for drawing
+            SDL_FRect p = camera2d_world_to_screen_rect(
+                &app->camera,
+                app->pieces[i].pieceX,
+                app->pieces[i].pieceY,
+                32.0f, 32.0f // World size of the piece
+            );
 
-        SDL_FRect rect = {
-            p->pieceX * cellSize,
-            p->pieceY * cellSize,
-            cellSize,
-            cellSize
-        };
+            SDL_Texture *tex = NULL;
+            switch (app->pieces[i].type)
+            {
+                case PAWN: tex = app->WpawnTexture; break;
+                case KING: tex = app->WkingTexture; break;
+                case QUEEN: tex = app->WqueenTexture; break;
+                case ROOK: tex = app->WrookTexture; break;
+                case KNIGHT: tex = app->WknightTexture; break;
+                case BISHOP: tex = app->WbishopTexture; break;
 
-        SDL_Texture *tex = app->WkingTexture; // temp
+            default:
+                break;
+            }
 
-        SDL_RenderTexture(app->renderer, tex, NULL, &rect);
+            if (tex) SDL_RenderTexture(app->renderer, tex, NULL, &p);
+        }
     }
-}
-
-SDL_FRect GetPieceRect(Piece *p, int cellSize)
-{
-    return (SDL_FRect){
-        p->pieceX * cellSize,
-        p->pieceY * cellSize,
-        cellSize,
-        cellSize
-    };
 }
