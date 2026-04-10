@@ -38,6 +38,9 @@ typedef struct InputState
     bool mouseLeftDown;
     bool mouseLeftPressed;
     bool mouseLeftReleased;
+     bool mouseRightDown;
+    bool mouseRightPressed;
+    bool mouseRightReleased;
     bool keyDown[SDL_SCANCODE_COUNT];
     bool keyPressed[SDL_SCANCODE_COUNT];
     bool keyReleased[SDL_SCANCODE_COUNT];
@@ -57,8 +60,6 @@ typedef struct AppState
     Player1 P1;
     Player2 P2;
     int turnCounter;
-
-    
 
     //temporary texture loading
     //Map
@@ -92,9 +93,10 @@ typedef struct AppState
     bool piecePlaced;
     float pieceX, pieceY;
 
-    //menu textures
+    //menu & UI textures
     SDL_Texture *buttonOn;
     SDL_Texture *buttonHovered;
+    SDL_Texture *goldTexture;
     SDL_FRect playbutton;
     SDL_FRect quitbutton;
     SDL_FRect endTurnButton;

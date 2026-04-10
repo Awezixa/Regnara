@@ -58,6 +58,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     app->buttonHovered = LoadTexture(app->renderer, "Assets/images/buttons/button.png");
     app->castleTexture = LoadTexture(app->renderer, "Assets/images/castle.png");
     app->townTexture = LoadTexture(app->renderer, "Assets/images/town.png");
+    app->goldTexture = LoadTexture(app->renderer, "Assets/images/Gold.png");
     //white piece loading
     app->WpawnTexture  = LoadTexture(app->renderer, "Assets/images/whitePiece/WPawnP.png");
     app->WrookTexture  = LoadTexture(app->renderer, "Assets/images/whitePiece/WRookP.png");
@@ -86,8 +87,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     app->worldSize.x = (float)(MAP_COLS * TILE_SIZE);
     app->worldSize.y = (float)(MAP_ROWS * TILE_SIZE);
 
-    float centerX = (app->worldSize.x - WINDOW_WIDTH) / 2.0f;
-    float centerY = (app->worldSize.y - WINDOW_HEIGHT) / 2.0f;
+    float centerX = (app->worldSize.x - (WINDOW_WIDTH/1.0f)) / 2.0f;
+    float centerY = (app->worldSize.y - (WINDOW_HEIGHT/1.0f)) / 2.0f;
     //camera initial ization 
     camera2d_init(&app->camera, centerX, centerY, 1.0f);
 
@@ -147,12 +148,24 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
                 in->mouseLeftPressed = true;
             in->mouseLeftDown = true;
         }
+        //right mouse button checks
+        else if (event->button.button == SDL_BUTTON_RIGHT)
+        {
+            if (!in->mouseRightDown)
+                in->mouseRightPressed = true;
+            in->mouseRightDown = true;
+        }
         break;
     case SDL_EVENT_MOUSE_BUTTON_UP:
         if (event->button.button == SDL_BUTTON_LEFT)
         {
             in->mouseLeftDown = false;
             in->mouseLeftReleased = true;
+        }
+        else if (event->button.button == SDL_BUTTON_RIGHT)
+        {
+            in->mouseRightDown = false;
+            in->mouseRightReleased = true;
         }
         break;
     case SDL_EVENT_MOUSE_WHEEL:
@@ -171,6 +184,8 @@ void Input_BeginFrame(InputState *input)
 {
     input->mouseLeftPressed = false;
     input->mouseLeftReleased = false;
+    input->mouseRightPressed = false;
+    input->mouseRightReleased = false;
     input->mouseWheelY = 0.0f;
 
     for (int i = 0; i < SDL_SCANCODE_COUNT; ++i)
@@ -243,8 +258,9 @@ SDL_AppResult SDL_AppIterate(void *appstate)
         // =========================
         // SPAWN + RENDER
         // =========================
+        //piece spawning requires 2 right clicks for some reason
         spawnPiece(app);
-
+        renderPiece(app);
         // =========================
         // MOUSE → GRID CONVERSION
         // =========================
@@ -355,9 +371,9 @@ SDL_AppResult SDL_AppIterate(void *appstate)
         // =========================
         // UI
         // =========================
-        endTurnButton(app);
+        //endTurnButton(app);
         turnUI(app);
-
+        gameUI(app);
         if (app->input.mouseLeftPressed)
         {
             SDL_FPoint mousePos = {app->input.mouseX, app->input.mouseY};
@@ -441,6 +457,7 @@ void UpdateCamera(AppState *app){
     if (in->keyDown[SDL_SCANCODE_E]) zoomDelta -= zoomSpeed;
     camera2d_add_zoom(camera, zoomDelta * app->dt, 0.4f, 5.0f);//adjusts camera clamp range then follows player with new clamped range
 
+    //drag logic
     if (in->mouseLeftPressed)
     {
         app->pivotX = in->mouseX;
@@ -448,7 +465,6 @@ void UpdateCamera(AppState *app){
         app->camX = camera->x;
         app->camY = camera->y;
     }
-
     if (in->mouseLeftDown)
     {
         float mouseDeltaX = in->mouseX - app->pivotX;
@@ -459,6 +475,29 @@ void UpdateCamera(AppState *app){
         camera->y = app->camY - (mouseDeltaY / camera->zoom);
     }
 
+    //Cesar's tip to clamp camera in "game view"
+    float viewW = (float)WINDOW_WIDTH / camera->zoom;
+    float viewH = (float)WINDOW_HEIGHT / camera->zoom;
+    
+
+    //math and check to ensure that camera.x and camera.y is never < 0
+    //max can go is total world size - visible view port
+    float maxX = app->worldSize.x - viewH;
+    float maxY = app->worldSize.y - viewW;
+    float min_x = 0.0f;
+    float min_y = 0.0f;
+
+    if(maxX < 0){
+        min_x = maxX / 2.0f;
+        maxX = min_x;
+    } 
+    if(maxY < 0){
+        min_y = maxY / 2.0f;
+        maxY = min_y;
+    }
+
+    // camera->x = SDL_clamp(camera->x, min_x, maxX);
+    // camera->y = SDL_clamp(camera->x, min_y, maxY);
 }
 
 void UpdateGame(AppState *app){

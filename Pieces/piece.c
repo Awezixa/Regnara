@@ -4,7 +4,7 @@
 void spawnPiece(AppState *app)
 {
     // 1. Initial check for click and capacity
-    if (app->input.mouseLeftPressed && app->pieceCount < MAX_PIECES)
+    if (app->input.mouseRightPressed && app->pieceCount < MAX_PIECES)
     {
         // 2. Refresh relative mouse state to distinguish click from drag
         float relX, relY;

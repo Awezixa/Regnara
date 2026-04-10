@@ -75,7 +75,7 @@ void endTurnButton(AppState *app){
     float wB, hB;
     SDL_GetTextureSize(app->buttonOn, &wB, &hB);
 
-    float scale = 1.5f;
+    float scale = 1.0f;
 
     app->endTurnButton.w = wB *scale;
     app->endTurnButton.h = hB* scale;
@@ -108,4 +108,45 @@ void drawPauseMenu(AppState *app){
     app->pauseTxt.w = 180.0f;
 
     drawText(app, pauseUI, app->pauseTxt);
+}
+
+void gameUI(AppState *app){
+
+    SDL_FRect uiPanel = {
+        0, //starts left edge of screen
+        WINDOW_HEIGHT - 150.0f,
+        WINDOW_WIDTH,
+        150.0f
+    };
+    SDL_SetRenderDrawBlendMode(app->renderer, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(app->renderer, 40, 40, 40, 180);
+
+    SDL_RenderFillRect(app->renderer, &uiPanel);
+
+    //add outline to the panel
+    SDL_SetRenderDrawColor(app->renderer, 200, 200, 200, 255); // Solid light gray
+    SDL_RenderRect(app->renderer, &uiPanel);
+    unitIconUI(app);
+    endTurnButton(app);
+}
+
+void unitIconUI(AppState *app){
+    SDL_Texture* unit = NULL;
+
+    switch (app->selectedPieceType)
+    {
+        case PAWN:   unit = app->WpawnTexture;   break;
+        case KING:   unit = app->WkingTexture;   break;
+        case QUEEN:  unit = app->WqueenTexture;  break;
+        case ROOK:   unit = app->WrookTexture;   break;
+        case KNIGHT: unit = app->WknightTexture; break;
+        case BISHOP: unit = app->WbishopTexture; break;
+    }
+    
+    if(unit){
+        SDL_FRect icon = {WINDOW_WIDTH/ 3.0f, WINDOW_HEIGHT - 110.0f, 50.f, 50.0f};
+        SDL_RenderTexture(app->renderer, unit, NULL, &icon);
+    }
+
+    //can add text to say which unit spawned
 }
