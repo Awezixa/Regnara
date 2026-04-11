@@ -98,7 +98,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     }
     app->pieceCount = 0;
     app->turnCounter = 1;
-
+    app->P1.p1Gold = 10;
 
     app->lastTicksMS = SDL_GetTicks();
     app->dt = 0.0f;
@@ -373,6 +373,8 @@ SDL_AppResult SDL_AppIterate(void *appstate)
         // =========================
         //endTurnButton(app);
         turnUI(app);
+        goldUI(app);
+
         gameUI(app);
         if (app->input.mouseLeftPressed)
         {
@@ -380,6 +382,16 @@ SDL_AppResult SDL_AppIterate(void *appstate)
             if (SDL_PointInRectFloat(&mousePos, &app->endTurnButton))
             {
                 app->turnCounter++;
+
+                //start working with gold adding
+                if (app->P1.p1Gold >= 100)
+                {
+                    app->P1.p1Gold = 100;
+                }
+                else{
+                    app->P1.p1Gold += 7;
+                }
+                
             }
         }
 

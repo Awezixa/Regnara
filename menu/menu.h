@@ -19,4 +19,6 @@ void turnUI(AppState *app);
 void playButton(AppState *app);
 void drawPauseMenu(AppState *app);
 void unitIconUI(AppState *app);
+void goldUI(AppState *app);
+void buildingIconUI(AppState *app);
 #endif 

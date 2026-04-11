@@ -119,7 +119,7 @@ void gameUI(AppState *app){
         150.0f
     };
     SDL_SetRenderDrawBlendMode(app->renderer, SDL_BLENDMODE_BLEND);
-    SDL_SetRenderDrawColor(app->renderer, 40, 40, 40, 180);
+    SDL_SetRenderDrawColor(app->renderer, 0, 153, 255, 180);
 
     SDL_RenderFillRect(app->renderer, &uiPanel);
 
@@ -149,4 +149,34 @@ void unitIconUI(AppState *app){
     }
 
     //can add text to say which unit spawned
+}
+
+void goldUI(AppState *app){
+    SDL_FRect goldPanel = {
+        800.0f, // x position
+        WINDOW_HEIGHT - 207.0f, //y position
+        300.0f, //width
+        60.0f, //height
+    };
+
+    //gold amount
+    char goldAmmount[150];
+    snprintf(goldAmmount, sizeof(goldAmmount), ": %d", app->P1.p1Gold);
+    SDL_FRect textPos = {
+        900.0f,                   // X padding from left
+        WINDOW_HEIGHT - 235.0f,  // Y position inside panel
+        120.0f,                  // Width
+        120.0f                    // Height
+    };
+
+    SDL_FRect icon = {850.0f, WINDOW_HEIGHT - 205.0f, 50.f, 50.0f};
+
+    //for rectangle loading
+    SDL_SetRenderDrawBlendMode(app->renderer, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(app->renderer, 0, 153, 255, 180);
+    SDL_RenderFillRect(app->renderer, &goldPanel);
+    //for icon and text loading
+    SDL_RenderRect(app->renderer, &goldPanel);
+    SDL_RenderTexture(app->renderer, app->goldTexture, NULL, &icon);
+    drawText(app, goldAmmount, textPos);
 }
