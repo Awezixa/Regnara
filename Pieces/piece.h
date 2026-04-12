@@ -41,6 +41,6 @@ typedef struct Piece
 
 void spawnPiece(AppState *app);
 void renderPiece(AppState *app);
-
+bool isTileWalkable(int row, int col);
 
 #endif

@@ -145,3 +145,16 @@ void renderPiece(AppState *app) {
         }
     }
 }
+
+bool isTileWalkable(int row, int col) {
+    // 1. Bounds check to prevent crashing if checking outside the map
+    if (row < 0 || row >= MAP_ROWS || col < 0 || col >= MAP_COLS) {
+        return false;
+    }
+
+    // 2. Get the tile character from your map data
+    char tile = map_data[row][col];
+
+    // 3. Return true if it is NOT water
+    return (tile != 'W');
+}

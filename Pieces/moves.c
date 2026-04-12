@@ -13,7 +13,7 @@ void GenerateMoves(AppState *app, Piece *p)
             // later
             break;
         case PAWN:
-            // later
+            GenerateKingMoves(app, p);
             break;
     }
 }

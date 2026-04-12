@@ -127,6 +127,7 @@ void gameUI(AppState *app){
     SDL_SetRenderDrawColor(app->renderer, 200, 200, 200, 255); // Solid light gray
     SDL_RenderRect(app->renderer, &uiPanel);
     unitIconUI(app);
+    buildingIconUI(app);
     endTurnButton(app);
 }
 
@@ -144,11 +145,34 @@ void unitIconUI(AppState *app){
     }
     
     if(unit){
-        SDL_FRect icon = {WINDOW_WIDTH/ 3.0f, WINDOW_HEIGHT - 110.0f, 50.f, 50.0f};
+        SDL_FRect icon = {WINDOW_WIDTH/ 3.0f, WINDOW_HEIGHT - 60.0f, 50.f, 50.0f};
         SDL_RenderTexture(app->renderer, unit, NULL, &icon);
     }
 
     //can add text to say which unit spawned
+}
+
+void buildingIconUI(AppState *app){
+    int townCounter = townCount();
+    char countStr[32];
+    
+    snprintf(countStr, sizeof(countStr), ": %d", townCounter);
+    SDL_FRect countPos = {
+        650.0f,      // X
+        WINDOW_HEIGHT - 140.0f,      // Y (below Turn UI)
+        150.0f,     // Width
+        40.0f       // Height
+    };
+
+    SDL_FRect townIcon = {
+        WINDOW_WIDTH/ 3.0f,
+        WINDOW_HEIGHT - 145.0f,
+        50.0f, 
+        50.0f
+    };
+
+    SDL_RenderTexture(app->renderer, app->townTexture, NULL, &townIcon);
+    drawText(app, countStr, countPos);
 }
 
 void goldUI(AppState *app){
@@ -180,3 +204,4 @@ void goldUI(AppState *app){
     SDL_RenderTexture(app->renderer, app->goldTexture, NULL, &icon);
     drawText(app, goldAmmount, textPos);
 }
+

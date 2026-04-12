@@ -5,6 +5,10 @@
 
 char map_data[MAP_ROWS][MAP_COLS];
 
+/*
+can make map in Tiled then export as CSV.
+replace commas with spaces and then associate csv ids to what you want and then load map that way
+*/
 
 // Xavier with Cesar's help
 void loadMap(const char *filename)
@@ -75,7 +79,14 @@ void renderMap(SDL_Renderer *renderer, AppState *app) {
 }
 
 
-/*
-can make map in Tiled then export as CSV.
-replace commas with spaces and then associate csv ids to what you want and then load map that way
-*/
+int townCount(void){
+    int total = 0;
+    for(int row = 0; row < MAP_ROWS; row++){
+        for (int col = 0; col < MAP_COLS; col++){
+           if (map_data[row][col] == 'T') {
+                total++;
+           } 
+        }
+    }
+    return total;
+}
