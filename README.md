@@ -15,9 +15,9 @@ After each programming session, all code WILL BE PUSHED as to keep everyone up t
 # To-Do
 - Turn system
 - scaling of sprites✅
-- Town spawning and claiming
+- Town spawning and claiming 🔄️
 - spawning of multiple units ✅
-- add more functionality to menus and hud
-- piece movement and capturing
-- other game pieces + their movement and capturing
+- add more functionality to menus and hud 🔄️
+- piece movement and capturing 🔄️
+- other game pieces + their movement and capturing 🔄️
 - fog of war and revealing
