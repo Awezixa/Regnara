@@ -18,6 +18,6 @@ extern char map_data[MAP_ROWS][MAP_COLS];
 void loadMap(const char *filename);
 void renderMap(SDL_Renderer *renderer, AppState *app);
 int townCount(void);
-
-
+void initTowns(AppState *app);
+void townCaptured(AppState *app);
 #endif

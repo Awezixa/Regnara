@@ -90,3 +90,53 @@ int townCount(void){
     }
     return total;
 }
+
+
+void initTowns(AppState *app){
+    app->tTowns = 0;
+    for (int r = 0; r < MAP_ROWS; r++) {
+        for (int c = 0; c < MAP_COLS; c++) {
+            if (map_data[r][c] == 'T') {
+                app->towns[app->tTowns].row = r;
+                app->towns[app->tTowns].col = c;
+                app->towns[app->tTowns].owner = 0; // Neutral
+                app->towns[app->tTowns].captureTurns = 0;
+                app->tTowns++;
+            }
+        }
+    }
+}
+
+void townCaptured(AppState *app){
+    for (int t = 0; t < app->tTowns; t++)
+    {
+        Town *town = &app->towns[t];
+        bool kingPresent = false;
+        int kingOwner = 0;
+
+        for (int i = 0; i < MAX_PIECES; i++) {
+            Piece *p = &app->pieces[i];
+            if (p->active && p->type == KING && p->row == town->row && p->col == town->col) {
+                kingPresent = true;
+                
+                // Determine King's player based on turn (adjust if you have a p->owner field)
+                kingOwner = (app->turnCounter % 2 == 1) ? 1 : 2; 
+                break;
+            }
+        }
+        // 3. Update capture progress
+        if (kingPresent && town->owner != kingOwner) {
+            town->captureTurns++;
+            app->P1.towns++;
+            // If they've held it for 1 turn, it changes ownership
+            if (town->captureTurns >= 1) {
+                town->owner = kingOwner;
+                town->captureTurns = 0; // Reset progress once captured
+            }
+        } else {
+            // Reset progress if the King leaves before the turn ends
+            town->captureTurns = 0;
+        }
+    }
+    
+}

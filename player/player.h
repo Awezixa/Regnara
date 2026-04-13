@@ -13,11 +13,13 @@ typedef struct Player1
         * 
     */
     int p1Gold;
+    int towns;
 }Player1;
 
 typedef struct Player2
 {
     int p2Gold;
+    int towns;
 }Player2;
 
 

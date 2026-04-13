@@ -90,7 +90,7 @@ void turnUI(AppState *app){
     char turnStr[100];
     snprintf(turnStr, sizeof(turnStr), "Turn: %d", app->turnCounter);
 
-    app->turnCount.x = (float)(WINDOW_WIDTH/2);
+    app->turnCount.x = (float)(WINDOW_WIDTH/2) - 50.0f;
     app->turnCount.y = 20.0f;
     app->turnCount.h = 50.0f;
     app->turnCount.w = 180.0f;
@@ -108,6 +108,9 @@ void drawPauseMenu(AppState *app){
     app->pauseTxt.w = 180.0f;
 
     drawText(app, pauseUI, app->pauseTxt);
+    //add options button
+    //add resume button
+    quitButton(app);   
 }
 
 void gameUI(AppState *app){
@@ -156,7 +159,7 @@ void buildingIconUI(AppState *app){
     int townCounter = townCount();
     char countStr[32];
     
-    snprintf(countStr, sizeof(countStr), ": %d", townCounter);
+    snprintf(countStr, sizeof(countStr), ": %d", app->P1.towns);
     SDL_FRect countPos = {
         650.0f,      // X
         WINDOW_HEIGHT - 140.0f,      // Y (below Turn UI)

@@ -99,6 +99,12 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     app->pieceCount = 0;
     app->turnCounter = 1;
     app->P1.p1Gold = 10;
+    app->P1.towns = 0;
+    //town initialization
+    initTowns(app);
+
+
+
 
     app->lastTicksMS = SDL_GetTicks();
     app->dt = 0.0f;
@@ -381,6 +387,7 @@ SDL_AppResult SDL_AppIterate(void *appstate)
             SDL_FPoint mousePos = {app->input.mouseX, app->input.mouseY};
             if (SDL_PointInRectFloat(&mousePos, &app->endTurnButton))
             {
+                townCaptured(app);
                 app->turnCounter++;
 
                 //start working with gold adding
@@ -405,8 +412,17 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     {
         drawPauseMenu(app);
 
-        if (app->input.keyPressed[SDL_SCANCODE_ESCAPE])
+        if (app->input.keyPressed[SDL_SCANCODE_ESCAPE]){
             app->gameState = STATE_PLAYING;
+        }
+        if (app->input.mouseLeftPressed)
+        {
+            SDL_FPoint mousePos = {app->input.mouseX, app->input.mouseY};
+            if (SDL_PointInRectFloat(&mousePos, &app->quitbutton)){
+                //add confirmation quit screen
+                return SDL_APP_SUCCESS;
+            }
+        }    
 
         break;
     }

@@ -69,7 +69,9 @@ typedef struct AppState
     SDL_Texture *castleTexture;
     SDL_Texture *townTexture;
     SDL_Texture *logoTexture;
-    
+    Town towns[9];
+    int tTowns; // total amound of towns
+
     //Pieces
     Piece pieces[MAX_PIECES];
     int pieceCount;
