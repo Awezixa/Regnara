@@ -60,6 +60,7 @@ void spawnPiece(AppState *app)
 
                                 // FIX: Use selectedPieceType (enum) not selectedPiece (pointer)
                                 app->pieces[i].type = app->selectedPieceType;
+                                app->pieces[i].owner = app->currentPlayer;
 
                                 app->pieceCount++;
                                 break;
@@ -128,15 +129,25 @@ void renderPiece(AppState *app) {
             );
 
             SDL_Texture *tex = NULL;
-            switch (app->pieces[i].type)
-            {
-                case PAWN:   tex = app->WpawnTexture;   break;
-                case KING:   tex = app->WkingTexture;   break;
-                case QUEEN:  tex = app->WqueenTexture;  break;
-                case ROOK:   tex = app->WrookTexture;   break;
-                case KNIGHT: tex = app->WknightTexture; break;
-                case BISHOP: tex = app->WbishopTexture; break;
-                default: break;
+            //to swap between textures for 2 players
+            if (app->pieces[i].owner == 1) {
+                switch (app->pieces[i].type) {
+                    case PAWN:   tex = app->WpawnTexture;   break;
+                    case KING:   tex = app->WkingTexture;   break;
+                    case QUEEN:  tex = app->WqueenTexture;  break;
+                    case ROOK:   tex = app->WrookTexture;   break;
+                    case KNIGHT: tex = app->WknightTexture; break;
+                    case BISHOP: tex = app->WbishopTexture; break;
+                }
+            } else {
+                switch (app->pieces[i].type) {
+                    case PAWN:   tex = app->BpawnTexture;   break;
+                    case KING:   tex = app->BkingTexture;   break;
+                    case QUEEN:  tex = app->BqueenTexture;  break;
+                    case ROOK:   tex = app->BrookTexture;   break;
+                    case KNIGHT: tex = app->BknightTexture; break;
+                    case BISHOP: tex = app->BbishopTexture; break;
+                }
             }
 
             if (tex) {

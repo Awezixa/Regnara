@@ -288,7 +288,7 @@ SDL_AppResult SDL_AppIterate(void *appstate)
                 p->col == mouseCol &&
                 p->row == mouseRow)
             {
-                if (app->input.mouseLeftPressed && app->selectedPiece == NULL)
+                if (app->input.mouseLeftPressed && app->selectedPiece == NULL && p->owner == app->currentPlayer)
                 {
                     app->selectedPiece = p;
                     GenerateMoves(app, p);

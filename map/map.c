@@ -110,41 +110,40 @@ void initTowns(AppState *app){
 void townCaptured(AppState *app) {
     for (int t = 0; t < app->tTowns; t++) {
         Town *town = &app->towns[t];
-        bool currentKingPresent = false;
+        bool kingPresent = false;
+        int kingOwner = 0;
 
-        // 1. Check if the CURRENT player's King is on this town
+        // 1. Search for a King piece specifically at this town's location
         for (int i = 0; i < MAX_PIECES; i++) {
             Piece *p = &app->pieces[i];
             
-            // We assume pieces spawned during Player 1's turn are "his" 
-            // If you don't have a p->owner field, we check if he's the active player
+            // CRITICAL: Check the actual owner field of the piece
             if (p->active && p->type == KING && p->row == town->row && p->col == town->col) {
-                // Verification: Is this piece actually owned by the current player?
-                // For now, we assume any King found on the current player's turn is theirs
-                currentKingPresent = true;
+                kingPresent = true;
+                kingOwner = p->owner; // Use the piece's stored owner
                 break;
             }
         }
 
-        // 2. Logic: If current player's King is here and they don't own it
-        if (currentKingPresent && town->owner != app->currentPlayer) {
+        // 2. If a King is present and it's not the current town owner
+        if (kingPresent && town->owner != kingOwner) {
             town->captureTurns++;
             
-            if (town->captureTurns >= 1) { // 1 turn to capture
+            if (town->captureTurns >= 1) { // Captured after 1 turn
                 int oldOwner = town->owner;
-                town->owner = app->currentPlayer;
+                town->owner = kingOwner;
                 town->captureTurns = 0;
 
-                // 3. Update persistent counts
-                if (app->currentPlayer == 1) app->P1.towns++;
-                else if (app->currentPlayer == 2) app->P2.towns++;
+                // 3. Update persistent player town counts accurately
+                if (kingOwner == 1) app->P1.towns++;
+                else if (kingOwner == 2) app->P2.towns++;
 
-                // Subtract from previous owner
+                // 4. Subtract from previous owner if it wasn't neutral
                 if (oldOwner == 1) app->P1.towns--;
                 else if (oldOwner == 2) app->P2.towns--;
             }
         } else {
-            // 4. Reset if King leaves or if it's the other player's turn
+            // Reset if the King moves away or if no King is present
             town->captureTurns = 0;
         }
     }
