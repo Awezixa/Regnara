@@ -59,6 +59,7 @@ typedef struct AppState
     //other structs used/ be accessed here
     Player1 P1;
     Player2 P2;
+    int currentPlayer;
     int turnCounter;
 
     //temporary texture loading
@@ -126,7 +127,7 @@ typedef struct AppState
 
 
 //other functions here
-void UpdateGame(AppState *app); // should deal with movement spawning etc
-
+void updateGame(AppState *app); // should deal with movement spawning etc
+void endTurn(AppState *app);
 
 #endif

@@ -88,7 +88,7 @@ void endTurnButton(AppState *app){
 
 void turnUI(AppState *app){
     char turnStr[100];
-    snprintf(turnStr, sizeof(turnStr), "Turn: %d", app->turnCounter);
+    snprintf(turnStr, sizeof(turnStr), "| Player %d || Turn %d |", app->currentPlayer, app->turnCounter);
 
     app->turnCount.x = (float)(WINDOW_WIDTH/2) - 50.0f;
     app->turnCount.y = 20.0f;

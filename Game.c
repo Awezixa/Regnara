@@ -100,14 +100,13 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
         app->pieces[i].active = false;
     }
     app->pieceCount = 0;
+    //player initialization
+    app->currentPlayer = 1;
     app->turnCounter = 1;
     app->P1.p1Gold = 10;
-    app->P1.towns = 0;
+    app->P2.p2Gold = 10;
     //town initialization
     initTowns(app);
-
-
-
 
     app->lastTicksMS = SDL_GetTicks();
     app->dt = 0.0f;
@@ -400,18 +399,7 @@ SDL_AppResult SDL_AppIterate(void *appstate)
             SDL_FPoint mousePos = {app->input.mouseX, app->input.mouseY};
             if (SDL_PointInRectFloat(&mousePos, &app->endTurnButton))
             {
-                townCaptured(app);
-                app->turnCounter++;
-
-                //start working with gold adding
-                if (app->P1.p1Gold >= 100)
-                {
-                    app->P1.p1Gold = 100;
-                }
-                else{
-                    app->P1.p1Gold += 7;
-                }
-                
+                endTurn(app);
             }
         }
 
@@ -523,8 +511,8 @@ void UpdateCamera(AppState *app){
 
     //math and check to ensure that camera.x and camera.y is never < 0
     //max can go is total world size - visible view port
-    float maxX = app->worldSize.x - viewH;
-    float maxY = app->worldSize.y - viewW;
+    float maxX = app->worldSize.x - viewW;
+    float maxY = app->worldSize.y - viewH;
     float min_x = 0.0f;
     float min_y = 0.0f;
 
@@ -541,7 +529,7 @@ void UpdateCamera(AppState *app){
     // camera->y = SDL_clamp(camera->x, min_y, maxY);
 }
 
-void UpdateGame(AppState *app){
+void updateGame(AppState *app){
     /* funtions added here will simplify what goes into appiterate
     to add:
     * update camera
@@ -550,4 +538,28 @@ void UpdateGame(AppState *app){
     * tech tree unlocks
     * etc
     */
+}
+
+void endTurn(AppState *app) {
+    // 1. Process capture for the player who just finished their turn
+    townCaptured(app);
+
+    // 2. Switch the active player
+    if (app->currentPlayer == 1) {
+        app->currentPlayer = 2;
+    } else {
+        app->currentPlayer = 1;
+        app->turnCounter++;
+    }
+
+    // 3. Give gold to the NEW active player (start of turn income)
+    if (app->currentPlayer == 1) {
+        app->P1.p1Gold += 7 + (app->P1.towns * 5); 
+    } else {
+        app->P2.p2Gold += 7 + (app->P2.towns * 5);
+    }
+    
+    // 4. Cap the gold
+    if (app->P1.p1Gold > 100) app->P1.p1Gold = 100;
+    if (app->P2.p2Gold > 100) app->P2.p2Gold = 100;
 }
