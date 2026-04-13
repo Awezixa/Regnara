@@ -308,6 +308,11 @@ SDL_AppResult SDL_AppIterate(void *appstate)
             {
                 SDL_Point m = app->possibleMoves[i];
 
+                // 🚫 Block water tiles
+                if (!isTileWalkable(m.y, m.x)) {
+                    continue;
+                }
+
                 if (m.x == mouseCol && m.y == mouseRow)
                 {
                     app->selectedPiece->col = m.x;

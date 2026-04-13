@@ -44,12 +44,23 @@ void PossibleMovesShow(AppState *app, Piece *p)
 {
     for (int i = 0; i < app->possibleMoveCount; i++)
     {
+        int row = app->possibleMoves[i].y;
+        int col = app->possibleMoves[i].x;
+
+        // 🚫 Skip water tiles
+        if (!isTileWalkable(row, col)) {
+            continue;
+        }
+
+        float worldX = col * TILE_SIZE;
+        float worldY = row * TILE_SIZE;
+
         SDL_FRect r = {
-        app->possibleMoves[i].x * TILE_SIZE - app->camX,
-        app->possibleMoves[i].y * TILE_SIZE - app->camY,
-        TILE_SIZE,
-        TILE_SIZE
-    };
+            (worldX - app->camera.x) * app->camera.zoom,
+            (worldY - app->camera.y) * app->camera.zoom,
+            TILE_SIZE * app->camera.zoom,
+            TILE_SIZE * app->camera.zoom
+        };
 
         SDL_RenderTexture(app->renderer, app->movePossible, NULL, &r);
     }
