@@ -73,6 +73,9 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     app->BbishopTexture  = LoadTexture(app->renderer, "Assets/images/blackPieces/BBishop.png");
     app->BkingTexture  = LoadTexture(app->renderer, "Assets/images/blackPieces/BKing.png");
     app->BqueenTexture  = LoadTexture(app->renderer, "Assets/images/blackPieces/BQueen.png");
+    //possible move loading
+    app->movePossible = LoadTexture(app->renderer, "Assets/images/moves/possible.png");
+    app->moveImpossible = LoadTexture(app->renderer, "Assets/images/moves/impossible.png");
     //final check that all textures there and load
     if (!app->logoTexture || !app->grassTexture) {
         SDL_Log("CRITICAL ERROR: Core assets missing. Closing app.");
@@ -357,6 +360,10 @@ SDL_AppResult SDL_AppIterate(void *appstate)
         // =========================
         // DRAW POSSIBLE MOVES
         // =========================
+
+        if (app->selectedPiece != NULL) {
+        PossibleMovesShow(app, app->selectedPiece);
+        }
         for (int i = 0; i < app->possibleMoveCount; i++)
         {
             SDL_FRect r = {

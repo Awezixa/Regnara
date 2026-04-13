@@ -6,5 +6,6 @@
 
 void GenerateMoves(AppState *app, Piece *p);
 void GenerateKingMoves(AppState *app, Piece *p);
+void PossibleMovesShow(AppState *app, Piece *p);
 
 #endif

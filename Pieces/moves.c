@@ -39,3 +39,18 @@ void GenerateKingMoves(AppState *app, Piece *p)
         }
     }
 }
+
+void PossibleMovesShow(AppState *app, Piece *p)
+{
+    for (int i = 0; i < app->possibleMoveCount; i++)
+    {
+        SDL_FRect r = {
+        app->possibleMoves[i].x * TILE_SIZE - app->camX,
+        app->possibleMoves[i].y * TILE_SIZE - app->camY,
+        TILE_SIZE,
+        TILE_SIZE
+    };
+
+        SDL_RenderTexture(app->renderer, app->movePossible, NULL, &r);
+    }
+}
