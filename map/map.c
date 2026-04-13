@@ -138,5 +138,46 @@ void townCaptured(AppState *app){
             town->captureTurns = 0;
         }
     }
-    
+}
+
+void drawTerritory(AppState *app) {
+    // Set the blend mode once for the whole loop
+    SDL_SetRenderDrawBlendMode(app->renderer, SDL_BLENDMODE_BLEND);
+
+    for (int t = 0; t < app->tTowns; t++) {
+        Town *town = &app->towns[t];
+
+        if (town->owner != 0) {
+            // Set Color: Blue for P1, Red for P2
+            if (town->owner == 1) {
+                SDL_SetRenderDrawColor(app->renderer, 0, 100, 255, 80); 
+            } else {
+                SDL_SetRenderDrawColor(app->renderer, 255, 50, 50, 80);
+            }
+
+            // Loop through the 3x3 radius (-1, 0, 1)
+            for (int dr = -1; dr <= 1; dr++) {
+                for (int dc = -1; dc <= 1; dc++) {
+                    // CRITICAL: Offset from the actual town position
+                    int r = town->row + dr;
+                    int c = town->col + dc;
+
+                    // 3. Bounds check to ensure we stay on the map
+                    if (r >= 0 && r < MAP_ROWS && c >= 0 && c < MAP_COLS) {
+                        // 4. Convert World Grid to Screen Rect
+                        SDL_FRect tileRect = camera2d_world_to_screen_rect(
+                            &app->camera,
+                            (float)(c * TILE_SIZE),
+                            (float)(r * TILE_SIZE),
+                            (float)TILE_SIZE,
+                            (float)TILE_SIZE
+                        );
+
+                        // 5. Fill the tile
+                        SDL_RenderFillRect(app->renderer, &tileRect);
+                    }
+                }
+            }
+        }
+    }
 }

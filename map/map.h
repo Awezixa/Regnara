@@ -20,4 +20,5 @@ void renderMap(SDL_Renderer *renderer, AppState *app);
 int townCount(void);
 void initTowns(AppState *app);
 void townCaptured(AppState *app);
+void drawTerritory(AppState *app);
 #endif

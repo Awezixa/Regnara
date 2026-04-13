@@ -333,6 +333,7 @@ SDL_AppResult SDL_AppIterate(void *appstate)
         // =========================
         // DRAW PIECES
         // =========================
+        drawTerritory(app);
         renderPiece(app);
 
         for (int i = 0; i < app->possibleMoveCount; i++)
