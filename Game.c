@@ -103,6 +103,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     //player initialization
     app->currentPlayer = 1;
     app->turnCounter = 1;
+    app->winner = 0;
     app->P1.p1Gold = 10;
     app->P2.p2Gold = 10;
     //town initialization
@@ -246,167 +247,10 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 
     case STATE_PLAYING:
     {
-        UpdateCamera(app);
-
-        // =========================
-        // WORLD RENDER
-        // =========================
-        renderMap(app->renderer, app);
-
-        // =========================
-        // PIECE TYPE SELECTION
-        // =========================
-        if (app->input.keyDown[SDL_SCANCODE_1]) app->selectedPieceType = PAWN;
-        if (app->input.keyDown[SDL_SCANCODE_2]) app->selectedPieceType = KNIGHT;
-        if (app->input.keyDown[SDL_SCANCODE_3]) app->selectedPieceType = ROOK;
-        if (app->input.keyDown[SDL_SCANCODE_4]) app->selectedPieceType = BISHOP;
-        if (app->input.keyDown[SDL_SCANCODE_5]) app->selectedPieceType = QUEEN;
-        if (app->input.keyDown[SDL_SCANCODE_6]) app->selectedPieceType = KING;
-
-        // =========================
-        // SPAWN + RENDER
-        // =========================
-        //piece spawning requires 2 right clicks for some reason
-        spawnPiece(app);
-        renderPiece(app);
-        // =========================
-        // MOUSE → GRID CONVERSION
-        // =========================
-        int mouseCol = (int)((app->input.mouseX / app->camera.zoom + app->camera.x) / TILE_SIZE);
-        int mouseRow = (int)((app->input.mouseY / app->camera.zoom + app->camera.y) / TILE_SIZE);
-
-        bool wasPieceSelected = (app->selectedPiece != NULL);
-
-        // =========================
-        // SELECT PIECE
-        // =========================
-        for (int i = 0; i < MAX_PIECES; i++)
-        {
-            Piece *p = &app->pieces[i];
-
-            if (p->active &&
-                p->col == mouseCol &&
-                p->row == mouseRow)
-            {
-                if (app->input.mouseLeftPressed && app->selectedPiece == NULL && p->owner == app->currentPlayer)
-                {
-                    app->selectedPiece = p;
-                    GenerateMoves(app, p);
-                }
-            }
-        }
-
-        // =========================
-        // MOVE PIECE
-        // =========================
-        if (app->selectedPiece && app->input.mouseLeftPressed && wasPieceSelected)
-        {
-            bool moved = false;
-
-            for (int i = 0; i < app->possibleMoveCount; i++)
-            {
-                SDL_Point m = app->possibleMoves[i];
-
-                // 🚫 Block water tiles
-                if (!isTileWalkable(m.y, m.x)) {
-                    continue;
-                }
-
-                if (m.x == mouseCol && m.y == mouseRow)
-                {
-                    app->selectedPiece->col = m.x;
-                    app->selectedPiece->row = m.y;
-
-                    app->selectedPiece->pieceX = m.x * TILE_SIZE;
-                    app->selectedPiece->pieceY = m.y * TILE_SIZE;
-
-                    moved = true;
-                    break;
-                }
-            }
-
-            // cancel if clicking same tile
-            if (!moved &&
-                mouseCol == app->selectedPiece->col &&
-                mouseRow == app->selectedPiece->row)
-            {
-                moved = true;
-            }
-
-            app->selectedPiece = NULL;
-            app->possibleMoveCount = 0;
-        }
-
-        // =========================
-        // DRAW PIECES
-        // =========================
-        drawTerritory(app);
-        renderPiece(app);
-
-        for (int i = 0; i < app->possibleMoveCount; i++)
-        {
-            SDL_FRect r = {
-                app->possibleMoves[i].x * TILE_SIZE,
-                app->possibleMoves[i].y * TILE_SIZE,
-                TILE_SIZE,
-                TILE_SIZE
-            };
-
-            r = camera2d_world_to_screen_rect(
-                &app->camera,
-                r.x, r.y,
-                r.w, r.h
-            );
-
-            SDL_RenderTexture(app->renderer, app->possibleMovesTexture, NULL, &r);
-        }
-
-        // =========================
-        // DRAW POSSIBLE MOVES
-        // =========================
-
-        if (app->selectedPiece != NULL) {
-        PossibleMovesShow(app, app->selectedPiece);
-        }
-        for (int i = 0; i < app->possibleMoveCount; i++)
-        {
-            SDL_FRect r = {
-                app->possibleMoves[i].x * TILE_SIZE,
-                app->possibleMoves[i].y * TILE_SIZE,
-                TILE_SIZE,
-                TILE_SIZE
-            };
-
-            r = camera2d_world_to_screen_rect(
-                &app->camera,
-                r.x, r.y,
-                r.w, r.h
-            );
-
-            SDL_RenderTexture(app->renderer, app->possibleMovesTexture, NULL, &r);
-        }
-
-        // =========================
-        // UI
-        // =========================
-        //endTurnButton(app);
-        turnUI(app);
-        goldUI(app);
-
-        gameUI(app);
-        if (app->input.mouseLeftPressed)
-        {
-            SDL_FPoint mousePos = {app->input.mouseX, app->input.mouseY};
-            if (SDL_PointInRectFloat(&mousePos, &app->endTurnButton))
-            {
-                endTurn(app);
-            }
-        }
-
-        if (app->input.keyPressed[SDL_SCANCODE_ESCAPE])
-            app->gameState = STATE_PAUSED;
-
-        break;
+        //UpdateCamera(app);
+        updateGame(app);
+        winCondition(app);
+        break;   
     }
 
     case STATE_PAUSED:
@@ -430,6 +274,8 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 
     case STATE_END:
     {
+        drawEndScreen(app);
+
         if (app->input.keyPressed[SDL_SCANCODE_RETURN])
             app->gameState = STATE_MENU;
 
@@ -530,14 +376,161 @@ void UpdateCamera(AppState *app){
 }
 
 void updateGame(AppState *app){
-    /* funtions added here will simplify what goes into appiterate
-    to add:
-    * update camera
-    * movement
-    * turn passing
-    * tech tree unlocks
-    * etc
-    */
+    
+    UpdateCamera(app);
+    renderMap(app->renderer, app);
+
+    // =========================
+    // PIECE TYPE SELECTION
+    // =========================
+        if (app->input.keyDown[SDL_SCANCODE_1]) app->selectedPieceType = PAWN;
+        if (app->input.keyDown[SDL_SCANCODE_2]) app->selectedPieceType = KNIGHT;
+        if (app->input.keyDown[SDL_SCANCODE_3]) app->selectedPieceType = ROOK;
+        if (app->input.keyDown[SDL_SCANCODE_4]) app->selectedPieceType = BISHOP;
+        if (app->input.keyDown[SDL_SCANCODE_5]) app->selectedPieceType = QUEEN;
+        if (app->input.keyDown[SDL_SCANCODE_6]) app->selectedPieceType = KING;
+
+    // =========================
+    // SPAWN + RENDER
+    // =========================
+    //piece spawning requires 2 right clicks for some reason
+    spawnPiece(app);
+    renderPiece(app);
+    
+    
+    // =========================
+    // MOUSE → GRID CONVERSION
+    // =========================
+    int mouseCol = (int)((app->input.mouseX / app->camera.zoom + app->camera.x) / TILE_SIZE);
+    int mouseRow = (int)((app->input.mouseY / app->camera.zoom + app->camera.y) / TILE_SIZE);
+
+    bool wasPieceSelected = (app->selectedPiece != NULL);
+
+    // =========================
+    // SELECT PIECE
+    // =========================
+    for (int i = 0; i < MAX_PIECES; i++)
+    {
+        Piece *p = &app->pieces[i];
+
+        if (p->active &&
+            p->col == mouseCol &&
+            p->row == mouseRow)
+        {
+            if (app->input.mouseLeftPressed && app->selectedPiece == NULL && p->owner == app->currentPlayer)
+            {
+                app->selectedPiece = p;
+                GenerateMoves(app, p);
+            }
+        }
+    }
+
+    // =========================
+    // MOVE PIECE
+    // =========================
+    if (app->selectedPiece && app->input.mouseLeftPressed && wasPieceSelected)
+    {
+        bool moved = false;
+
+        for (int i = 0; i < app->possibleMoveCount; i++)
+        {
+            SDL_Point m = app->possibleMoves[i];
+
+            // 🚫 Block water tiles
+            if (!isTileWalkable(m.y, m.x)) {
+                continue;
+            }
+
+            if (m.x == mouseCol && m.y == mouseRow)
+            {
+                app->selectedPiece->col = m.x;
+                app->selectedPiece->row = m.y;
+
+                app->selectedPiece->pieceX = m.x * TILE_SIZE;
+                app->selectedPiece->pieceY = m.y * TILE_SIZE;
+
+                moved = true;
+                break;
+            }
+        }
+
+        // cancel if clicking same tile
+        if (!moved && mouseCol == app->selectedPiece->col && mouseRow == app->selectedPiece->row)
+        {
+            moved = true;
+        }
+
+        app->selectedPiece = NULL;
+        app->possibleMoveCount = 0;
+    }
+
+    // =========================
+    // DRAW PIECES
+    // =========================
+    drawTerritory(app);
+    renderPiece(app);
+
+    for (int i = 0; i < app->possibleMoveCount; i++)
+    {
+        SDL_FRect r = {
+            app->possibleMoves[i].x * TILE_SIZE,
+            app->possibleMoves[i].y * TILE_SIZE,
+            TILE_SIZE,
+            TILE_SIZE
+        };
+
+        r = camera2d_world_to_screen_rect(
+            &app->camera,
+            r.x, r.y,
+            r.w, r.h
+        );
+
+        SDL_RenderTexture(app->renderer, app->possibleMovesTexture, NULL, &r);
+    }
+
+    // =========================
+    // DRAW POSSIBLE MOVES
+    // =========================
+
+    if (app->selectedPiece != NULL) {
+    PossibleMovesShow(app, app->selectedPiece);
+    }
+    for (int i = 0; i < app->possibleMoveCount; i++)
+    {
+        SDL_FRect r = {
+            app->possibleMoves[i].x * TILE_SIZE,
+            app->possibleMoves[i].y * TILE_SIZE,
+            TILE_SIZE,
+            TILE_SIZE
+        };
+
+        r = camera2d_world_to_screen_rect(
+            &app->camera,
+            r.x, r.y,
+            r.w, r.h
+        );
+
+        SDL_RenderTexture(app->renderer, app->possibleMovesTexture, NULL, &r);
+    }
+
+    // =========================
+    // UI
+    // =========================
+    turnUI(app);
+    goldUI(app);
+
+    gameUI(app);
+    if (app->input.mouseLeftPressed)
+    {
+        SDL_FPoint mousePos = {app->input.mouseX, app->input.mouseY};
+        if (SDL_PointInRectFloat(&mousePos, &app->endTurnButton))
+        {
+            endTurn(app);
+        }
+    }
+
+    if (app->input.keyPressed[SDL_SCANCODE_ESCAPE]) app->gameState = STATE_PAUSED;
+    
 }
 
 void endTurn(AppState *app) {
@@ -562,4 +555,19 @@ void endTurn(AppState *app) {
     // 4. Cap the gold
     if (app->P1.p1Gold > 100) app->P1.p1Gold = 100;
     if (app->P2.p2Gold > 100) app->P2.p2Gold = 100;
+}
+
+void winCondition(AppState *app){
+    //need to check who controls all towns
+    if (app->P1.towns == app->tTowns && app->tTowns > 0)
+    {
+        app->winner = 1;
+        app->gameState = STATE_END;
+        
+    }
+    else if(app->P2.towns == app->tTowns && app->tTowns > 0){
+        app->winner = 2;
+        app->gameState = STATE_END;
+    }
+    //later when have capturing add if king captured = win
 }

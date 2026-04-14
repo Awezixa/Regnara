@@ -61,6 +61,7 @@ typedef struct AppState
     Player2 P2;
     int currentPlayer;
     int turnCounter;
+    int winner;
 
     //temporary texture loading
     //Map
@@ -71,7 +72,7 @@ typedef struct AppState
     SDL_Texture *townTexture;
     SDL_Texture *logoTexture;
     Town towns[9];
-    int tTowns; // total amound of towns
+    int tTowns; // total amount of towns
 
     //Pieces
     Piece pieces[MAX_PIECES];
@@ -129,5 +130,6 @@ typedef struct AppState
 //other functions here
 void updateGame(AppState *app); // should deal with movement spawning etc
 void endTurn(AppState *app);
+void winCondition(AppState *app);
 
 #endif

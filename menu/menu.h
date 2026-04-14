@@ -4,10 +4,8 @@
 typedef struct AppState AppState;
 
 void drawOptions(AppState *app);
-void drawEndScreen(AppState *app);
 
-void P1UI(AppState *app);
-void P2UI (AppState *app);
+
 
 //Xavier
 void drawMainMenu(AppState *app);
@@ -21,4 +19,5 @@ void drawPauseMenu(AppState *app);
 void unitIconUI(AppState *app);
 void goldUI(AppState *app);
 void buildingIconUI(AppState *app);
+void drawEndScreen(AppState *app);
 #endif 
