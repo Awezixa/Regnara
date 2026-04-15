@@ -1,6 +1,6 @@
 #ifndef PIECE_H
 #define PIECE_H
-#define MAX_PIECES 16
+#define MAX_PIECES 20
 #include <stdbool.h>
 typedef struct AppState AppState;
 

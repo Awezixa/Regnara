@@ -38,7 +38,7 @@ typedef struct InputState
     bool mouseLeftDown;
     bool mouseLeftPressed;
     bool mouseLeftReleased;
-     bool mouseRightDown;
+    bool mouseRightDown;
     bool mouseRightPressed;
     bool mouseRightReleased;
     bool keyDown[SDL_SCANCODE_COUNT];
@@ -71,7 +71,7 @@ typedef struct AppState
     SDL_Texture *castleTexture;
     SDL_Texture *townTexture;
     SDL_Texture *logoTexture;
-    Town towns[9];
+    Town towns[6];
     int tTowns; // total amount of towns
 
     //Pieces
@@ -131,5 +131,6 @@ typedef struct AppState
 void updateGame(AppState *app); // should deal with movement spawning etc
 void endTurn(AppState *app);
 void winCondition(AppState *app);
+void resetGame(AppState *app);
 
 #endif

@@ -47,7 +47,7 @@ void spawnPiece(AppState *app)
                     if (!occupied)
                     {
                         // 7. Find an empty slot and spawn
-                    for (int i = 0; i < MAX_PIECES; i++)
+                        for (int i = 0; i < MAX_PIECES; i++)
                     {
                         if (!app->pieces[i].active)
                         {

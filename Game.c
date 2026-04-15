@@ -232,11 +232,14 @@ SDL_AppResult SDL_AppIterate(void *appstate)
         {
             SDL_FPoint mousePos = {app->input.mouseX, app->input.mouseY};
 
-            if (SDL_PointInRectFloat(&mousePos, &app->playbutton))
+            if (SDL_PointInRectFloat(&mousePos, &app->playbutton)){
+                resetGame(app);
                 app->gameState = STATE_PLAYING;
+            }                
 
-            if (SDL_PointInRectFloat(&mousePos, &app->quitbutton))
+            if (SDL_PointInRectFloat(&mousePos, &app->quitbutton)){
                 return SDL_APP_SUCCESS;
+            }
         }
 
         if (app->input.keyPressed[SDL_SCANCODE_SPACE])
@@ -247,9 +250,7 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 
     case STATE_PLAYING:
     {
-        //UpdateCamera(app);
         updateGame(app);
-        winCondition(app);
         break;   
     }
 
@@ -528,9 +529,10 @@ void updateGame(AppState *app){
             endTurn(app);
         }
     }
+    
 
     if (app->input.keyPressed[SDL_SCANCODE_ESCAPE]) app->gameState = STATE_PAUSED;
-    
+    winCondition(app);
 }
 
 void endTurn(AppState *app) {
@@ -569,5 +571,38 @@ void winCondition(AppState *app){
         app->winner = 2;
         app->gameState = STATE_END;
     }
+
     //later when have capturing add if king captured = win
+}
+
+void resetGame(AppState *app){
+    for (int i = 0; i < 6; i++)
+    {
+        app->towns[i].owner = 0;
+    }
+
+    for (int i = 0; i < MAX_PIECES; i++)
+    {
+        app->pieces[i].active = false;
+        app->pieces[i].owner = 0;
+    }
+    
+    app->pieceCount = 0;
+    app->selectedPiece = NULL;
+    app->possibleMoveCount = 0;
+    
+    //reset player stats
+    app->currentPlayer = 1;
+    app->turnCounter = 1;
+    app->winner = 0;
+
+    app->P1.p1Gold = 10;
+    app->P1.towns = 0;
+    app->P1.pieceCount = 0;
+
+    app->P2.p2Gold = 0;
+    app->P2.towns = 0;
+    app->P2.pieceCount = 0;
+
+    initTowns(app);
 }
