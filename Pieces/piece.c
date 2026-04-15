@@ -12,8 +12,7 @@ void spawnPiece(AppState *app)
         SDL_GetRelativeMouseState(&relX, &relY);
 
         // Only proceed if the mouse stayed relatively still (not a camera drag)
-        if (SDL_fabsf(relX) < 2.0f && SDL_fabsf(relY) < 2.0f)
-        {
+        
             // 3. Convert screen position to world/grid coordinates
             float worldX = (app->input.mouseX / app->camera.zoom) + app->camera.x;
             float worldY = (app->input.mouseY / app->camera.zoom) + app->camera.y;
@@ -48,22 +47,21 @@ void spawnPiece(AppState *app)
                     if (!occupied)
                     {
                         // 7. Find an empty slot and spawn
-                        for (int i = 0; i < MAX_PIECES; i++)
+                    for (int i = 0; i < MAX_PIECES; i++)
+                    {
+                        if (!app->pieces[i].active)
                         {
-                            if (!app->pieces[i].active)
-                            {
-                                app->pieces[i].pieceX = targetX;
-                                app->pieces[i].pieceY = targetY;
-                                app->pieces[i].col = col;
-                                app->pieces[i].row = row;
-                                app->pieces[i].active = true;
+                            app->pieces[i].pieceX = targetX;
+                            app->pieces[i].pieceY = targetY;
+                            app->pieces[i].col = col;
+                            app->pieces[i].row = row;
+                            app->pieces[i].active = true;
 
-                                app->pieces[i].type = app->selectedPieceType;
-                                app->pieces[i].owner = app->currentPlayer;
+                            app->pieces[i].type = app->selectedPieceType;
+                            app->pieces[i].owner = app->currentPlayer;
 
-                                app->pieceCount++;
-                                break;
-                            }
+                            app->pieceCount++;
+                            break;
                         }
                     }
                 }
