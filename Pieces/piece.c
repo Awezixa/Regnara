@@ -58,7 +58,6 @@ void spawnPiece(AppState *app)
                                 app->pieces[i].row = row;
                                 app->pieces[i].active = true;
 
-                                // FIX: Use selectedPieceType (enum) not selectedPiece (pointer)
                                 app->pieces[i].type = app->selectedPieceType;
                                 app->pieces[i].owner = app->currentPlayer;
 
