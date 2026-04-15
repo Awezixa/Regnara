@@ -150,11 +150,11 @@ void unitIconUI(AppState *app)
         switch (app->selectedPieceType)
         {
             case PAWN:unit = app->WpawnTexture;break;
-            case KING:unit = app->WkingTexture;break;
             case QUEEN:unit = app->WqueenTexture;break;
             case ROOK:unit = app->WrookTexture;break;
             case KNIGHT:unit = app->WknightTexture;break;
             case BISHOP:unit = app->WbishopTexture;break;
+            default:unit = app->WpawnTexture;break;
         }
     }
     else
@@ -162,11 +162,11 @@ void unitIconUI(AppState *app)
         switch (app->selectedPieceType)
         {
             case PAWN:unit = app->BpawnTexture;break;
-            case KING:unit = app->BkingTexture;break;
             case QUEEN:unit = app->BqueenTexture;break;
             case ROOK:unit = app->BrookTexture;break;
             case KNIGHT:unit = app->BknightTexture;break;
             case BISHOP:unit = app->BbishopTexture;break;
+            default: unit = app->BpawnTexture;break;
         }
         // can add text to say which unit spawned
     }

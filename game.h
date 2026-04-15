@@ -132,5 +132,6 @@ void updateGame(AppState *app); // should deal with movement spawning etc
 void endTurn(AppState *app);
 void winCondition(AppState *app);
 void resetGame(AppState *app);
+void startGame(AppState *app);
 
 #endif

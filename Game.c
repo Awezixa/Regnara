@@ -100,6 +100,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
         app->pieces[i].active = false;
     }
     app->pieceCount = 0;
+    app->selectedPieceType = PAWN;
     //player initialization
     app->currentPlayer = 1;
     app->turnCounter = 1;
@@ -231,7 +232,7 @@ SDL_AppResult SDL_AppIterate(void *appstate)
         if (app->input.mouseLeftPressed)
         {
             SDL_FPoint mousePos = {app->input.mouseX, app->input.mouseY};
-
+            
             if (SDL_PointInRectFloat(&mousePos, &app->playbutton)){
                 resetGame(app);
                 app->gameState = STATE_PLAYING;
@@ -303,18 +304,13 @@ void SDL_AppQuit(void *appstate, SDL_AppResult result)
     if (!app)
         return;
     //add function to destroy all textures
-    if (app->grassTexture)
-        SDL_DestroyTexture(app->grassTexture);
-    if (app->waterTexture)
-        SDL_DestroyTexture(app->waterTexture);
-    if (app->bridgeTexture)
-        SDL_DestroyTexture(app->bridgeTexture);
-    if (app->font)
-        TTF_CloseFont(app->font);
-    if (app->renderer)
-        SDL_DestroyRenderer(app->renderer);
-    if (app->window)
-        SDL_DestroyWindow(app->window);
+    if (app->grassTexture)SDL_DestroyTexture(app->grassTexture);
+    if (app->waterTexture)SDL_DestroyTexture(app->waterTexture);
+    if (app->bridgeTexture)SDL_DestroyTexture(app->bridgeTexture);
+    if (app->font)TTF_CloseFont(app->font);
+    if (app->renderer)SDL_DestroyRenderer(app->renderer);
+    if (app->window)SDL_DestroyWindow(app->window);
+
     TTF_Quit();
     SDL_Quit();
     SDL_free(app);
@@ -389,7 +385,6 @@ void updateGame(AppState *app){
         if (app->input.keyDown[SDL_SCANCODE_3]) app->selectedPieceType = ROOK;
         if (app->input.keyDown[SDL_SCANCODE_4]) app->selectedPieceType = BISHOP;
         if (app->input.keyDown[SDL_SCANCODE_5]) app->selectedPieceType = QUEEN;
-        if (app->input.keyDown[SDL_SCANCODE_6]) app->selectedPieceType = KING;
 
     // =========================
     // SPAWN + RENDER
@@ -571,7 +566,6 @@ void winCondition(AppState *app){
         app->winner = 2;
         app->gameState = STATE_END;
     }
-
     //later when have capturing add if king captured = win
 }
 
@@ -605,4 +599,47 @@ void resetGame(AppState *app){
     app->P2.pieceCount = 0;
 
     initTowns(app);
+    startGame(app);
+}
+
+void startGame(AppState *app){
+
+    bool p1Spawned = false;
+    bool p2Spawned = false;
+    int slot = 0;
+
+    for (int r = 0; r < MAP_ROWS; r++)
+    {
+        for (int c = 0; c < MAP_COLS; c++)
+        {
+            
+            if (map_data[r][c]== SPAWN_POINT)
+            {
+                if (slot < MAX_PIECES)
+                {
+                    app->pieces[slot].active = true;
+                    app->pieces[slot].type = KING;
+                    app->pieces[slot].row = r;
+                    app->pieces[slot].col = c;
+                    app->pieces[slot].pieceX = (float)(c * TILE_SIZE);
+                    app->pieces[slot].pieceY = (float)(r * TILE_SIZE);
+                }
+
+                //spawn p1 first then p2
+                if (p1Spawned == false)
+                {
+                    app->pieces[slot].owner = 1;
+                    p1Spawned = true;
+                    app->P1.pieceCount++;
+                }else if(p2Spawned == false){
+                    app->pieces[slot].owner = 2;
+                    p2Spawned = true;
+                    app->P2.pieceCount++;
+                }
+                slot++;
+            }
+        }
+        
+    }
+    
 }
