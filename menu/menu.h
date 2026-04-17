@@ -20,4 +20,7 @@ void unitIconUI(AppState *app);
 void goldUI(AppState *app);
 void buildingIconUI(AppState *app);
 void drawEndScreen(AppState *app);
+void mainMenuButton(AppState *app);
+void optionsButton(AppState *app);
+
 #endif 

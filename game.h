@@ -107,6 +107,8 @@ typedef struct AppState
     SDL_Texture *goldTexture;
     SDL_FRect playbutton;
     SDL_FRect quitbutton;
+    SDL_FRect optionsbutton;
+    SDL_FRect mainmenubutton;
     SDL_FRect endTurnButton;
     SDL_FRect turnCount;
     SDL_FRect pauseTxt;

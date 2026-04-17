@@ -119,6 +119,8 @@ void drawPauseMenu(AppState *app)
     // add options button
     // add resume button
     quitButton(app);
+    mainMenuButton(app);
+    optionsButton(app);
 }
 
 void gameUI(AppState *app)
@@ -243,4 +245,31 @@ void drawEndScreen(AppState *app){
         120.0f                  // Height
     };
     drawText(app, winner, textPos);
+}
+
+
+void mainMenuButton(AppState *app){
+    float wB, hB;
+    SDL_GetTextureSize(app->buttonHovered, &wB, &hB);
+
+    app->mainmenubutton.w = wB;
+    app->mainmenubutton.h = hB;
+    app->mainmenubutton.x = (float)((float)((WINDOW_WIDTH / 2) - ((wB * 3) / 20)));
+    app->mainmenubutton.y = 300.0f;
+
+    SDL_RenderTexture(app->renderer, app->buttonHovered, NULL, &app->mainmenubutton);
+    drawText(app, "MAIN MENU", app->mainmenubutton);
+}
+
+void optionsButton(AppState *app){
+    float wB, hB;
+    SDL_GetTextureSize(app->buttonHovered, &wB, &hB);
+
+    app->optionsbutton.w = wB;
+    app->optionsbutton.h = hB;
+    app->optionsbutton.x = (float)((float)((WINDOW_WIDTH / 2) - ((wB * 3) / 20)));
+    app->optionsbutton.y = 400.0f;
+
+    SDL_RenderTexture(app->renderer, app->buttonHovered, NULL, &app->optionsbutton);
+    drawText(app, "OPTIONS", app->optionsbutton);
 }
