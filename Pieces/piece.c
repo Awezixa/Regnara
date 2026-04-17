@@ -6,13 +6,13 @@ void spawnPiece(AppState *app)
     // 1. Initial check for click and capacity
     if (app->input.mouseRightPressed && app->pieceCount < MAX_PIECES)
     {
-        // 2. Refresh relative mouse state to distinguish click from drag
-        float relX, relY;
-        SDL_GetGlobalMouseState(NULL, NULL); 
-        SDL_GetRelativeMouseState(&relX, &relY);
+        if (pieceSpawnable(app, app->currentPlayer))
+        {
+            // 2. Refresh relative mouse state to distinguish click from drag
+            float relX, relY;
+            SDL_GetGlobalMouseState(NULL, NULL);
+            SDL_GetRelativeMouseState(&relX, &relY);
 
-        // Only proceed if the mouse stayed relatively still (not a camera drag)
-        
             // 3. Convert screen position to world/grid coordinates
             float worldX = (app->input.mouseX / app->camera.zoom) + app->camera.x;
             float worldY = (app->input.mouseY / app->camera.zoom) + app->camera.y;
@@ -20,13 +20,16 @@ void spawnPiece(AppState *app)
             int col = (int)(worldX / TILE_SIZE);
             int row = (int)(worldY / TILE_SIZE);
 
+            if(!inTerritory(app, row, col)){return;}
+
+
             // 4. Bounds Check
             if (row >= 0 && row < MAP_ROWS && col >= 0 && col < MAP_COLS)
             {
                 char tile = map_data[row][col];
 
                 // 5. Tile Type Validation
-                if (tile == GRASS_TILE || tile == BRIDGE_TILE || tile == SPAWN_POINT)
+                if (tile == GRASS_TILE || tile == BRIDGE_TILE || tile == SPAWN_POINT || tile == TOWN_TILE)
                 {
                     float targetX = (float)(col * TILE_SIZE);
                     float targetY = (float)(row * TILE_SIZE);
@@ -48,20 +51,31 @@ void spawnPiece(AppState *app)
                     {
                         // 7. Find an empty slot and spawn
                         for (int i = 0; i < MAX_PIECES; i++)
-                    {
-                        if (!app->pieces[i].active)
                         {
-                            app->pieces[i].pieceX = targetX;
-                            app->pieces[i].pieceY = targetY;
-                            app->pieces[i].col = col;
-                            app->pieces[i].row = row;
-                            app->pieces[i].active = true;
+                            if (!app->pieces[i].active)
+                            {
+                                app->pieces[i].pieceX = targetX;
+                                app->pieces[i].pieceY = targetY;
+                                app->pieces[i].col = col;
+                                app->pieces[i].row = row;
+                                app->pieces[i].active = true;
 
-                            app->pieces[i].type = app->selectedPieceType;
-                            app->pieces[i].owner = app->currentPlayer;
+                                app->pieces[i].type = app->selectedPieceType;
+                                app->pieces[i].owner = app->currentPlayer;
 
-                            app->pieceCount++;
-                            break;
+                                app->pieceCount++;
+
+                                if (app->currentPlayer == 1)
+                                {
+                                    app->P1.pieceCount++;
+                                }
+                                else
+                                {
+                                    app->P2.pieceCount++;
+                                }
+
+                                break;
+                            }
                         }
                     }
                 }
@@ -112,7 +126,8 @@ void spawnPiece(AppState *app)
 //     }
 // }
 
-void renderPiece(AppState *app) {
+void renderPiece(AppState *app)
+{
     for (int i = 0; i < MAX_PIECES; i++)
     {
         if (app->pieces[i].active)
@@ -122,32 +137,37 @@ void renderPiece(AppState *app) {
                 &app->camera,
                 app->pieces[i].pieceX,
                 app->pieces[i].pieceY,
-                32.0f, 32.0f 
-            );
+                32.0f, 32.0f);
 
             SDL_Texture *tex = NULL;
-            //to swap between textures for 2 players
-            if (app->pieces[i].owner == 1) {
-                switch (app->pieces[i].type) {
-                    case PAWN:   tex = app->WpawnTexture;   break;
-                    case KING:   tex = app->WkingTexture;   break;
-                    case QUEEN:  tex = app->WqueenTexture;  break;
-                    case ROOK:   tex = app->WrookTexture;   break;
-                    case KNIGHT: tex = app->WknightTexture; break;
-                    case BISHOP: tex = app->WbishopTexture; break;
+            // to swap between textures for 2 players
+            if (app->pieces[i].owner == 1)
+            {
+                switch (app->pieces[i].type)
+                {
+                    case PAWN:tex = app->WpawnTexture;break;
+                    case KING:tex = app->WkingTexture;break;
+                    case QUEEN:tex = app->WqueenTexture;break;
+                    case ROOK:tex = app->WrookTexture;break;
+                    case KNIGHT:tex = app->WknightTexture;break;
+                    case BISHOP:tex = app->WbishopTexture;break;
                 }
-            } else {
-                switch (app->pieces[i].type) {
-                    case PAWN:   tex = app->BpawnTexture;   break;
-                    case KING:   tex = app->BkingTexture;   break;
-                    case QUEEN:  tex = app->BqueenTexture;  break;
-                    case ROOK:   tex = app->BrookTexture;   break;
-                    case KNIGHT: tex = app->BknightTexture; break;
-                    case BISHOP: tex = app->BbishopTexture; break;
+            }
+            else
+            {
+                switch (app->pieces[i].type)
+                {
+                    case PAWN:tex = app->BpawnTexture;break;
+                    case KING:tex = app->BkingTexture;break;
+                    case QUEEN:tex = app->BqueenTexture;break;
+                    case ROOK:tex = app->BrookTexture;break;
+                    case KNIGHT:tex = app->BknightTexture;break;
+                    case BISHOP:tex = app->BbishopTexture;break;
                 }
             }
 
-            if (tex) {
+            if (tex)
+            {
                 SDL_RenderTexture(app->renderer, tex, NULL, &p);
             }
         }
@@ -157,14 +177,72 @@ void renderPiece(AppState *app) {
 bool isTileWalkable(int row, int col)
 {
     // 1. Bounds check (ALWAYS first)
-    if (row < 0 || row >= MAP_ROWS || col < 0 || col >= MAP_COLS) {
+    if (row < 0 || row >= MAP_ROWS || col < 0 || col >= MAP_COLS)
+    {
         return false;
     }
 
     // 2. Check the specific tile
-    if (map_data[row][col] == 'W') {
+    if (map_data[row][col] == 'W')
+    {
         return false;
     }
 
     return true;
+}
+
+bool pieceSpawnable(AppState *app, int player)
+{
+    if (app->pieceCount >= MAX_PIECES)
+    {
+        return false;
+    }
+    int count = (player == 1) ? app->P1.pieceCount : app->P2.pieceCount;
+
+    if (count >= 9)
+    {
+        return false;
+    }
+
+    if (app->selectedPieceType == KING)
+    {
+        return false;
+    }
+
+    return true;
+}
+
+bool inTerritory(AppState *app, int row, int col){
+    for (int t = 0; t < app->tTowns; t++)
+    {
+        //check who owns town
+        if (app->towns[t].owner == app->currentPlayer)
+        {
+            //abs() check 3x3 radius
+            if (abs(row - app->towns[t].row) <= 1 && abs(col - app->towns[t].col) <= 1){return true;}
+        } 
+    }
+
+    int spawnCount = 0;
+    for (int r = 0; r < MAP_ROWS; r++)
+    {
+        for (int c = 0; c < MAP_COLS; c++)
+        {
+            if(map_data[r][c] == SPAWN_POINT){
+                spawnCount++;
+
+                int spawnOwner = (spawnCount == 1) ? 1 : 2;
+                if (spawnOwner == app->currentPlayer)
+                {
+                    if (abs(row - r) <= 1 && abs(col - c) <= 1){return true;}
+                }
+                
+
+            }
+        }
+        
+    }
+    
+    return false;
+    
 }

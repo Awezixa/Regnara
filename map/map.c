@@ -153,6 +153,8 @@ void drawTerritory(AppState *app) {
     // Set the blend mode once for the whole loop
     SDL_SetRenderDrawBlendMode(app->renderer, SDL_BLENDMODE_BLEND);
 
+    int spawnCount = 0;
+
     for (int t = 0; t < app->tTowns; t++) {
         Town *town = &app->towns[t];
 
@@ -181,12 +183,47 @@ void drawTerritory(AppState *app) {
                             (float)TILE_SIZE,
                             (float)TILE_SIZE
                         );
-
-                        // 5. Fill the tile
                         SDL_RenderFillRect(app->renderer, &tileRect);
                     }
                 }
             }
+        }
+    }
+
+    //spawn territory rendering
+    for (int i = 0; i < MAP_ROWS; i++)
+    {
+        for (int j = 0; j < MAP_COLS; j++)
+        {
+            if(map_data[i][j]== SPAWN_POINT)
+            {
+                spawnCount++;
+
+                if (spawnCount == 1) {
+                    SDL_SetRenderDrawColor(app->renderer, 0, 100, 255, 80); 
+                } else {
+                    SDL_SetRenderDrawColor(app->renderer, 255, 50, 50, 80);
+                }
+
+                //to draw square
+                for (int dr = -1; dr <= 1; dr++)
+                {
+                    for (int dc = -1; dc <= 1; dc++)
+                    {
+                        //tile row and col
+                        int tr = i + dr;
+                        int tc = j + dc;
+
+                        if (tr >= 0 && tr < MAP_ROWS && tc >= 0 && tc < MAP_COLS) {
+                            SDL_FRect tileRect = camera2d_world_to_screen_rect(&app->camera, (float)(tc * TILE_SIZE), (float)(tr * TILE_SIZE), (float)TILE_SIZE, (float)TILE_SIZE);
+                            SDL_RenderFillRect(app->renderer, &tileRect);
+                            
+                        }
+                    }
+
+                }
+            }
+        
         }
     }
 }

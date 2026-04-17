@@ -389,7 +389,7 @@ void updateGame(AppState *app){
     // =========================
     // SPAWN + RENDER
     // =========================
-    //piece spawning requires 2 right clicks for some reason
+    
     spawnPiece(app);
     renderPiece(app);
     
