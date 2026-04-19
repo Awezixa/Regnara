@@ -32,6 +32,8 @@ typedef struct Piece
 {
     float pieceX, pieceY; // world position
     int col, row;         // grid position (NEW)
+    int dx;
+    int dy;
     int owner; // 1 = p1, 2 = p2
     bool active;
     pieceType type;

@@ -27,6 +27,39 @@ void GenerateMoves(AppState *app, Piece *p)
     }
 }
 
+bool isTileOccupied(AppState *app, int row, int col)
+{
+    for (int i = 0; i < MAX_PIECES; i++)
+    {
+        Piece *other = &app->pieces[i];
+
+        if (other->active &&
+            other->row == row &&
+            other->col == col &&
+            ((app->currentPlayer == 1 && app->pieces[i].owner == 1) || (app->currentPlayer == 2 && app->pieces[i].owner == 2)))
+        {
+            return true; // something is there
+        }
+    }
+    return false; // empty
+}
+
+void CapturePiece(AppState *app, int row, int col)
+{
+    for (int i = 0; i < MAX_PIECES; i++)
+    {
+        Piece *other = &app->pieces[i];
+
+        if (other->active &&
+            other->row == row &&
+            other->col == col)
+        {
+            other->active = false; // 💀 remove piece
+            return;
+        }
+    }
+}
+
 void GenerateKingMoves(AppState *app, Piece *p)
 {
     app->possibleMoveCount = 0;
@@ -40,8 +73,15 @@ void GenerateKingMoves(AppState *app, Piece *p)
             int newRow = p->row + dy;
 
             // Stay inside board
-            if (newCol < 0 || newCol >= MAP_COLS || newRow < 0 || newRow >= MAP_ROWS)
+            if (newCol < 0 || newCol >= MAP_COLS ||
+                newRow < 0 || newRow >= MAP_ROWS)
                 continue;
+
+            // 🚫 Block if tile is occupied (no capturing)
+            if (isTileOccupied(app, newRow, newCol))
+                continue;
+
+            CapturePiece(app,newRow,newCol);
 
             app->possibleMoves[app->possibleMoveCount++] =
                 (SDL_Point){newCol, newRow};
