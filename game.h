@@ -29,6 +29,7 @@ typedef struct AppState AppState;// added this too all files that use appstate
 #include "camera/camera.h"
 #include "camera/transform.h"
 #include "player/player.h"
+#include "tech_Tree/techTree.h"
 
 typedef struct InputState
 {
@@ -62,6 +63,9 @@ typedef struct AppState
     int currentPlayer;
     int turnCounter;
     int winner;
+    // Tech Tree ()
+    TechTree techTreeP1;
+    TechTree techTreeP2;
 
     //temporary texture loading
     //Map
