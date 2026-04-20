@@ -107,6 +107,9 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     app->winner = 0;
     app->P1.p1Gold = 10;
     app->P2.p2Gold = 10;
+    // TECH TREE INIT
+    initTechTree(&app->techTreeP1);
+    initTechTree(&app->techTreeP2);
     //town initialization
     initTowns(app);
 
@@ -254,6 +257,16 @@ SDL_AppResult SDL_AppIterate(void *appstate)
         updateGame(app);
         break;   
     }
+        case TECH_TREE:
+{
+    showText(app->renderer, 500, 200, "TECH TREE (ESC to return)", (SDL_Color){255,255,255,255});
+
+    if (app->input.keyPressed[SDL_SCANCODE_ESCAPE]) {
+        app->gameState = STATE_PLAYING;
+    }
+
+    break;
+}
 
     case STATE_PAUSED:
     {
@@ -404,6 +417,10 @@ void updateGame(AppState *app){
     
     spawnPiece(app);
     renderPiece(app);
+    //
+    if (app->input.keyPressed[SDL_SCANCODE_T]) {
+    app->gameState = TECH_TREE;
+    }
     
     
     // =========================
