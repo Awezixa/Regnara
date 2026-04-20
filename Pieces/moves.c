@@ -40,6 +40,7 @@ bool isTileOccupied(AppState *app, int row, int col)
         {
             return true; // something is there
         }
+
     }
     return false; // empty
 }
@@ -80,8 +81,6 @@ void GenerateKingMoves(AppState *app, Piece *p)
             // 🚫 Block if tile is occupied (no capturing)
             if (isTileOccupied(app, newRow, newCol))
                 continue;
-
-            CapturePiece(app,newRow,newCol);
 
             app->possibleMoves[app->possibleMoveCount++] =
                 (SDL_Point){newCol, newRow};
@@ -185,10 +184,10 @@ void PossibleMovesShow(AppState *app, Piece *p)
 {
     for (int i = 0; i < app->possibleMoveCount; i++)
     {
-        int row = app->possibleMoves[i].y;
         int col = app->possibleMoves[i].x;
+        int row = app->possibleMoves[i].y;
 
-        // 🚫 Skip water tiles
+        // 🚫 Skip water
         if (!isTileWalkable(row, col)) {
             continue;
         }
@@ -203,6 +202,35 @@ void PossibleMovesShow(AppState *app, Piece *p)
             TILE_SIZE * app->camera.zoom
         };
 
-        SDL_RenderTexture(app->renderer, app->movePossible, NULL, &r);
+        // 🔍 Check if there's a piece here
+        Piece *target = GetPieceAt(app, row, col);
+
+        // 🚫 Skip friendly pieces
+        if (target && target->owner == p->owner) {
+            continue;
+        }
+
+        // 🎨 Choose texture
+        SDL_Texture *tex = app->movePossible;
+
+        if (target && target->owner != p->owner) {
+            tex = app->moveCapture;
+        }
+
+        SDL_RenderTexture(app->renderer, tex, NULL, &r);
     }
+}
+
+Piece* GetPieceAt(AppState *app, int row, int col)
+{
+    for (int i = 0; i < MAX_PIECES; i++)
+    {
+        Piece *p = &app->pieces[i];
+
+        if (p->active && p->row == row && p->col == col)
+        {
+            return p;
+        }
+    }
+    return NULL;
 }

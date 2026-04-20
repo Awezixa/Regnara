@@ -96,7 +96,7 @@ typedef struct AppState
     SDL_Texture *BqueenTexture;
     //possible move textures
     SDL_Texture *movePossible;
-    SDL_Texture *moveImpossible;
+    SDL_Texture *moveCapture;
     
     bool piecePlaced;
     float pieceX, pieceY;

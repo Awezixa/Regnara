@@ -75,7 +75,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     app->BqueenTexture  = LoadTexture(app->renderer, "Assets/images/blackPieces/BQueen.png");
     //possible move loading
     app->movePossible = LoadTexture(app->renderer, "Assets/images/moves/possible.png");
-    app->moveImpossible = LoadTexture(app->renderer, "Assets/images/moves/impossible.png");
+    app->moveCapture = LoadTexture(app->renderer, "Assets/images/moves/impossible.png");
     //final check that all textures there and load
     if (!app->logoTexture || !app->grassTexture) {
         SDL_Log("CRITICAL ERROR: Core assets missing. Closing app.");
@@ -451,6 +451,21 @@ void updateGame(AppState *app){
 
             if (m.x == mouseCol && m.y == mouseRow)
             {
+                Piece *target = GetPieceAt(app, mouseRow, mouseCol);
+
+                // ⚔️ capture ONLY if enemy
+                if (target && target->owner != app->selectedPiece->owner)
+                {
+                    CapturePiece(app, mouseRow, mouseCol);
+                }
+
+                // 🚫 block friendly pieces
+                if (target && target->owner == app->selectedPiece->owner)
+                {
+                    continue;
+                }
+
+                // move piece
                 app->selectedPiece->col = m.x;
                 app->selectedPiece->row = m.y;
 
@@ -478,47 +493,12 @@ void updateGame(AppState *app){
     drawTerritory(app);
     renderPiece(app);
 
-    for (int i = 0; i < app->possibleMoveCount; i++)
-    {
-        SDL_FRect r = {
-            app->possibleMoves[i].x * TILE_SIZE,
-            app->possibleMoves[i].y * TILE_SIZE,
-            TILE_SIZE,
-            TILE_SIZE
-        };
-
-        r = camera2d_world_to_screen_rect(
-            &app->camera,
-            r.x, r.y,
-            r.w, r.h
-        );
-
-        SDL_RenderTexture(app->renderer, app->possibleMovesTexture, NULL, &r);
-    }
-
     // =========================
     // DRAW POSSIBLE MOVES
     // =========================
 
     if (app->selectedPiece != NULL) {
     PossibleMovesShow(app, app->selectedPiece);
-    }
-    for (int i = 0; i < app->possibleMoveCount; i++)
-    {
-        SDL_FRect r = {
-            app->possibleMoves[i].x * TILE_SIZE,
-            app->possibleMoves[i].y * TILE_SIZE,
-            TILE_SIZE,
-            TILE_SIZE
-        };
-
-        r = camera2d_world_to_screen_rect(
-            &app->camera,
-            r.x, r.y,
-            r.w, r.h
-        );
-
-        SDL_RenderTexture(app->renderer, app->possibleMovesTexture, NULL, &r);
     }
 
     // =========================

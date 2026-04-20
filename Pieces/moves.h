@@ -11,5 +11,9 @@ void GenerateBishopMoves(AppState *app, Piece *p);
 void GenerateRookMoves(AppState *app, Piece *p);
 void GenerateQueenMoves(AppState *app, Piece *p);
 void PossibleMovesShow(AppState *app, Piece *p);
+bool isTileOccupied(AppState *app, int row, int col);
+void CapturePiece(AppState *app, int row, int col);
+
+Piece* GetPieceAt(AppState *app, int row, int col);
 
 #endif
