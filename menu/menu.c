@@ -132,7 +132,14 @@ void gameUI(AppState *app)
         WINDOW_WIDTH,
         150.0f};
     SDL_SetRenderDrawBlendMode(app->renderer, SDL_BLENDMODE_BLEND);
-    SDL_SetRenderDrawColor(app->renderer, 0, 153, 255, 180);
+
+    if(app->currentPlayer == 1){
+        SDL_SetRenderDrawColor(app->renderer, 0, 153, 255, 180);
+    }
+    else if(app->currentPlayer == 2){
+        SDL_SetRenderDrawColor(app->renderer, 255, 51, 0, 180);
+    }
+    
 
     SDL_RenderFillRect(app->renderer, &uiPanel);
 
@@ -227,7 +234,12 @@ void goldUI(AppState * app)
 
     // for rectangle loading
     SDL_SetRenderDrawBlendMode(app->renderer, SDL_BLENDMODE_BLEND);
-    SDL_SetRenderDrawColor(app->renderer, 0, 153, 255, 180);
+    if(app->currentPlayer == 1){
+        SDL_SetRenderDrawColor(app->renderer, 0, 153, 255, 180);
+    }
+    else if(app->currentPlayer == 2){
+        SDL_SetRenderDrawColor(app->renderer, 255, 51, 0, 180);
+    }
     SDL_RenderFillRect(app->renderer, &goldPanel);
     // for icon and text loading
     SDL_RenderRect(app->renderer, &goldPanel);

@@ -1,17 +1,13 @@
 #ifndef PIECE_H
 #define PIECE_H
-#define MAX_PIECES 20
+#define MAX_PIECES 20 //should make limit higher for cheats and change from dynamic array to dynamic storage for more pieces and larger maps
 #include <stdbool.h>
 typedef struct AppState AppState;
 
 /* Needed functions
-- piece spawning
-- piece movement
 - capturing  
 - upgrade
 
-Other needed things
-- figure out how to swap piece textures
 */
 typedef enum pieceType{
     KING,
