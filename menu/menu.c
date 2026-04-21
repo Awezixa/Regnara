@@ -153,46 +153,36 @@ void gameUI(AppState *app)
 
 void unitIconUI(AppState *app)
 {
-    SDL_Texture *unit = NULL;
-    char unitText[32];
+    pieceType types[] = {PAWN, KNIGHT, ROOK, BISHOP, QUEEN};
+    SDL_Texture* texturesP1[] = {app->WpawnTexture, app->WknightTexture, app->WbishopTexture, app->WrookTexture, app->WqueenTexture};
+    SDL_Texture* texturesP2[] = {app->BpawnTexture, app->BknightTexture, app->BbishopTexture, app->BrookTexture, app->BqueenTexture};
+    SDL_FRect* buttons[] = {&app->pawnButton, &app->knightButton, &app->rookButton, &app->bishopButton, &app->queenButton};
+    
+    float spacing = 90.0f;
+    float startX = (WINDOW_WIDTH / 2.0f) - ((spacing * 5) / 2.0f);
+    float size = 64.0f;
+    
 
-    int currentCount = (app->currentPlayer == 1) ? app->P1.pieceCount : app->P2.pieceCount;
-
-    snprintf(unitText, sizeof(unitText), "Pieces: %d/8", currentCount - 1);
-
-    if (app->currentPlayer == 1)
+    for (int i = 0; i < 5; i++)
     {
-        switch (app->selectedPieceType)
+        buttons[i]->x = startX + (i *spacing);
+        buttons[i]->y = WINDOW_HEIGHT - 110.0f;
+        buttons[i]->w = size;
+        buttons[i]->h = size;
+
+        if (app->selectedPieceType == types[i])
         {
-            case PAWN:unit = app->WpawnTexture;break;
-            case QUEEN:unit = app->WqueenTexture;break;
-            case ROOK:unit = app->WrookTexture;break;
-            case KNIGHT:unit = app->WknightTexture;break;
-            case BISHOP:unit = app->WbishopTexture;break;
-            default:unit = app->WpawnTexture;break;
+            SDL_SetRenderDrawColor(app->renderer, 255, 255, 255, 100);
+            SDL_RenderFillRect(app->renderer, buttons[i]);
         }
-    }
-    else
-    {
-        switch (app->selectedPieceType)
-        {
-            case PAWN:unit = app->BpawnTexture;break;
-            case QUEEN:unit = app->BqueenTexture;break;
-            case ROOK:unit = app->BrookTexture;break;
-            case KNIGHT:unit = app->BknightTexture;break;
-            case BISHOP:unit = app->BbishopTexture;break;
-            default: unit = app->BpawnTexture;break;
-        }
-        // can add text to say which unit spawned
-    }
 
-    if (unit)
-    {
-        SDL_FRect icon = {WINDOW_WIDTH / 3.0f, WINDOW_HEIGHT - 60.0f, 50.f, 50.0f};
-        SDL_RenderTexture(app->renderer, unit, NULL, &icon);
+        SDL_Texture* tex = (app->currentPlayer == 1) ? texturesP1[i] : texturesP2[i];
+        SDL_RenderTexture(app->renderer, tex, NULL, buttons[i]);
 
-        SDL_FRect textPos = {icon.x + 60.0f, icon.y + 10, 150.0f, 50.0f};
-        drawText(app, unitText, textPos);
+        char cost[16];
+        snprintf(cost, sizeof(cost), "%d ", pieceCost(types[i]));
+        SDL_FRect costPos = {buttons[i]->x, buttons[i]->y + size, size, 20.0f};
+        drawText(app, cost, costPos);
     }
 }
     

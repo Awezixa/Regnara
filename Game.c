@@ -405,6 +405,23 @@ void updateGame(AppState *app){
     // =========================
     // PIECE TYPE SELECTION
     // =========================
+
+    if (app->input.mouseLeftPressed) {
+        SDL_FPoint mousePos = {app->input.mouseX, app->input.mouseY};
+    
+        // Ensure these are mutually exclusive
+        if (SDL_PointInRectFloat(&mousePos, &app->pawnButton)) {
+            app->selectedPieceType = PAWN;
+        } else if (SDL_PointInRectFloat(&mousePos, &app->knightButton)) {
+            app->selectedPieceType = KNIGHT;
+        } else if (SDL_PointInRectFloat(&mousePos, &app->rookButton)) {
+            app->selectedPieceType = ROOK;
+        } else if (SDL_PointInRectFloat(&mousePos, &app->bishopButton)) {
+            app->selectedPieceType = BISHOP;
+        } else if (SDL_PointInRectFloat(&mousePos, &app->queenButton)) {
+            app->selectedPieceType = QUEEN;
+        }
+    }
         if (app->input.keyDown[SDL_SCANCODE_1]) app->selectedPieceType = PAWN;
         if (app->input.keyDown[SDL_SCANCODE_2]) app->selectedPieceType = KNIGHT;
         if (app->input.keyDown[SDL_SCANCODE_3]) app->selectedPieceType = ROOK;

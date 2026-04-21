@@ -91,6 +91,13 @@ typedef struct AppState
     SDL_Texture *WbishopTexture;
     SDL_Texture *WkingTexture;
     SDL_Texture *WqueenTexture;
+
+    SDL_FRect pawnButton;
+    SDL_FRect queenButton;
+    SDL_FRect knightButton;
+    SDL_FRect rookButton;
+    SDL_FRect bishopButton;
+
     //black piece textures
     SDL_Texture *BpawnTexture;
     SDL_Texture *BrookTexture;
