@@ -8,6 +8,18 @@ void spawnPiece(AppState *app)
     {
         if (pieceSpawnable(app, app->currentPlayer))
         {
+
+            int cost = pieceCost(app->selectedPieceType);
+            int *playerGold = (app->currentPlayer == 1) ? &app->P1.p1Gold : &app->P2.p2Gold;
+
+            if (*playerGold < cost)
+            {
+                //add temp text that show player cant spawn
+                SDL_Log("Not enough gold");
+                return;
+            }
+            
+
             // 2. Refresh relative mouse state to distinguish click from drag
             float relX, relY;
             SDL_GetGlobalMouseState(NULL, NULL);
@@ -63,6 +75,8 @@ void spawnPiece(AppState *app)
                                 app->pieces[i].type = app->selectedPieceType;
                                 app->pieces[i].owner = app->currentPlayer;
 
+                                *playerGold -= cost;
+                                
                                 app->pieceCount++;
 
                                 if (app->currentPlayer == 1)
@@ -151,6 +165,7 @@ void renderPiece(AppState *app)
                     case ROOK:tex = app->WrookTexture;break;
                     case KNIGHT:tex = app->WknightTexture;break;
                     case BISHOP:tex = app->WbishopTexture;break;
+                    default: tex = app->WpawnTexture; break;
                 }
             }
             else
@@ -163,6 +178,7 @@ void renderPiece(AppState *app)
                     case ROOK:tex = app->BrookTexture;break;
                     case KNIGHT:tex = app->BknightTexture;break;
                     case BISHOP:tex = app->BbishopTexture;break;
+                    default: tex = app->BpawnTexture;break;
                 }
             }
 
@@ -245,4 +261,15 @@ bool inTerritory(AppState *app, int row, int col){
     
     return false;
     
+}
+
+int pieceCost(pieceType type){
+    switch(type){
+        case PAWN: return 1;break;
+        case QUEEN:return 6;break;
+        case ROOK:return 3;break;
+        case KNIGHT:return 2;break;
+        case BISHOP:return 4;break;
+        default: return 0;
+    }
 }

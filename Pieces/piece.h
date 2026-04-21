@@ -4,11 +4,19 @@
 #include <stdbool.h>
 typedef struct AppState AppState;
 
-/* Needed functions
-- capturing  
+/* Needed functions  
 - upgrade
 
+Piece costs
+- Pawn: 1
+- Queen: 6
+- Knight: 2
+- Bishop: 4
+- Rook: 3
 */
+
+
+
 typedef enum pieceType{
     KING,
     QUEEN,
@@ -33,9 +41,9 @@ typedef struct Piece
     int owner; // 1 = p1, 2 = p2
     bool active;
     pieceType type;
-    //int count, max;
     //properties
 } Piece;
+
 
 typedef struct Town
 {
@@ -53,5 +61,6 @@ void renderPiece(AppState *app);
 bool isTileWalkable(int row, int col);
 bool pieceSpawnable(AppState *app, int player);
 bool inTerritory(AppState *app, int row, int col);
+int pieceCost(pieceType type);
 
 #endif

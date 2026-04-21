@@ -154,6 +154,12 @@ void gameUI(AppState *app)
 void unitIconUI(AppState *app)
 {
     SDL_Texture *unit = NULL;
+    char unitText[32];
+
+    int currentCount = (app->currentPlayer == 1) ? app->P1.pieceCount : app->P2.pieceCount;
+
+    snprintf(unitText, sizeof(unitText), "Pieces: %d/8", currentCount - 1);
+
     if (app->currentPlayer == 1)
     {
         switch (app->selectedPieceType)
@@ -184,16 +190,20 @@ void unitIconUI(AppState *app)
     {
         SDL_FRect icon = {WINDOW_WIDTH / 3.0f, WINDOW_HEIGHT - 60.0f, 50.f, 50.0f};
         SDL_RenderTexture(app->renderer, unit, NULL, &icon);
+
+        SDL_FRect textPos = {icon.x + 60.0f, icon.y + 10, 150.0f, 50.0f};
+        drawText(app, unitText, textPos);
     }
 }
     
 
 void buildingIconUI(AppState * app)
     {
-        int townCounter = townCount();
         char countStr[32];
 
-        snprintf(countStr, sizeof(countStr), ": %d", app->P1.towns);
+        int towns = (app->currentPlayer == 1) ? app->P1.towns : app->P2.towns;
+
+        snprintf(countStr, sizeof(countStr), " %d", towns);
         SDL_FRect countPos = {
             650.0f,                 // X
             WINDOW_HEIGHT - 140.0f, // Y (below Turn UI)
@@ -222,7 +232,9 @@ void goldUI(AppState * app)
 
     // gold amount
     char goldAmmount[150];
-    snprintf(goldAmmount, sizeof(goldAmmount), ": %d", app->P1.p1Gold);
+    int gold = (app->currentPlayer == 1) ? app->P1.p1Gold : app->P2.p2Gold;
+
+    snprintf(goldAmmount, sizeof(goldAmmount), ": %d", gold);
     SDL_FRect textPos = {
         900.0f,                 // X padding from left
         WINDOW_HEIGHT - 235.0f, // Y position inside panel

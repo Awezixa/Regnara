@@ -6,24 +6,12 @@ void GenerateMoves(AppState *app, Piece *p)
 {
     switch (p->type)
     {
-        case KING:
-            GenerateKingMoves(app, p);
-            break;
-        case KNIGHT:
-            GenerateKnightMoves(app,p);
-            break;
-        case BISHOP:
-            GenerateBishopMoves(app,p);
-            break;
-        case ROOK:
-            GenerateRookMoves(app,p);
-            break;
-        case QUEEN:
-            GenerateQueenMoves(app,p);
-            break;
-        case PAWN:
-            GenerateKingMoves(app, p);
-            break;
+        case KING:GenerateKingMoves(app, p);break;
+        case KNIGHT:GenerateKnightMoves(app,p);break;
+        case BISHOP:GenerateBishopMoves(app,p);break;
+        case ROOK:GenerateRookMoves(app,p);break;
+        case QUEEN:GenerateQueenMoves(app,p);break;
+        case PAWN:GenerateKingMoves(app, p);break;
     }
 }
 
@@ -51,10 +39,23 @@ void CapturePiece(AppState *app, int row, int col)
     {
         Piece *other = &app->pieces[i];
 
-        if (other->active &&
-            other->row == row &&
-            other->col == col)
+        if (other->active && other->row == row && other->col == col)
         {
+            if (other->type == KING)
+            {
+                app->winner = (other->owner == 1)  ? 2 : 1;
+                app->gameState = STATE_END;
+            }
+            
+            
+            if(other->owner == 1){
+                app->P1.pieceCount--;
+            }
+            else if(other->owner == 2){
+                app->P2.pieceCount--;
+            }
+            
+            app->pieceCount--;
             other->active = false; // 💀 remove piece
             return;
         }

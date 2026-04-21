@@ -553,9 +553,9 @@ void endTurn(AppState *app) {
 
     // 3. Give gold to the NEW active player (start of turn income)
     if (app->currentPlayer == 1) {
-        app->P1.p1Gold += 7 + (app->P1.towns * 5); 
+        app->P1.p1Gold += 7 ; //+ (app->P1.towns * 5)
     } else {
-        app->P2.p2Gold += 7 + (app->P2.towns * 5);
+        app->P2.p2Gold += 7; //+ (app->P2.towns * 5)
     }
     
     // 4. Cap the gold
@@ -565,6 +565,7 @@ void endTurn(AppState *app) {
 
 void winCondition(AppState *app){
     //need to check who controls all towns
+
     if (app->P1.towns == app->tTowns && app->tTowns > 0)
     {
         app->winner = 1;
@@ -575,7 +576,7 @@ void winCondition(AppState *app){
         app->winner = 2;
         app->gameState = STATE_END;
     }
-    //later when have capturing add if king captured = win
+    //king capturing win condition in piece capturing
 }
 
 void resetGame(AppState *app){
@@ -603,7 +604,7 @@ void resetGame(AppState *app){
     app->P1.towns = 0;
     app->P1.pieceCount = 0;
 
-    app->P2.p2Gold = 0;
+    app->P2.p2Gold = 10;
     app->P2.towns = 0;
     app->P2.pieceCount = 0;
 
