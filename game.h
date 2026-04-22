@@ -30,6 +30,7 @@ typedef struct AppState AppState;// added this too all files that use appstate
 #include "camera/transform.h"
 #include "player/player.h"
 #include "tech_Tree/techTree.h"
+#include "cheats/cheats.h"
 
 typedef struct InputState
 {
@@ -56,6 +57,9 @@ typedef struct AppState
     Uint64 lastTicksMS;
     float dt;
     GameState gameState;
+
+    bool cheats;
+    SDL_FRect cheatText;
 
     //other structs used/ be accessed here
     Player1 P1;

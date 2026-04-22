@@ -13,6 +13,9 @@ typedef struct AppState AppState;
 
 */
 
+void infiniteMoney(AppState *app);
+void moveAnyWhere(AppState *app);
+void drawCheats(AppState *app);
 
 
 #endif

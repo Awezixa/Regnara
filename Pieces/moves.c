@@ -10,7 +10,7 @@ void GenerateMoves(AppState *app, Piece *p)
         case KNIGHT:GenerateKnightMoves(app,p);break;
         case BISHOP:GenerateBishopMoves(app,p);break;
         case ROOK:GenerateRookMoves(app,p);break;
-        case QUEEN:GenerateQueenMoves(app,p);break;
+        case QUEEN: GenerateQueenMoves(app,p);break;
         case PAWN:GenerateKingMoves(app, p);break;
     }
 }

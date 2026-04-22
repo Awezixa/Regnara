@@ -32,7 +32,7 @@ void spawnPiece(AppState *app)
             int col = (int)(worldX / TILE_SIZE);
             int row = (int)(worldY / TILE_SIZE);
 
-            if(!inTerritory(app, row, col)){return;}
+            if(!app->cheats && !inTerritory(app, row, col)){return;}
 
 
             // 4. Bounds Check

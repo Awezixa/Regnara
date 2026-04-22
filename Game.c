@@ -99,6 +99,9 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     for (int i = 0; i < MAX_PIECES; i++){
         app->pieces[i].active = false;
     }
+
+    app->cheats = false;
+
     app->pieceCount = 0;
     app->selectedPieceType = PAWN;
     //player initialization
@@ -255,18 +258,20 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     case STATE_PLAYING:
     {
         updateGame(app);
+
+        
         break;   
     }
-        case TECH_TREE:
-{
-    showText(app->renderer, 500, 200, "TECH TREE (ESC to return)", (SDL_Color){255,255,255,255});
+    case TECH_TREE:
+    {
+        showText(app->renderer, 500, 200, "TECH TREE (ESC to return)", (SDL_Color){255,255,255,255});
 
-    if (app->input.keyPressed[SDL_SCANCODE_ESCAPE]) {
-        app->gameState = STATE_PLAYING;
+        if (app->input.keyPressed[SDL_SCANCODE_ESCAPE]) {
+            app->gameState = STATE_PLAYING;
+        }
+
+        break;
     }
-
-    break;
-}
 
     case STATE_PAUSED:
     {
@@ -424,8 +429,8 @@ void updateGame(AppState *app){
     }
         if (app->input.keyDown[SDL_SCANCODE_1]) app->selectedPieceType = PAWN;
         if (app->input.keyDown[SDL_SCANCODE_2]) app->selectedPieceType = KNIGHT;
-        if (app->input.keyDown[SDL_SCANCODE_3]) app->selectedPieceType = ROOK;
-        if (app->input.keyDown[SDL_SCANCODE_4]) app->selectedPieceType = BISHOP;
+        if (app->input.keyDown[SDL_SCANCODE_3]) app->selectedPieceType = BISHOP;
+        if (app->input.keyDown[SDL_SCANCODE_4]) app->selectedPieceType = ROOK;
         if (app->input.keyDown[SDL_SCANCODE_5]) app->selectedPieceType = QUEEN;
 
     // =========================
@@ -436,8 +441,20 @@ void updateGame(AppState *app){
     renderPiece(app);
     //
     if (app->input.keyPressed[SDL_SCANCODE_T]) {
-    app->gameState = TECH_TREE;
+        app->gameState = TECH_TREE;
     }
+
+    if (app->input.keyPressed[SDL_SCANCODE_C])
+    {
+        app->cheats = !app->cheats;
+        //SDL_Log("Cheats: %dx , %dy", app->cheatText.x, app->cheatText.y);  
+    }
+
+    if (app->cheats){
+        drawCheats(app);
+
+        infiniteMoney(app);
+    } 
     
     
     // =========================
@@ -470,6 +487,16 @@ void updateGame(AppState *app){
     // =========================
     // MOVE PIECE
     // =========================
+        if (app->cheats && app->selectedPiece && app->input.mouseLeftPressed && wasPieceSelected)
+    {
+
+                app->selectedPiece->col = mouseCol;
+                app->selectedPiece->row = mouseRow;
+
+                app->selectedPiece->pieceX = mouseCol * TILE_SIZE;
+                app->selectedPiece->pieceY = mouseRow * TILE_SIZE;
+                app->selectedPiece = NULL;
+    }else
     if (app->selectedPiece && app->input.mouseLeftPressed && wasPieceSelected)
     {
         bool moved = false;
@@ -625,6 +652,7 @@ void resetGame(AppState *app){
     app->P2.towns = 0;
     app->P2.pieceCount = 0;
 
+    app->cheats = false;
     initTowns(app);
     startGame(app);
 }
