@@ -22,5 +22,6 @@ void buildingIconUI(AppState *app);
 void drawEndScreen(AppState *app);
 void mainMenuButton(AppState *app);
 void optionsButton(AppState *app);
+void quitPauseButton(AppState *app);
 
 #endif 
