@@ -22,7 +22,7 @@ void playButton(AppState *app)
 
     app->playbutton.w = wB;
     app->playbutton.h = hB;
-    app->playbutton.x = (float)((float)((WINDOW_WIDTH / 2) - ((wB * 3) / 2.5)));
+    app->playbutton.x = (float)(WINDOW_WIDTH / 2) - app->playbutton.w - 50;
     app->playbutton.y = 500.0f;
 
     SDL_RenderTexture(app->renderer, app->buttonOn, NULL, &app->playbutton);
@@ -37,7 +37,7 @@ void quitButton(AppState *app)
 
     app->quitbutton.w = wB;
     app->quitbutton.h = hB;
-    app->quitbutton.x = (float)((float)((WINDOW_WIDTH / 2) - ((wB * 3) / 20)));
+    app->quitbutton.x = (float)(WINDOW_WIDTH / 2);
     app->quitbutton.y = 500.0f;
 
     SDL_RenderTexture(app->renderer, app->buttonHovered, NULL, &app->quitbutton);
@@ -110,15 +110,15 @@ void drawPauseMenu(AppState *app)
     char pauseUI[32];
     snprintf(pauseUI, sizeof(pauseUI), "PAUSED");
 
-    app->pauseTxt.x = (float)(WINDOW_WIDTH / 2) - 10.0f;
-    app->pauseTxt.y = 200.0f;
     app->pauseTxt.h = 50.0f;
     app->pauseTxt.w = 180.0f;
+    app->pauseTxt.x = (float)(WINDOW_WIDTH / 2) - (app->pauseTxt.w/2);
+    app->pauseTxt.y = 200.0f;
 
     drawText(app, pauseUI, app->pauseTxt);
     // add options button
     // add resume button
-    quitButton(app);
+    quitPauseButton(app);
     mainMenuButton(app);
     optionsButton(app);
 }
@@ -261,6 +261,18 @@ void drawEndScreen(AppState *app){
     drawText(app, winner, textPos);
 }
 
+void quitPauseButton(AppState *app){
+    float wB, hB;
+    SDL_GetTextureSize(app->buttonHovered, &wB, &hB);
+
+    app->quitbutton.w = wB;
+    app->quitbutton.h = hB;
+    app->quitbutton.x = (float)(WINDOW_WIDTH / 2) - (app->quitbutton.w/2);
+    app->quitbutton.y = 500.0f;
+
+    SDL_RenderTexture(app->renderer, app->buttonHovered, NULL, &app->quitbutton);
+    drawText(app, "QUIT", app->quitbutton);
+}
 
 void mainMenuButton(AppState *app){
     float wB, hB;
@@ -268,7 +280,7 @@ void mainMenuButton(AppState *app){
 
     app->mainmenubutton.w = wB;
     app->mainmenubutton.h = hB;
-    app->mainmenubutton.x = (float)((float)((WINDOW_WIDTH / 2) - ((wB * 3) / 20)));
+    app->mainmenubutton.x = (float)(WINDOW_WIDTH / 2) - (app->mainmenubutton.w/2);
     app->mainmenubutton.y = 300.0f;
 
     SDL_RenderTexture(app->renderer, app->buttonHovered, NULL, &app->mainmenubutton);
@@ -281,7 +293,7 @@ void optionsButton(AppState *app){
 
     app->optionsbutton.w = wB;
     app->optionsbutton.h = hB;
-    app->optionsbutton.x = (float)((float)((WINDOW_WIDTH / 2) - ((wB * 3) / 20)));
+    app->optionsbutton.x = (float)(WINDOW_WIDTH / 2) - (app->optionsbutton.w/2);
     app->optionsbutton.y = 400.0f;
 
     SDL_RenderTexture(app->renderer, app->buttonHovered, NULL, &app->optionsbutton);
