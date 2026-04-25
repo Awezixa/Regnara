@@ -73,3 +73,10 @@ void printTechTree(TechTree *tree)
                tree->upgrades[i].unlocked ? "Unlocked" : "Locked");
     }
 }
+bool isUpgradeUnlocked(TechTree *tree, int index)
+{
+    if (index < 0 || index >= MAX_UPGRADES)
+    return false;
+
+return tree->upgrades[index].unlocked;
+}
