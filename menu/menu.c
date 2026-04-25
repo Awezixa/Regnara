@@ -99,8 +99,8 @@ void turnUI(AppState *app)
 
     app->turnCount.x = (float)(WINDOW_WIDTH / 2) - 50.0f;
     app->turnCount.y = 20.0f;
-    app->turnCount.h = 50.0f;
-    app->turnCount.w = 180.0f;
+    app->turnCount.h = 60.0f;
+    app->turnCount.w = 200.0f;
 
     drawText(app, turnStr, app->turnCount);
 }
@@ -195,17 +195,17 @@ void buildingIconUI(AppState * app)
 
         snprintf(countStr, sizeof(countStr), " %d", towns);
         SDL_FRect countPos = {
-            650.0f,                 // X
-            WINDOW_HEIGHT - 140.0f, // Y (below Turn UI)
+            410.0f,                 // X
+            WINDOW_HEIGHT - 125.0f, // Y (below Turn UI)
             150.0f,                 // Width
-            40.0f                   // Height
+            150.0f                  // Height
         };
 
         SDL_FRect townIcon = {
-            WINDOW_WIDTH / 3.0f,
-            WINDOW_HEIGHT - 145.0f,
-            50.0f,
-            50.0f};
+            400.0f,
+            WINDOW_HEIGHT - 80.0f,
+            65.0f,
+            65.0f};
 
         SDL_RenderTexture(app->renderer, app->townTexture, NULL, &townIcon);
         drawText(app, countStr, countPos);
@@ -227,12 +227,12 @@ void goldUI(AppState * app)
     snprintf(goldAmmount, sizeof(goldAmmount), ": %d", gold);
     SDL_FRect textPos = {
         900.0f,                 // X padding from left
-        WINDOW_HEIGHT - 235.0f, // Y position inside panel
-        120.0f,                 // Width
-        120.0f                  // Height
+        WINDOW_HEIGHT - 250.0f, // Y position inside panel
+        140.0f,                 // Width
+        140.0f                  // Height
     };
 
-    SDL_FRect icon = {850.0f, WINDOW_HEIGHT - 205.0f, 50.f, 50.0f};
+    SDL_FRect icon = {850.0f, WINDOW_HEIGHT - 230.0f, 80.f, 80.0f};
 
     // for rectangle loading
     SDL_SetRenderDrawBlendMode(app->renderer, SDL_BLENDMODE_BLEND);
@@ -254,7 +254,7 @@ void drawEndScreen(AppState *app){
     snprintf(winner, sizeof(winner), "PLAYER %d VICTORY!!!", app->winner);
     SDL_FRect textPos = {
         900.0f,                 // X padding from left
-        WINDOW_HEIGHT - 235.0f, // Y position inside panel
+        (WINDOW_HEIGHT / 2) - 100, // Y position inside panel
         120.0f,                 // Width
         120.0f                  // Height
     };
