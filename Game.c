@@ -4,6 +4,7 @@
 //file includes
 #include "game.h"
 #include "Pieces/moves.h"
+#include "tech_Tree/techTree.h"
 static void UpdateCamera(AppState *app);
 //clamp function = restriction of value to specific range
 
@@ -591,10 +592,16 @@ void endTurn(AppState *app) {
 
     // 3. Give gold to the NEW active player (start of turn income)
     if (app->currentPlayer == 1) {
-        app->P1.p1Gold += 7 ; //+ (app->P1.towns * 5)
-    } else {
-        app->P2.p2Gold += 7; //+ (app->P2.towns * 5)
-    }
+
+    int bonus = isUpgradeUnlocked(&app->techTreeP1, 3) ? 5 : 0;
+    app->P1.p1Gold += 7 + bonus;
+
+} else {
+
+    int bonus = isUpgradeUnlocked(&app->techTreeP2, 3) ? 5 : 0;
+    app->P2.p2Gold += 7 + bonus;
+
+}
     
     // 4. Cap the gold
     if (app->P1.p1Gold > 100) app->P1.p1Gold = 100;
