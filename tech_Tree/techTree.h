@@ -1,5 +1,6 @@
 #ifndef TECH_TREES_H
 #define TECH_TREES_H
+#include <stdbool.h>
 
 #define MAX_UPGRADES 6
 
