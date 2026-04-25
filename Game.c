@@ -43,7 +43,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     }
 
     //font loading
-    app->font = TTF_OpenFont("FORCED SQUARE.ttf", 30);
+    app->font = TTF_OpenFont("Assets/FORCED SQUARE.ttf", 30);
     if (!app->font)
     {
         SDL_Log("TTF_OpenFont failed: %s", SDL_GetError());
@@ -85,7 +85,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 
     //other game initializations
     app->gameState = STATE_MENU;
-    loadMap("map/maps/map1.txt");
+    loadMap("Assets/maps/map1.txt");
     app->piecePlaced = false;
     //world size initializations
     app->worldSize.x = (float)(MAP_COLS * TILE_SIZE);
