@@ -136,6 +136,7 @@ typedef struct AppState
     float camY;
     float pivotX;
     float pivotY;
+    float errorTimer;
     SDL_Point possibleMoves[32];
     int possibleMoveCount;
 
