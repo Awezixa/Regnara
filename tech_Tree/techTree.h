@@ -17,5 +17,6 @@ typedef struct {
 void initTechTree(TechTree *tree);
 void unlockUpgrade(TechTree *tree, int index, int *gold);
 void printTechTree(TechTree *tree);
+bool isUpgradeUnlocked(TechTree *tree, int index);
 
 #endif
