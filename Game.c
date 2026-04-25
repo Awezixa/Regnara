@@ -108,6 +108,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     //player initialization
     app->currentPlayer = 1;
     app->turnCounter = 1;
+    app->errorTimer = 0.0f;
     app->winner = 0;
     app->P1.p1Gold = 10;
     app->P2.p2Gold = 10;
@@ -268,6 +269,12 @@ SDL_AppResult SDL_AppIterate(void *appstate)
         TechTree *tree = (app->currentPlayer == 1) ? &app->techTreeP1 : &app->techTreeP2;
     int *gold = (app->currentPlayer == 1) ? &app->P1.p1Gold : &app->P2.p2Gold;
 
+    if (app->errorTimer > 0.0f)
+{
+    app->errorTimer -= app->dt;
+    if (app->errorTimer < 0.0f)
+        app->errorTimer = 0.0f;
+}
    
     // Buttons
     SDL_FRect knightBtn = {400, 300, 250, 60};
@@ -342,7 +349,7 @@ SDL_RenderFillRect(app->renderer, &goldBtn);
         tree->goldBoost ? "Gold Boost (ACTIVE)" : "Gold Boost (Cost: 20)",
         (SDL_Color){255,255,255,255});
 
-         bool notEnoughGold = false;
+       
     // Click
     if (app->input.mouseLeftPressed)
 {
@@ -358,7 +365,7 @@ SDL_RenderFillRect(app->renderer, &goldBtn);
         }
         else if (*gold < tree->knightCost)
         {
-            notEnoughGold = true;
+             app->errorTimer = 1.5f;
         }
     }
 
@@ -372,7 +379,7 @@ SDL_RenderFillRect(app->renderer, &goldBtn);
         }
         else if (*gold < tree->bishopCost)
         {
-            notEnoughGold = true;
+          app->errorTimer = 1.5f;
         }
     }
 
@@ -386,13 +393,14 @@ SDL_RenderFillRect(app->renderer, &goldBtn);
         }
         else if (*gold < tree->goldBoostCost)
         {
-            notEnoughGold = true;
+           app->errorTimer = 1.5f;
         }
     }
 }
-     if (notEnoughGold) {
-       showText(app->renderer, 400, 550, "Not enough gold!", (SDL_Color){255,0,0,255});
-        }
+     if (app->errorTimer > 0.0f)
+{
+    showText(app->renderer, 400, 550, "Not enough gold!", (SDL_Color){255,0,0,255});
+}
     // Exit
     if (app->input.keyPressed[SDL_SCANCODE_ESCAPE]) {
         app->gameState = STATE_PLAYING;
