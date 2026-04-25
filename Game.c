@@ -4,7 +4,7 @@
 //file includes
 #include "game.h"
 #include "Pieces/moves.h"
-#include "tech_Tree/techTree.h"
+
 static void UpdateCamera(AppState *app);
 //clamp function = restriction of value to specific range
 
@@ -265,13 +265,140 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     }
     case TECH_TREE:
     {
-        showText(app->renderer, 500, 200, "TECH TREE (ESC to return)", (SDL_Color){255,255,255,255});
+        TechTree *tree = (app->currentPlayer == 1) ? &app->techTreeP1 : &app->techTreeP2;
+    int *gold = (app->currentPlayer == 1) ? &app->P1.p1Gold : &app->P2.p2Gold;
 
-        if (app->input.keyPressed[SDL_SCANCODE_ESCAPE]) {
-            app->gameState = STATE_PLAYING;
+   
+    // Buttons
+    SDL_FRect knightBtn = {400, 300, 250, 60};
+    SDL_FRect bishopBtn = {400, 380, 250, 60};
+    SDL_FRect goldBtn   = {400, 460, 250, 60};
+    // mouse
+SDL_FPoint mouse = {app->input.mouseX, app->input.mouseY};
+
+// KNIGHT
+if (SDL_PointInRectFloat(&mouse, &knightBtn)) {
+    SDL_SetRenderDrawColor(app->renderer, 120, 120, 120, 255);
+}
+else if (tree->knightUnlocked) {
+    SDL_SetRenderDrawColor(app->renderer, 0, 180, 0, 255);
+}
+else if (*gold >= tree->knightCost) {
+    SDL_SetRenderDrawColor(app->renderer, 80, 80, 80, 255);
+}
+else {
+    SDL_SetRenderDrawColor(app->renderer, 180, 0, 0, 255);
+}
+SDL_RenderFillRect(app->renderer, &knightBtn);
+
+// BISHOP
+if (SDL_PointInRectFloat(&mouse, &bishopBtn)) {
+    SDL_SetRenderDrawColor(app->renderer, 120, 120, 120, 255);
+}
+else if (tree->bishopUnlocked) {
+    SDL_SetRenderDrawColor(app->renderer, 0, 180, 0, 255);
+}
+else if (*gold >= tree->bishopCost) {
+    SDL_SetRenderDrawColor(app->renderer, 80, 80, 80, 255);
+}
+else {
+    SDL_SetRenderDrawColor(app->renderer, 180, 0, 0, 255);
+}
+SDL_RenderFillRect(app->renderer, &bishopBtn);
+
+// GOLD
+if (SDL_PointInRectFloat(&mouse, &goldBtn)) {
+    SDL_SetRenderDrawColor(app->renderer, 120, 120, 120, 255);
+}
+else if (tree->goldBoost) {
+    SDL_SetRenderDrawColor(app->renderer, 0, 180, 0, 255);
+}
+else if (*gold >= tree->goldBoostCost) {
+    SDL_SetRenderDrawColor(app->renderer, 80, 80, 80, 255);
+}
+else {
+    SDL_SetRenderDrawColor(app->renderer, 180, 0, 0, 255);
+}
+SDL_RenderFillRect(app->renderer, &goldBtn);
+
+         // Title
+    showText(app->renderer, 450, 150, "TECH TREE", (SDL_Color){255,255,255,255});
+
+    // Gold
+    char goldText[64];
+    sprintf(goldText, "Gold: %d", *gold);
+    showText(app->renderer, 450, 200, goldText, (SDL_Color){255,255,0,255});
+
+    // Text
+    showText(app->renderer, 410, 310,
+        tree->knightUnlocked ? "Knight (UNLOCKED)" : "Knight (Cost: 10)",
+        (SDL_Color){255,255,255,255});
+
+    showText(app->renderer, 410, 390,
+        tree->bishopUnlocked ? "Mage (UNLOCKED)" : "Mage (Cost: 15)",
+        (SDL_Color){255,255,255,255});
+
+    showText(app->renderer, 410, 470,
+        tree->goldBoost ? "Gold Boost (ACTIVE)" : "Gold Boost (Cost: 20)",
+        (SDL_Color){255,255,255,255});
+
+         bool notEnoughGold = false;
+    // Click
+    if (app->input.mouseLeftPressed)
+{
+    SDL_FPoint mouse = {app->input.mouseX, app->input.mouseY};
+
+    // KNIGHT
+    if (SDL_PointInRectFloat(&mouse, &knightBtn))
+    {
+        if (!tree->knightUnlocked && *gold >= tree->knightCost)
+        {
+            tree->knightUnlocked = true;
+            *gold -= tree->knightCost;
         }
+        else if (*gold < tree->knightCost)
+        {
+            notEnoughGold = true;
+        }
+    }
 
-        break;
+    // BISHOP
+    if (SDL_PointInRectFloat(&mouse, &bishopBtn))
+    {
+        if (!tree->bishopUnlocked && *gold >= tree->bishopCost)
+        {
+            tree->bishopUnlocked = true;
+            *gold -= tree->bishopCost;
+        }
+        else if (*gold < tree->bishopCost)
+        {
+            notEnoughGold = true;
+        }
+    }
+
+    // GOLD BOOST
+    if (SDL_PointInRectFloat(&mouse, &goldBtn))
+    {
+        if (!tree->goldBoost && *gold >= tree->goldBoostCost)
+        {
+            tree->goldBoost = true;
+            *gold -= tree->goldBoostCost;
+        }
+        else if (*gold < tree->goldBoostCost)
+        {
+            notEnoughGold = true;
+        }
+    }
+}
+     if (notEnoughGold) {
+       showText(app->renderer, 400, 550, "Not enough gold!", (SDL_Color){255,0,0,255});
+        }
+    // Exit
+    if (app->input.keyPressed[SDL_SCANCODE_ESCAPE]) {
+        app->gameState = STATE_PLAYING;
+    }
+
+    break;
     }
 
     case STATE_PAUSED:
@@ -416,15 +543,52 @@ void updateGame(AppState *app){
         SDL_FPoint mousePos = {app->input.mouseX, app->input.mouseY};
     
         // Ensure these are mutually exclusive
-        if (SDL_PointInRectFloat(&mousePos, &app->pawnButton)) {app->selectedPieceType = PAWN;}
-        else if (SDL_PointInRectFloat(&mousePos, &app->knightButton)) {app->selectedPieceType = KNIGHT;} 
-        else if (SDL_PointInRectFloat(&mousePos, &app->bishopButton)) {app->selectedPieceType = BISHOP;} 
-        else if (SDL_PointInRectFloat(&mousePos, &app->rookButton)) {app->selectedPieceType = ROOK;} 
-        else if (SDL_PointInRectFloat(&mousePos, &app->queenButton)) {app->selectedPieceType = QUEEN;}
+        if (SDL_PointInRectFloat(&mousePos, &app->pawnButton)) {
+    app->selectedPieceType = PAWN;
+}
+
+// KNIGHT
+else if (SDL_PointInRectFloat(&mousePos, &app->knightButton)) {
+    if ((app->currentPlayer == 1 && app->techTreeP1.knightUnlocked) ||
+        (app->currentPlayer == 2 && app->techTreeP2.knightUnlocked)) {
+        app->selectedPieceType = KNIGHT;
+    }
+}
+
+// BISHOP (Mage)
+else if (SDL_PointInRectFloat(&mousePos, &app->bishopButton)) {
+    if ((app->currentPlayer == 1 && app->techTreeP1.bishopUnlocked) ||
+        (app->currentPlayer == 2 && app->techTreeP2.bishopUnlocked)) {
+        app->selectedPieceType = BISHOP;
+    }
+}
+
+// ROOK
+else if (SDL_PointInRectFloat(&mousePos, &app->rookButton)) {
+    app->selectedPieceType = ROOK;
+}
+
+// QUEEN
+else if (SDL_PointInRectFloat(&mousePos, &app->queenButton)) {
+    app->selectedPieceType = QUEEN;
+}
     }
         if (app->input.keyDown[SDL_SCANCODE_1]) app->selectedPieceType = PAWN;
-        if (app->input.keyDown[SDL_SCANCODE_2]) app->selectedPieceType = KNIGHT;
-        if (app->input.keyDown[SDL_SCANCODE_3]) app->selectedPieceType = BISHOP;
+        // KNIGHT
+        if (app->input.keyDown[SDL_SCANCODE_2]) {
+         if ((app->currentPlayer == 1 && app->techTreeP1.knightUnlocked) ||
+        (app->currentPlayer == 2 && app->techTreeP2.knightUnlocked)) {
+        app->selectedPieceType = KNIGHT;
+         }
+       }
+
+        // BISHOP (Mage)
+       if (app->input.keyDown[SDL_SCANCODE_3]) {
+         if ((app->currentPlayer == 1 && app->techTreeP1.bishopUnlocked) ||
+        (app->currentPlayer == 2 && app->techTreeP2.bishopUnlocked)) {
+        app->selectedPieceType = BISHOP;
+          }
+         }
         if (app->input.keyDown[SDL_SCANCODE_4]) app->selectedPieceType = ROOK;
         if (app->input.keyDown[SDL_SCANCODE_5]) app->selectedPieceType = QUEEN;
 
@@ -578,11 +742,12 @@ void updateGame(AppState *app){
     winCondition(app);
 }
 
-void endTurn(AppState *app) {
-    // 1. Process capture for the player who just finished their turn
+
+  void endTurn(AppState *app) {
+    // 1. Process capture
     townCaptured(app);
 
-    // 2. Switch the active player
+    // 2. Switch player
     if (app->currentPlayer == 1) {
         app->currentPlayer = 2;
     } else {
@@ -590,20 +755,19 @@ void endTurn(AppState *app) {
         app->turnCounter++;
     }
 
-    // 3. Give gold to the NEW active player (start of turn income)
+    // 3. Give gold
     if (app->currentPlayer == 1) {
 
-    int bonus = isUpgradeUnlocked(&app->techTreeP1, 3) ? 5 : 0;
-    app->P1.p1Gold += 7 + bonus;
+        int bonus = app->techTreeP1.goldBoost ? 5 : 0;
+        app->P1.p1Gold += 7 + (app->P1.towns * 5) + bonus;
 
-} else {
+    } else {
 
-    int bonus = isUpgradeUnlocked(&app->techTreeP2, 3) ? 5 : 0;
-    app->P2.p2Gold += 7 + bonus;
+        int bonus = app->techTreeP2.goldBoost ? 5 : 0;
+        app->P2.p2Gold += 7 + (app->P2.towns * 5) + bonus;
+    }
 
-}
-    
-    // 4. Cap the gold
+    // 4. Cap
     if (app->P1.p1Gold > 100) app->P1.p1Gold = 100;
     if (app->P2.p2Gold > 100) app->P2.p2Gold = 100;
 }
