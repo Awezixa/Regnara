@@ -83,7 +83,8 @@ typedef struct AppState
     int tTowns; // total amount of towns
 
     //Pieces
-    Piece pieces[MAX_PIECES];
+    Piece *pieces;
+    int maxPieceCapacity;
     int pieceCount;
     pieceType selectedPieceType;
     Piece *selectedPiece;
@@ -151,5 +152,5 @@ void endTurn(AppState *app);
 void winCondition(AppState *app);
 void resetGame(AppState *app);
 void startGame(AppState *app);
-
+void increaseTroopLimit(AppState *app, int extraSlots);
 #endif

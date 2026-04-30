@@ -96,12 +96,13 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     camera2d_init(&app->camera, centerX, centerY, 1.0f);
 
     //piece array initialization
-    for (int i = 0; i < MAX_PIECES; i++){
+    for (int i = 0; i < app->maxPieceCapacity; i++){
         app->pieces[i].active = false;
     }
 
     app->cheats = false;
-
+    app->maxPieceCapacity = 20;
+    app->pieces = (Piece *) malloc(sizeof(Piece) * app->maxPieceCapacity);
     app->pieceCount = 0;
     app->selectedPieceType = PAWN;
     //player initialization
@@ -333,6 +334,7 @@ void SDL_AppQuit(void *appstate, SDL_AppResult result)
     AppState *app = (AppState *)appstate;
     if (!app)
         return;
+    if(app->pieces)free(app->pieces);
     //add function to destroy all textures
     if (app->grassTexture)SDL_DestroyTexture(app->grassTexture);
     if (app->waterTexture)SDL_DestroyTexture(app->waterTexture);
@@ -462,7 +464,7 @@ void updateGame(AppState *app){
     // =========================
     // SELECT PIECE
     // =========================
-    for (int i = 0; i < MAX_PIECES; i++)
+    for (int i = 0; i < app->maxPieceCapacity; i++)
     {
         Piece *p = &app->pieces[i];
 
@@ -623,7 +625,7 @@ void resetGame(AppState *app){
         app->towns[i].owner = 0;
     }
 
-    for (int i = 0; i < MAX_PIECES; i++)
+    for (int i = 0; i < app->maxPieceCapacity; i++)
     {
         app->pieces[i].active = false;
         app->pieces[i].owner = 0;
@@ -664,7 +666,7 @@ void startGame(AppState *app){
             
             if (map_data[r][c]== SPAWN_POINT)
             {
-                if (slot < MAX_PIECES)
+                if (slot < app->maxPieceCapacity)
                 {
                     app->pieces[slot].active = true;
                     app->pieces[slot].type = KING;
@@ -691,4 +693,20 @@ void startGame(AppState *app){
         
     }
     
+}
+
+void increaseTroopLimit(AppState *app, int extraSlots){
+    int oldCapacity = app->maxPieceCapacity;
+    app->maxPieceCapacity += extraSlots;
+
+    Piece *newSpace = (Piece *)realloc(app->pieces, sizeof(Piece)* app->maxPieceCapacity);
+    //can modify when tech tree working
+    if(newSpace){
+        app->pieces = newSpace;
+
+        for(int i = oldCapacity; i < app->maxPieceCapacity; i++){
+            app->pieces[i].active = false;
+        }
+
+    }
 }

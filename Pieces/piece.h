@@ -1,6 +1,6 @@
 #ifndef PIECE_H
 #define PIECE_H
-#define MAX_PIECES 20 //should make limit higher for cheats and change from dynamic array to dynamic storage for more pieces and larger maps
+ //should make limit higher for cheats and change from dynamic array to dynamic storage for more pieces and larger maps
 #include <stdbool.h>
 typedef struct AppState AppState;
 
@@ -26,7 +26,6 @@ typedef enum pieceType{
     KNIGHT,
     /*
     * MAGE
-    * FLANKER
     * CATAPAULT
     */
 

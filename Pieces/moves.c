@@ -17,7 +17,7 @@ void GenerateMoves(AppState *app, Piece *p)
 
 bool isTileOccupied(AppState *app, int row, int col)
 {
-    for (int i = 0; i < MAX_PIECES; i++)
+    for (int i = 0; i < app->maxPieceCapacity; i++)
     {
         Piece *other = &app->pieces[i];
 
@@ -35,7 +35,7 @@ bool isTileOccupied(AppState *app, int row, int col)
 
 void CapturePiece(AppState *app, int row, int col)
 {
-    for (int i = 0; i < MAX_PIECES; i++)
+    for (int i = 0; i < app->maxPieceCapacity; i++)
     {
         Piece *other = &app->pieces[i];
 
@@ -224,7 +224,7 @@ void PossibleMovesShow(AppState *app, Piece *p)
 
 Piece* GetPieceAt(AppState *app, int row, int col)
 {
-    for (int i = 0; i < MAX_PIECES; i++)
+    for (int i = 0; i < app->maxPieceCapacity; i++)
     {
         Piece *p = &app->pieces[i];
 

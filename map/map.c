@@ -114,7 +114,7 @@ void townCaptured(AppState *app) {
         int kingOwner = 0;
 
         // 1. Search for a King piece specifically at this town's location
-        for (int i = 0; i < MAX_PIECES; i++) {
+        for (int i = 0; i < app->maxPieceCapacity; i++) {
             Piece *p = &app->pieces[i];
             
             // CRITICAL: Check the actual owner field of the piece

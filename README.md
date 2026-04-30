@@ -13,11 +13,11 @@ Each week will have a stable/ playable build
 After each programming session, all code WILL BE PUSHED as to keep everyone up to date
 
 # To-Do
-- Turn system ✅
-- scaling of sprites✅
-- Town spawning and claiming ✅
-- spawning of multiple units ✅
+- Update piece Spawning
+- Add tech tree
+- update map
+- New Assets
+- King envoys + updated win condition
 - add more functionality to menus and hud 🔄️
-- piece movement and capturing 🔄️
-- other game pieces + their movement and capturing 🔄️
-- Cheats: Piece teleportation, spawning pieces anywhere 🔄️
+- upgraded pieces + their movement and capturing 🔄️
+- Cheats: preset game   🔄️
