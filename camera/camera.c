@@ -16,10 +16,20 @@ void camera2d_init(Camera *camera, float x, float y, float zoom)
     camera->zoom = zoom;
 }
 
-void camera2d_add_zoom(Camera *camera, float delta, float min_zoom, float max_zoom)
+void camera2d_zoom_to_mouse(Camera *camera, float delta, float min_zoom, float max_zoom, float mouse_x, float mouse_y)
 {
     if (!camera) return;
-    camera->zoom = clampf(camera->zoom + delta, min_zoom, max_zoom);//adjusts clamp value to meet player zoom of camera
+
+    // 1. Get world position of mouse BEFORE zoom
+    float world_mouse_x = camera->x + (mouse_x / camera->zoom);
+    float world_mouse_y = camera->y + (mouse_y / camera->zoom);
+
+    // 2. Update zoom
+    camera->zoom = clampf(camera->zoom + delta, min_zoom, max_zoom);
+
+    // 3. Adjust camera X/Y so world mouse position stays under the screen mouse position[cite: 16]
+    camera->x = world_mouse_x - (mouse_x / camera->zoom);
+    camera->y = world_mouse_y - (mouse_y / camera->zoom);
 }
 
 void camera2d_follow_target(

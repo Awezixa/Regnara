@@ -26,7 +26,7 @@ void camera2d_init(Camera *camera, float x, float y, float zoom);
 * Output: none.
 */
 
-void camera2d_add_zoom(Camera *camera, float delta, float min_zoom, float max_zoom);
+void camera2d_zoom_to_mouse(Camera *camera, float delta, float min_zoom, float max_zoom, float mouse_x, float mouse_y);
 /*
 * Follow a world-space target and clamp camera to world bounds.
 * viewport_w / viewport_h are in screen pixels.

@@ -354,12 +354,13 @@ void UpdateCamera(AppState *app){
 
     //for camera zooming and following
     //updating every second on screen
-    float zoomDelta = in->mouseWheelY * 10.0f;
-    float zoomSpeed = 2.0f;
+    float zoomDelta = in->mouseWheelY * 15.0f;
+    float zoomSpeed = 10.0f;
 
     if (in->keyDown[SDL_SCANCODE_Q]) zoomDelta += zoomSpeed;
     if (in->keyDown[SDL_SCANCODE_E]) zoomDelta -= zoomSpeed;
-    camera2d_add_zoom(camera, zoomDelta * app->dt, 0.4f, 5.0f);//adjusts camera clamp range then follows player with new clamped range
+    // Instead of camera2d_add_zoom(&app->camera, zoomDelta * app->dt, 0.4f, 5.0f);
+    camera2d_zoom_to_mouse(&app->camera, zoomDelta * app->dt, 0.4f, 5.0f, app->input.mouseX, app->input.mouseY);//adjusts camera clamp range then follows player with new clamped range
 
     //drag logic
     if (in->mouseLeftPressed)
