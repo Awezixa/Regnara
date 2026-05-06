@@ -25,7 +25,7 @@
 typedef struct AppState AppState;// added this too all files that use appstate
 #include "map/map.h"
 #include "menu/menu.h"
-#include "Pieces/piece.h"
+#include "pieces/piece.h"
 #include "camera/camera.h"
 #include "camera/transform.h"
 #include "player/player.h"
@@ -34,6 +34,10 @@ typedef struct AppState AppState;// added this too all files that use appstate
 
 typedef struct InputState
 {
+    //mouse
+    bool mouseMiddleDown;
+    bool mouseMiddlePressed;
+    bool mouseMiddleReleased;
     float mouseX;
     float mouseY;
     float mouseWheelY;
@@ -43,6 +47,7 @@ typedef struct InputState
     bool mouseRightDown;
     bool mouseRightPressed;
     bool mouseRightReleased;
+    //buttons
     bool keyDown[SDL_SCANCODE_COUNT];
     bool keyPressed[SDL_SCANCODE_COUNT];
     bool keyReleased[SDL_SCANCODE_COUNT];
@@ -60,6 +65,7 @@ typedef struct AppState
 
     bool cheats;
     SDL_FRect cheatText;
+    bool inGame;
 
     //other structs used/ be accessed here
     Player1 P1;
@@ -67,7 +73,8 @@ typedef struct AppState
     int currentPlayer;
     int turnCounter;
     int winner;
-    // Tech Tree ()
+    // Tech Tree
+    SDL_FRect techText;
     TechTree techTreeP1;
     TechTree techTreeP2;
 

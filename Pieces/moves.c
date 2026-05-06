@@ -41,22 +41,22 @@ void CapturePiece(AppState *app, int row, int col)
 
         if (other->active && other->row == row && other->col == col)
         {
-            if (other->type == KING)
-            {
-                app->winner = (other->owner == 1)  ? 2 : 1;
+            // SAFETY: If the piece we are capturing is currently selected, deselect it
+            if (app->selectedPiece == other) {
+                app->selectedPiece = NULL;
+                app->possibleMoveCount = 0;
+            }
+
+            if (other->type == KING) {
+                app->winner = (other->owner == 1) ? 2 : 1;
                 app->gameState = STATE_END;
             }
             
-            
-            if(other->owner == 1){
-                app->P1.pieceCount--;
-            }
-            else if(other->owner == 2){
-                app->P2.pieceCount--;
-            }
+            if(other->owner == 1) app->P1.pieceCount--;
+            else if(other->owner == 2) app->P2.pieceCount--;
             
             app->pieceCount--;
-            other->active = false; // 💀 remove piece
+            other->active = false; 
             return;
         }
     }

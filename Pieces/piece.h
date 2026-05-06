@@ -24,11 +24,10 @@ typedef enum pieceType{
     ROOK,
     BISHOP,
     KNIGHT,
-    /*
-    * MAGE
-    * CATAPAULT
-    */
-
+    ENVOY,
+    MAGE,
+    CATAPAULT, 
+    LANCER
 } pieceType;
 
 typedef struct Piece
@@ -40,7 +39,7 @@ typedef struct Piece
     int owner; // 1 = p1, 2 = p2
     bool active;
     pieceType type;
-    //properties
+    bool moved;
 } Piece;
 
 

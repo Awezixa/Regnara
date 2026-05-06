@@ -20,4 +20,4 @@ After each programming session, all code WILL BE PUSHED as to keep everyone up t
 - King envoys + updated win condition
 - add more functionality to menus and hud 🔄️
 - upgraded pieces + their movement and capturing 🔄️
-- Cheats: preset game   🔄️
+- Cheats: preset game 🔄️

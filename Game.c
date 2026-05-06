@@ -96,15 +96,16 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     camera2d_init(&app->camera, centerX, centerY, 1.0f);
 
     //piece array initialization
+    
+    app->cheats = false;
+    app->inGame = false;
+    app->maxPieceCapacity = 20;
+    app->pieces = (Piece *) malloc(sizeof(Piece) * app->maxPieceCapacity);
+    app->pieceCount = 0;
     for (int i = 0; i < app->maxPieceCapacity; i++){
         app->pieces[i].active = false;
     }
 
-    app->cheats = false;
-    app->maxPieceCapacity = 20;
-    app->pieces = (Piece *) malloc(sizeof(Piece) * app->maxPieceCapacity);
-    app->pieceCount = 0;
-    app->selectedPieceType = PAWN;
     //player initialization
     app->currentPlayer = 1;
     app->turnCounter = 1;
@@ -172,6 +173,10 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
                 in->mouseRightPressed = true;
             in->mouseRightDown = true;
         }
+        else if (event->button.button == SDL_BUTTON_MIDDLE) {
+            if (!in->mouseMiddleDown) in->mouseMiddlePressed = true;
+            in->mouseMiddleDown = true;
+        }
         break;
     case SDL_EVENT_MOUSE_BUTTON_UP:
         if (event->button.button == SDL_BUTTON_LEFT)
@@ -184,6 +189,10 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
             in->mouseRightDown = false;
             in->mouseRightReleased = true;
         }
+        else if (event->button.button == SDL_BUTTON_MIDDLE){
+            in->mouseMiddleDown = false;
+            in->mouseMiddleReleased = true;
+        } 
         break;
     case SDL_EVENT_MOUSE_WHEEL:
         // event.wheel.y is positive for up (zoom in) and negative for down (zoom out)
@@ -257,18 +266,28 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     }
 
     case STATE_PLAYING:
-    {
+    {  
+        app->inGame = true;
         updateGame(app);
 
-        
         break;   
+    }
+    case STATE_OPTIONS:
+    {
+        if (app->input.keyPressed[SDL_SCANCODE_ESCAPE] && app->inGame == true ){
+            app->gameState = STATE_PAUSED;
+        }
+        else if(app->input.keyPressed[SDL_SCANCODE_ESCAPE] && app->inGame == false){
+            app->gameState = STATE_MENU;
+        }
+        break;
     }
     case TECH_TREE:
     {
         showText(app->renderer, 500, 200, "TECH TREE (ESC to return)", (SDL_Color){255,255,255,255});
 
         if (app->input.keyPressed[SDL_SCANCODE_ESCAPE]) {
-            app->gameState = STATE_PLAYING;
+            app->gameState = STATE_PAUSED;
         }
 
         break;
@@ -285,21 +304,20 @@ SDL_AppResult SDL_AppIterate(void *appstate)
         {
             SDL_FPoint mousePos = {app->input.mouseX, app->input.mouseY};
             if (SDL_PointInRectFloat(&mousePos, &app->quitbutton)){
-                //add confirmation quit screen
-                return SDL_APP_SUCCESS;
+            //add confirmation quit screen
+            return SDL_APP_SUCCESS;
             }
             if (SDL_PointInRectFloat(&mousePos, &app->optionsbutton)){
-                app->gameState = STATE_OPTIONS;
-                if (app->input.keyPressed[SDL_SCANCODE_ESCAPE])
-                {
+            app->gameState = STATE_OPTIONS;
+            if (app->input.keyPressed[SDL_SCANCODE_ESCAPE]){
                     app->gameState = STATE_PAUSED;
                 }
-
             }
             if (SDL_PointInRectFloat(&mousePos, &app->mainmenubutton)){
                 //add confirmation quit screen
                 app->gameState = STATE_MENU;
             }
+
         }    
 
         break;
