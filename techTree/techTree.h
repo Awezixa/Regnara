@@ -2,7 +2,10 @@
 #define TECH_TREES_H
 #include <stdbool.h>
 
+
 #define MAX_UPGRADES 6
+
+typedef struct AppState AppState;
 
 typedef struct {
     char name[50];
@@ -17,7 +20,6 @@ typedef struct {
 
 void initTechTree(TechTree *tree);
 void unlockUpgrade(TechTree *tree, int index, int *gold);
-void printTechTree(TechTree *tree);
+void printTechTree(AppState *app);
 bool isUpgradeUnlocked(TechTree *tree, int index);
-
 #endif

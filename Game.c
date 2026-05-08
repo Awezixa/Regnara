@@ -284,10 +284,10 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     }
     case TECH_TREE:
     {
-        showText(app->renderer, 500, 200, "TECH TREE (ESC to return)", (SDL_Color){255,255,255,255});
-
+        //showText(app->renderer, 500, 200, "TECH TREE (ESC to return)", (SDL_Color){255,255,255,255});
+        printTechTree(app);
         if (app->input.keyPressed[SDL_SCANCODE_ESCAPE]) {
-            app->gameState = STATE_PAUSED;
+            app->gameState = STATE_PLAYING;
         }
 
         break;
@@ -431,9 +431,9 @@ void updateGame(AppState *app){
     // =========================
     // PIECE TYPE SELECTION
     // =========================
-
+    SDL_FPoint mousePos = {app->input.mouseX, app->input.mouseY};
     if (app->input.mouseLeftPressed) {
-        SDL_FPoint mousePos = {app->input.mouseX, app->input.mouseY};
+        
     
         // Ensure these are mutually exclusive
         if (SDL_PointInRectFloat(&mousePos, &app->pawnButton)) {app->selectedPieceType = PAWN;}
@@ -455,7 +455,7 @@ void updateGame(AppState *app){
     spawnPiece(app);
     renderPiece(app);
     //
-    if (app->input.keyPressed[SDL_SCANCODE_T]) {
+    if (app->input.keyPressed[SDL_SCANCODE_T] || (app->input.mouseLeftPressed && SDL_PointInRectFloat(&mousePos, &app->techTreeButton))) {
         app->gameState = TECH_TREE;
     }
 
@@ -467,7 +467,6 @@ void updateGame(AppState *app){
 
     if (app->cheats){
         drawCheats(app);
-
         infiniteMoney(app);
     } 
     
@@ -582,7 +581,7 @@ void updateGame(AppState *app){
     // =========================
     turnUI(app);
     goldUI(app);
-
+    playerRectangles(app);
     gameUI(app);
     if (app->input.mouseLeftPressed)
     {

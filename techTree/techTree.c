@@ -1,10 +1,11 @@
 #include "techTree.h"
 #include <stdio.h>
 #include <string.h>
+#include "../game.h"
 
 void initTechTree(TechTree *tree)
 {
-    strcpy(tree->upgrades[0].name, "Flanker");
+    strcpy(tree->upgrades[0].name, "Lancer");
     tree->upgrades[0].cost = 30;
     tree->upgrades[0].required = -1;
 
@@ -20,11 +21,7 @@ void initTechTree(TechTree *tree)
     tree->upgrades[3].cost = 40;
     tree->upgrades[3].required = -1;
 
-    strcpy(tree->upgrades[4].name, "Critical Strike");
-    tree->upgrades[4].cost = 35;
-    tree->upgrades[4].required = 3;
-
-    strcpy(tree->upgrades[5].name, "Extra Spawn");
+    strcpy(tree->upgrades[5].name, "Spawn Extra");
     tree->upgrades[5].cost = 60;
     tree->upgrades[5].required = 0;
 
@@ -60,19 +57,26 @@ void unlockUpgrade(TechTree *tree, int index, int *gold)
     }
 }
 
-void printTechTree(TechTree *tree)
+void printTechTree(AppState *app)
 {
-    printf("\n--- TECH TREE ---\n");
+    app->techText.x = 930;
+    app->techText.y = 50;
+    app->techText.h = 200;
+    app->techText.w = 200;
 
-    for (int i = 0; i < MAX_UPGRADES; i++)
-    {
-        printf("%d. %s | Cost: %d | %s\n",
-               i,
-               tree->upgrades[i].name,
-               tree->upgrades[i].cost,
-               tree->upgrades[i].unlocked ? "Unlocked" : "Locked");
-    }
+    drawText(app, "TECH TREE", app->techText);
+
+
+    // for (int i = 0; i < MAX_UPGRADES; i++)
+    // {
+    //     printf("%d. %s | Cost: %d | %s\n",
+    //            i,
+    //            tree->upgrades[i].name,
+    //            tree->upgrades[i].cost,
+    //            tree->upgrades[i].unlocked ? "Unlocked" : "Locked");
+    // }
 }
+
 bool isUpgradeUnlocked(TechTree *tree, int index)
 {
     if (index < 0 || index >= MAX_UPGRADES)

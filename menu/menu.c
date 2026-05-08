@@ -148,6 +148,7 @@ void gameUI(AppState *app)
     SDL_RenderRect(app->renderer, &uiPanel);
     unitIconUI(app);
     buildingIconUI(app);
+    techTreeButton(app);
     endTurnButton(app);
 }
 
@@ -195,14 +196,14 @@ void buildingIconUI(AppState * app)
 
         snprintf(countStr, sizeof(countStr), " %d", towns);
         SDL_FRect countPos = {
-            410.0f,                 // X
+            600.0f,                 // X
             WINDOW_HEIGHT - 125.0f, // Y (below Turn UI)
             150.0f,                 // Width
             150.0f                  // Height
         };
 
         SDL_FRect townIcon = {
-            400.0f,
+            580.0f,
             WINDOW_HEIGHT - 80.0f,
             65.0f,
             65.0f};
@@ -298,4 +299,58 @@ void optionsButton(AppState *app){
 
     SDL_RenderTexture(app->renderer, app->buttonHovered, NULL, &app->optionsbutton);
     drawText(app, "OPTIONS", app->optionsbutton);
+}
+
+void techTreeButton(AppState *app){
+    float wB, hB;
+    SDL_GetTextureSize(app->buttonHovered, &wB, &hB);
+
+    app->techTreeButton.w = wB;
+    app->techTreeButton.h = hB;
+    app->techTreeButton.x = 150.0f;
+    app->techTreeButton.y = WINDOW_HEIGHT - app->techTreeButton.h - 20.0f;
+
+    SDL_RenderTexture(app->renderer, app->buttonHovered, NULL, &app->techTreeButton);
+    drawText(app, "TECH TREE", app->techTreeButton);    
+}
+
+void playerRectangles(AppState *app){
+
+    float panelW = 290.0f;
+    float panelH = 300.0f;
+    float margin = 20.0f;
+    
+    //p1 rectangle setup (Right)
+    app->p1Rect.x = WINDOW_WIDTH - panelW - margin;
+    app->p1Rect.y = margin;
+    app->p1Rect.h = panelH;
+    app->p1Rect.w = panelW;
+
+    //p2 rectangle setup (left)
+    app->p2Rect.x = margin;
+    app->p2Rect.y = margin;
+    app->p2Rect.h = panelH;
+    app->p2Rect.w = panelW;
+
+
+    SDL_SetRenderDrawBlendMode(app->renderer, SDL_BLENDMODE_BLEND);
+
+    //player1
+    SDL_SetRenderDrawColor(app->renderer, 0, 153, 255, 180);
+    SDL_RenderFillRect(app->renderer, &app->p1Rect);
+    SDL_RenderRect(app->renderer, &app->p1Rect);
+
+    char p1Stats[128];
+    snprintf(p1Stats, sizeof(p1Stats), "PLAYER 1\nTroops: %d\nTowns: %d", app->P1.pieceCount, app->P1.towns);
+    drawText(app, p1Stats, app->p1Rect);
+
+    //player 2
+    SDL_SetRenderDrawColor(app->renderer, 255, 51, 0, 180);
+    SDL_RenderFillRect(app->renderer, &app->p2Rect);
+    SDL_RenderRect(app->renderer, &app->p2Rect);
+
+    char p2Stats[128];
+    snprintf(p2Stats, sizeof(p2Stats), "PLAYER 2\nTroops: %d\nTowns: %d", app->P2.pieceCount, app->P2.towns);
+    drawText(app, p2Stats, app->p2Rect);
+
 }

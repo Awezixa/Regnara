@@ -23,5 +23,7 @@ void drawEndScreen(AppState *app);
 void mainMenuButton(AppState *app);
 void optionsButton(AppState *app);
 void quitPauseButton(AppState *app);
+void techTreeButton(AppState *app);
+void playerRectangles(AppState *app);
 
 #endif 

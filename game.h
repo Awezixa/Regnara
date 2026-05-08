@@ -29,7 +29,7 @@ typedef struct AppState AppState;// added this too all files that use appstate
 #include "camera/camera.h"
 #include "camera/transform.h"
 #include "player/player.h"
-#include "tech_Tree/techTree.h"
+#include "techTree/techTree.h"
 #include "cheats/cheats.h"
 
 typedef struct InputState
@@ -73,6 +73,8 @@ typedef struct AppState
     int currentPlayer;
     int turnCounter;
     int winner;
+    SDL_FRect p1Rect;
+    SDL_FRect p2Rect;
     // Tech Tree
     SDL_FRect techText;
     TechTree techTreeP1;
@@ -135,6 +137,7 @@ typedef struct AppState
     SDL_FRect endTurnButton;
     SDL_FRect turnCount;
     SDL_FRect pauseTxt;
+    SDL_FRect techTreeButton;
     
     //camera stuff
     Camera camera;
