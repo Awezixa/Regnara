@@ -4,7 +4,7 @@
 void spawnPiece(AppState *app)
 {
     // 1. Check for click and use the dynamic capacity instead of MAX_PIECES
-    if (app->input.mouseRightPressed && app->pieceCount < app->maxPieceCapacity)
+    if (app->input.mouseLeftPressed && app->pieceCount < app->maxPieceCapacity)
     {
         if (pieceSpawnable(app, app->currentPlayer))
         {
@@ -13,7 +13,7 @@ void spawnPiece(AppState *app)
 
             if (*playerGold < cost)
             {
-                SDL_Log("Not enough gold");
+               //add some indicator here
                 return;
             }
 
@@ -24,15 +24,15 @@ void spawnPiece(AppState *app)
             int col = (int)(worldX / TILE_SIZE);
             int row = (int)(worldY / TILE_SIZE);
 
-            // 3. Cheat and Territory checks[cite: 14]
+            // 3. Cheat and Territory checks
             if(!app->cheats && !inTerritory(app, row, col)){ return; }
 
-            // 4. Bounds Check[cite: 14]
+            // 4. Bounds Check
             if (row >= 0 && row < MAP_ROWS && col >= 0 && col < MAP_COLS)
             {
                 char tile = map_data[row][col];
 
-                // 5. Tile Type Validation[cite: 14]
+                // 5. Tile Type Validation
                 if (tile == GRASS_TILE || tile == BRIDGE_TILE || tile == SPAWN_POINT || tile == TOWN_TILE)
                 {
                     float targetX = (float)(col * TILE_SIZE);

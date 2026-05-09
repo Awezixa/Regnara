@@ -316,10 +316,11 @@ void techTreeButton(AppState *app){
 
 void playerRectangles(AppState *app){
 
-    float panelW = 290.0f;
-    float panelH = 300.0f;
+    float panelW = 300.0f;
+    float panelH = 400.0f;
     float margin = 20.0f;
-    
+    float spacing = 30.0f;
+
     //p1 rectangle setup (Right)
     app->p1Rect.x = WINDOW_WIDTH - panelW - margin;
     app->p1Rect.y = margin;
@@ -332,17 +333,17 @@ void playerRectangles(AppState *app){
     app->p2Rect.h = panelH;
     app->p2Rect.w = panelW;
 
-
+    SDL_FRect rows[8];
+    for(int i = 0; i<8; i++){
+        rows[i] = (SDL_FRect){app->p1Rect.x, app->p1Rect.y + 10 + (i * spacing), app->p1Rect.w, spacing};
+    }
     SDL_SetRenderDrawBlendMode(app->renderer, SDL_BLENDMODE_BLEND);
 
     //player1
     SDL_SetRenderDrawColor(app->renderer, 0, 153, 255, 180);
     SDL_RenderFillRect(app->renderer, &app->p1Rect);
     SDL_RenderRect(app->renderer, &app->p1Rect);
-
-    char p1Stats[128];
-    snprintf(p1Stats, sizeof(p1Stats), "PLAYER 1\nTroops: %d\nTowns: %d", app->P1.pieceCount, app->P1.towns);
-    drawText(app, p1Stats, app->p1Rect);
+    drawText(app, "PLAYER 1", rows[0]);
 
     //player 2
     SDL_SetRenderDrawColor(app->renderer, 255, 51, 0, 180);

@@ -212,6 +212,8 @@ void Input_BeginFrame(InputState *input)
     input->mouseLeftReleased = false;
     input->mouseRightPressed = false;
     input->mouseRightReleased = false;
+    input->mouseMiddlePressed = false;
+    input->mouseMiddleReleased = false;
     input->mouseWheelY = 0.0f;
 
     for (int i = 0; i < SDL_SCANCODE_COUNT; ++i)
@@ -381,14 +383,14 @@ void UpdateCamera(AppState *app){
     camera2d_zoom_to_mouse(&app->camera, zoomDelta * app->dt, 0.4f, 5.0f, app->input.mouseX, app->input.mouseY);//adjusts camera clamp range then follows player with new clamped range
 
     //drag logic
-    if (in->mouseLeftPressed)
+    if (in->mouseMiddlePressed)
     {
         app->pivotX = in->mouseX;
         app->pivotY = in->mouseY;
         app->camX = camera->x;
         app->camY = camera->y;
     }
-    if (in->mouseLeftDown)
+    if (in->mouseMiddleDown)
     {
         float mouseDeltaX = in->mouseX - app->pivotX;
         float mouseDeltaY = in->mouseY - app->pivotY;
