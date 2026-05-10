@@ -314,44 +314,54 @@ void techTreeButton(AppState *app){
     drawText(app, "TECH TREE", app->techTreeButton);    
 }
 
-void playerRectangles(AppState *app){
-
-    float panelW = 300.0f;
-    float panelH = 400.0f;
+void playerRectangles(AppState *app) {
+    float panelW = 250.0f;
+    float panelH = 300.0f;
     float margin = 20.0f;
-    float spacing = 30.0f;
 
-    //p1 rectangle setup (Right)
-    app->p1Rect.x = WINDOW_WIDTH - panelW - margin;
-    app->p1Rect.y = margin;
-    app->p1Rect.h = panelH;
-    app->p1Rect.w = panelW;
+    // Player 1 (Blue - Right side)
+    SDL_FRect p1Rect = { WINDOW_WIDTH - panelW - margin, margin, panelW, panelH };
+    SDL_Color p1Color = { 0, 153, 255, 180 };
 
-    //p2 rectangle setup (left)
-    app->p2Rect.x = margin;
-    app->p2Rect.y = margin;
-    app->p2Rect.h = panelH;
-    app->p2Rect.w = panelW;
+    // Player 2 (Red - Left side)
+    SDL_FRect p2Rect = { margin, margin, panelW, panelH };
+    SDL_Color p2Color = { 255, 51, 0, 180 };
 
-    SDL_FRect rows[8];
-    for(int i = 0; i<8; i++){
-        rows[i] = (SDL_FRect){app->p1Rect.x, app->p1Rect.y + 10 + (i * spacing), app->p1Rect.w, spacing};
-    }
+    // Draw both using the helper
+    drawSinglePlayerStatus(app, p1Rect, p1Color, "PLAYER 1", 1);
+    drawSinglePlayerStatus(app, p2Rect, p2Color, "PLAYER 2", 2);
+}
+
+void drawSinglePlayerStatus(AppState *app, SDL_FRect panel, SDL_Color color, const char* title, int playerNum) {
+    // 1. Draw Background
     SDL_SetRenderDrawBlendMode(app->renderer, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(app->renderer, color.r, color.g, color.b, color.a);
+    SDL_RenderFillRect(app->renderer, &panel);
+    
+    // Draw Outline
+    SDL_SetRenderDrawColor(app->renderer, 255, 255, 255, 255);
+    SDL_RenderRect(app->renderer, &panel);
 
-    //player1
-    SDL_SetRenderDrawColor(app->renderer, 0, 153, 255, 180);
-    SDL_RenderFillRect(app->renderer, &app->p1Rect);
-    SDL_RenderRect(app->renderer, &app->p1Rect);
-    drawText(app, "PLAYER 1", rows[0]);
+    // 2. Define the vertical rows
+    float spacing = 35.0f;
+    SDL_FRect rows[8];
+    for(int i = 0; i < 8; i++) {
+        rows[i] = (SDL_FRect){ panel.x, panel.y + 10 + (i * spacing), panel.w, spacing };
+    }
 
-    //player 2
-    SDL_SetRenderDrawColor(app->renderer, 255, 51, 0, 180);
-    SDL_RenderFillRect(app->renderer, &app->p2Rect);
-    SDL_RenderRect(app->renderer, &app->p2Rect);
+    // 3. Get Player Data
+    int towns = (playerNum == 1) ? app->P1.towns : app->P2.towns;
+    int troops = (playerNum == 1) ? app->P1.pieceCount : app->P2.pieceCount;
 
-    char p2Stats[128];
-    snprintf(p2Stats, sizeof(p2Stats), "PLAYER 2\nTroops: %d\nTowns: %d", app->P2.pieceCount, app->P2.towns);
-    drawText(app, p2Stats, app->p2Rect);
+    // 4. Render the Text
+    drawText(app, title, rows[0]);
 
+    char townStr[32], troopStr[32];
+    snprintf(townStr, sizeof(townStr), "Towns: %d", towns);
+    snprintf(troopStr, sizeof(troopStr), "Troops: %d", troops);
+
+    drawText(app, townStr, rows[1]);
+    drawText(app, troopStr, rows[2]);
+
+    // To add more piece-specific lines later, you would just continue with rows[3], rows[4], etc.
 }

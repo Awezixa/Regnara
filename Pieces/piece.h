@@ -60,5 +60,6 @@ bool isTileWalkable(int row, int col);
 bool pieceSpawnable(AppState *app, int player);
 bool inTerritory(AppState *app, int row, int col);
 int pieceCost(pieceType type);
+int countPiecesByType(AppState *app, int player, pieceType type);
 
 #endif

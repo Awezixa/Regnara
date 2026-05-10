@@ -25,5 +25,5 @@ void optionsButton(AppState *app);
 void quitPauseButton(AppState *app);
 void techTreeButton(AppState *app);
 void playerRectangles(AppState *app);
-
+void drawSinglePlayerStatus(AppState *app, SDL_FRect panel, SDL_Color color, const char* title, int playerNum);
 #endif 

@@ -259,3 +259,13 @@ int pieceCost(pieceType type){
         default: return 0;
     }
 }
+
+int countPiecesByType(AppState *app, int player, pieceType type) {
+    int total = 0;
+    for (int i = 0; i < app->maxPieceCapacity; i++) {
+        if (app->pieces[i].active && app->pieces[i].owner == player && app->pieces[i].type == type) {
+            total++;
+        }
+    }
+    return total;
+}
