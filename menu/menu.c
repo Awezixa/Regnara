@@ -155,8 +155,8 @@ void gameUI(AppState *app)
 void unitIconUI(AppState *app)
 {
     pieceType types[] = {PAWN, KNIGHT, BISHOP, ROOK, QUEEN};
-    SDL_Texture* texturesP1[] = {app->WpawnTexture, app->WknightTexture, app->WbishopTexture, app->WrookTexture, app->WqueenTexture};
-    SDL_Texture* texturesP2[] = {app->BpawnTexture, app->BknightTexture, app->BbishopTexture, app->BrookTexture, app->BqueenTexture};
+    SDL_Texture* texturesP1[] = {app->bluePawnTexture, app->blueKnightTexture, app->blueBishopTexture, app->blueRookTexture, app->blueQueenTexture};
+    SDL_Texture* texturesP2[] = {app->redPawnTexture, app->redKnightTexture, app->redBihsopTexture, app->redRookTexture, app->redQueenTexture};
     SDL_FRect* buttons[] = {&app->pawnButton, &app->knightButton, &app->bishopButton, &app->rookButton, &app->queenButton};
     
     float spacing = 90.0f;

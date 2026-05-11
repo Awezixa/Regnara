@@ -33,7 +33,7 @@ void spawnPiece(AppState *app)
                 char tile = map_data[row][col];
 
                 // 5. Tile Type Validation
-                if (tile == GRASS_TILE || tile == BRIDGE_TILE || tile == SPAWN_POINT || tile == TOWN_TILE)
+                if (tile == GRASS_TILE || tile == BRIDGE_TOP_TILE || tile == BRIDGE_BOTTOM_TILE || tile == UPGRADE_TILE || tile == SPAWN_POINT || tile == TOWN_TILE)
                 {
                     float targetX = (float)(col * TILE_SIZE);
                     float targetY = (float)(row * TILE_SIZE);
@@ -137,7 +137,7 @@ void renderPiece(AppState *app)
                 &app->camera,
                 app->pieces[i].pieceX,
                 app->pieces[i].pieceY,
-                32.0f, 32.0f);
+                TILE_SIZE, TILE_SIZE);
 
             SDL_Texture *tex = NULL;
             // to swap between textures for 2 players
@@ -145,26 +145,26 @@ void renderPiece(AppState *app)
             {
                 switch (app->pieces[i].type)
                 {
-                    case PAWN:tex = app->WpawnTexture;break;
-                    case KING:tex = app->WkingTexture;break;
-                    case QUEEN:tex = app->WqueenTexture;break;
-                    case ROOK:tex = app->WrookTexture;break;
-                    case KNIGHT:tex = app->WknightTexture;break;
-                    case BISHOP:tex = app->WbishopTexture;break;
-                    default: tex = app->WpawnTexture; break;
+                    case PAWN:tex = app->bluePawnTexture;break;
+                    case KING:tex = app->blueKingTexture;break;
+                    case QUEEN:tex = app->blueQueenTexture;break;
+                    case ROOK:tex = app->blueRookTexture;break;
+                    case KNIGHT:tex = app->blueKnightTexture;break;
+                    case BISHOP:tex = app->blueBishopTexture;break;
+                    default: tex = app->bluePawnTexture; break;
                 }
             }
             else
             {
                 switch (app->pieces[i].type)
                 {
-                    case PAWN:tex = app->BpawnTexture;break;
-                    case KING:tex = app->BkingTexture;break;
-                    case QUEEN:tex = app->BqueenTexture;break;
-                    case ROOK:tex = app->BrookTexture;break;
-                    case KNIGHT:tex = app->BknightTexture;break;
-                    case BISHOP:tex = app->BbishopTexture;break;
-                    default: tex = app->BpawnTexture;break;
+                    case PAWN:tex = app->redPawnTexture;break;
+                    case KING:tex = app->redKingTexture;break;
+                    case QUEEN:tex = app->redQueenTexture;break;
+                    case ROOK:tex = app->redRookTexture;break;
+                    case KNIGHT:tex = app->redKnightTexture;break;
+                    case BISHOP:tex = app->redBihsopTexture;break;
+                    default: tex = app->redPawnTexture;break;
                 }
             }
 
@@ -185,7 +185,7 @@ bool isTileWalkable(int row, int col)
     }
 
     // 2. Check the specific tile
-    if (map_data[row][col] == 'W')
+    if (map_data[row][col] == 'W' || map_data[row][col] == 'T' || map_data[row][col] == 't' || map_data[row][col] == 'j')
     {
         return false;
     }

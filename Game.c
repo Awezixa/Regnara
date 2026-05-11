@@ -50,29 +50,51 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     }
 
     //texture loading
-    app->grassTexture  = LoadTexture(app->renderer, "Assets/images/grassTile.png");
-    app->waterTexture  = LoadTexture(app->renderer, "Assets/images/waterTile.png");
-    app->bridgeTexture = LoadTexture(app->renderer, "Assets/images/bridgeTile.png");
-    app->logoTexture   = LoadTexture(app->renderer, "Assets/images/Rengara_Logo.png");
-    app->buttonOn      = LoadTexture(app->renderer, "Assets/images/buttons/buttonOn.png");
+    app->grassTexture  = LoadTexture(app->renderer, "Assets/tiles/grass.png");
+    app->waterTexture  = LoadTexture(app->renderer, "Assets/tiles/water.png");
+    app->bridgeTopTexture  = LoadTexture(app->renderer, "Assets/tiles/bridgeTop.png");
+    app->bridgeBottomTexture  = LoadTexture(app->renderer, "Assets/tiles/bridgeBottom.png");
+    app->treeTexture  = LoadTexture(app->renderer, "Assets/tiles/trees.png");
+    app->treeLeftTexture  = LoadTexture(app->renderer, "Assets/tiles/treesLeft.png");
+    app->treeRightTexture  = LoadTexture(app->renderer, "Assets/tiles/treesRight.png");
+    app->townTexture  = LoadTexture(app->renderer, "Assets/tiles/town.png");
+    app->upgradePlatformTexture  = LoadTexture(app->renderer, "Assets/tiles/upgradePlat.png");
+
+        //shore loading
+    app->shoreLeftTexture  = LoadTexture(app->renderer, "Assets/tiles/shore/shoreLeft.png");
+    app->shoreRightTexture  = LoadTexture(app->renderer, "Assets/tiles/shore/shoreRight.png");
+    app->shoreTopTexture  = LoadTexture(app->renderer, "Assets/tiles/shore/shoreTop.png");
+    app->shoreBottomTexture  = LoadTexture(app->renderer, "Assets/tiles/shore/shoreBottom.png");
+    
+    app->shoreTopLeftTexture  = LoadTexture(app->renderer, "Assets/tiles/shore/shoreTopLeft.png");
+    app->shoreBottomLeftTexture  = LoadTexture(app->renderer, "Assets/tiles/shore/shoreBottomLeft.png");
+    app->shoreTopRightTexture  = LoadTexture(app->renderer, "Assets/tiles/shore/shoreTopRight.png");
+    app->shoreBottomRightTexture  = LoadTexture(app->renderer, "Assets/tiles/shore/shoreBottomRight.png");
+    
+    app->shoreCornerTopLeftTexture  = LoadTexture(app->renderer, "Assets/tiles/shore/shoreCornerTopLeft.png");
+    app->shoreCornerBottomLeftTexture  = LoadTexture(app->renderer, "Assets/tiles/shore/shoreCornerBottomLeft.png");
+    app->shoreCornerTopRightTexture  = LoadTexture(app->renderer, "Assets/tiles/shore/shoreCornerTopRight.png");
+    app->shoreCornerBottomRightTexture  = LoadTexture(app->renderer, "Assets/tiles/shore/shoreCornerBottomRight.png");
+
+    app->logoTexture = LoadTexture(app->renderer, "Assets/images/regnaraLogo.png");
+    app->buttonOn = LoadTexture(app->renderer, "Assets/images/buttons/buttonOn.png");
     app->buttonHovered = LoadTexture(app->renderer, "Assets/images/buttons/button.png");
-    app->castleTexture = LoadTexture(app->renderer, "Assets/images/castle.png");
-    app->townTexture = LoadTexture(app->renderer, "Assets/images/town.png");
-    app->goldTexture = LoadTexture(app->renderer, "Assets/images/Gold.png");
     //white piece loading
-    app->WpawnTexture  = LoadTexture(app->renderer, "Assets/images/whitePiece/WPawnP.png");
-    app->WrookTexture  = LoadTexture(app->renderer, "Assets/images/whitePiece/WRookP.png");
-    app->WknightTexture  = LoadTexture(app->renderer, "Assets/images/whitePiece/WKnightP.png");
-    app->WbishopTexture  = LoadTexture(app->renderer, "Assets/images/whitePiece/WMageP.png");
-    app->WkingTexture  = LoadTexture(app->renderer, "Assets/images/whitePiece/WKingP.png");
-    app->WqueenTexture  = LoadTexture(app->renderer, "Assets/images/whitePiece/WQueenP.png");
+    app->bluePawnTexture  = LoadTexture(app->renderer, "Assets/pieces/blue/pawn.png");
+    app->blueKnightTexture  = LoadTexture(app->renderer, "Assets/pieces/blue/knight.png");
+    app->blueBishopTexture  = LoadTexture(app->renderer, "Assets/pieces/blue/bishop.png");
+    app->blueRookTexture  = LoadTexture(app->renderer, "Assets/pieces/blue/rook.png");
+    app->blueQueenTexture  = LoadTexture(app->renderer, "Assets/pieces/blue/queen.png");
+    app->blueKingTexture  = LoadTexture(app->renderer, "Assets/pieces/blue/king.png");
+
     //black piece loading
-    app->BpawnTexture  = LoadTexture(app->renderer, "Assets/images/blackPieces/BPawn.png");
-    app->BrookTexture  = LoadTexture(app->renderer, "Assets/images/blackPieces/BRook.png");
-    app->BknightTexture  = LoadTexture(app->renderer, "Assets/images/blackPieces/BKnight.png");
-    app->BbishopTexture  = LoadTexture(app->renderer, "Assets/images/blackPieces/BBishop.png");
-    app->BkingTexture  = LoadTexture(app->renderer, "Assets/images/blackPieces/BKing.png");
-    app->BqueenTexture  = LoadTexture(app->renderer, "Assets/images/blackPieces/BQueen.png");
+    app->redPawnTexture  = LoadTexture(app->renderer, "Assets/pieces/red/pawn.png");
+    app->redKnightTexture  = LoadTexture(app->renderer, "Assets/pieces/red/knight.png");
+    app->redBihsopTexture  = LoadTexture(app->renderer, "Assets/pieces/red/bishop.png");
+    app->redRookTexture  = LoadTexture(app->renderer, "Assets/pieces/red/rook.png");
+    app->redQueenTexture  = LoadTexture(app->renderer, "Assets/pieces/red/queen.png");
+    app->redKingTexture  = LoadTexture(app->renderer, "Assets/pieces/red/king.png");
+    
     //possible move loading
     app->movePossible = LoadTexture(app->renderer, "Assets/images/moves/possible.png");
     app->moveCapture = LoadTexture(app->renderer, "Assets/images/moves/impossible.png");
@@ -84,7 +106,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 
     //other game initializations
     app->gameState = STATE_MENU;
-    loadMap("Assets/maps/map1.txt");
+    loadMap("Assets/maps/map2.txt");
     app->piecePlaced = false;
     //world size initializations
     app->worldSize.x = (float)(MAP_COLS * TILE_SIZE);
@@ -358,7 +380,26 @@ void SDL_AppQuit(void *appstate, SDL_AppResult result)
     //add function to destroy all textures
     if (app->grassTexture)SDL_DestroyTexture(app->grassTexture);
     if (app->waterTexture)SDL_DestroyTexture(app->waterTexture);
-    if (app->bridgeTexture)SDL_DestroyTexture(app->bridgeTexture);
+    if (app->bridgeTopTexture)SDL_DestroyTexture(app->bridgeTopTexture);
+    if (app->bridgeBottomTexture)SDL_DestroyTexture(app->bridgeBottomTexture);
+    if (app->townTexture)SDL_DestroyTexture(app->townTexture);
+    if (app->upgradePlatformTexture)SDL_DestroyTexture(app->upgradePlatformTexture);
+
+    if (app->shoreLeftTexture)SDL_DestroyTexture(app->shoreLeftTexture);
+    if (app->shoreRightTexture)SDL_DestroyTexture(app->shoreRightTexture);
+    if (app->shoreTopTexture)SDL_DestroyTexture(app->shoreTopTexture);
+    if (app->shoreBottomTexture)SDL_DestroyTexture(app->shoreBottomTexture);
+
+    if (app->shoreTopLeftTexture)SDL_DestroyTexture(app->shoreTopLeftTexture);
+    if (app->shoreTopRightTexture)SDL_DestroyTexture(app->shoreTopRightTexture);
+    if (app->shoreBottomLeftTexture)SDL_DestroyTexture(app->shoreBottomLeftTexture);
+    if (app->shoreBottomRightTexture)SDL_DestroyTexture(app->shoreBottomRightTexture);
+
+    if (app->shoreCornerTopLeftTexture)SDL_DestroyTexture(app->shoreCornerTopLeftTexture);
+    if (app->shoreCornerTopRightTexture)SDL_DestroyTexture(app->shoreCornerTopRightTexture);
+    if (app->shoreCornerBottomLeftTexture)SDL_DestroyTexture(app->shoreCornerBottomLeftTexture);
+    if (app->shoreCornerBottomRightTexture)SDL_DestroyTexture(app->shoreCornerBottomRightTexture);
+
     if (app->font)TTF_CloseFont(app->font);
     if (app->renderer)SDL_DestroyRenderer(app->renderer);
     if (app->window)SDL_DestroyWindow(app->window);
@@ -640,7 +681,7 @@ void winCondition(AppState *app){
 }
 
 void resetGame(AppState *app){
-    for (int i = 0; i < 6; i++)
+    for (int i = 0; i < 8; i++)
     {
         app->towns[i].owner = 0;
     }

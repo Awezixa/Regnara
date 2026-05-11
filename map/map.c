@@ -15,31 +15,38 @@ void loadMap(const char *filename)
 {
     FILE *file = fopen(filename, "r");
 
-    if (file == NULL)
+    if (!file)
     {
-        printf("Failed to open map file");
+        printf("Failed to open map file: %s\n", filename);
         return;
     }
 
-    printf("loading map %s", filename);
+    printf("Loading map %s\n", filename);
+
     for (int row = 0; row < MAP_ROWS; row++)
     {
-        for (int col = 0; col < MAP_COLS; col++)
+        for (int col = 0; col < MAP_COLS;)
         {
             int ch = fgetc(file);
+
             if (ch == EOF)
             {
+                printf("Unexpected EOF in map file\n");
                 fclose(file);
                 return;
             }
-            if (ch == '\n')
+
+            // Skip Windows + Unix line endings
+            if (ch == '\n' || ch == '\r')
             {
-                col--;
                 continue;
             }
+
             map_data[row][col] = (char)ch;
+            col++;
         }
     }
+
     fclose(file);
 }
 
@@ -61,9 +68,31 @@ void renderMap(SDL_Renderer *renderer, AppState *app) {
             switch (map_data[row][col]) {
                 case 'G': targetTexture = app->grassTexture; break;
                 case 'W': targetTexture = app->waterTexture; break;
-                case 'B': targetTexture = app->bridgeTexture; break;
-                case 'T': targetTexture = app->townTexture; break;
-                case 'S': targetTexture = app->castleTexture; break;
+                case 'B': targetTexture = app->bridgeTopTexture; break;
+                case 'b': targetTexture = app->bridgeBottomTexture; break;
+                case 'C': targetTexture = app->townTexture; break;
+                case 'S': targetTexture = app->townTexture; break;
+                case 'U': targetTexture = app->upgradePlatformTexture; break;
+
+                case 'T': targetTexture = app->treeTexture; break;
+                case 't': targetTexture = app->treeRightTexture; break;
+                case 'j': targetTexture = app->treeLeftTexture; break;
+
+                case '1': targetTexture = app->shoreLeftTexture; break;
+                case '2': targetTexture = app->shoreRightTexture; break;
+                case '3': targetTexture = app->shoreTopTexture; break;
+                case '4': targetTexture = app->shoreBottomTexture; break;
+
+                case '5': targetTexture = app->shoreBottomLeftTexture; break;
+                case '6': targetTexture = app->shoreBottomRightTexture; break;
+                case '7': targetTexture = app->shoreTopLeftTexture; break;
+                case '8': targetTexture = app->shoreTopRightTexture; break;
+
+                case '9': targetTexture = app->shoreCornerTopLeftTexture; break;
+                case '0': targetTexture = app->shoreCornerTopRightTexture; break;
+                case '#': targetTexture = app->shoreCornerBottomLeftTexture; break;
+                case '*': targetTexture = app->shoreCornerBottomRightTexture; break;
+
                 default: break; 
             }
 
@@ -83,7 +112,7 @@ int townCount(void){
     int total = 0;
     for(int row = 0; row < MAP_ROWS; row++){
         for (int col = 0; col < MAP_COLS; col++){
-           if (map_data[row][col] == 'T') {
+           if (map_data[row][col] == 'C') {
                 total++;
            } 
         }
@@ -96,7 +125,7 @@ void initTowns(AppState *app){
     app->tTowns = 0;
     for (int r = 0; r < MAP_ROWS; r++) {
         for (int c = 0; c < MAP_COLS; c++) {
-            if (map_data[r][c] == 'T') {
+            if (map_data[r][c] == 'C') {
                 app->towns[app->tTowns].row = r;
                 app->towns[app->tTowns].col = c;
                 app->towns[app->tTowns].owner = 0; // Neutral

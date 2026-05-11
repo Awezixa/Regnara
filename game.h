@@ -5,7 +5,7 @@
 #define APP_NAME "Regnara"
 #define WINDOW_WIDTH 1920
 #define WINDOW_HEIGHT 1080
-#define TILE_SIZE 40
+#define TILE_SIZE 64
 #define WORLD_WIDTH (MAP_COLS * TILE_SIZE)
 #define WORLD_HEIGHT (MAP_ROWS * TILE_SIZE)
 
@@ -84,11 +84,32 @@ typedef struct AppState
     //Map
     SDL_Texture *grassTexture;
     SDL_Texture *waterTexture;
-    SDL_Texture *bridgeTexture;
-    SDL_Texture *castleTexture;
+
+    SDL_Texture *bridgeTopTexture;
+    SDL_Texture *bridgeBottomTexture;
     SDL_Texture *townTexture;
+    SDL_Texture *upgradePlatformTexture;
+
+    SDL_Texture *treeTexture;
+    SDL_Texture *treeLeftTexture;
+    SDL_Texture *treeRightTexture;
+
+    //shore
+    SDL_Texture *shoreLeftTexture;
+    SDL_Texture *shoreRightTexture;
+    SDL_Texture *shoreTopTexture;
+    SDL_Texture *shoreBottomTexture;
+    SDL_Texture *shoreTopRightTexture;
+    SDL_Texture *shoreTopLeftTexture;
+    SDL_Texture *shoreBottomRightTexture;
+    SDL_Texture *shoreBottomLeftTexture;
+    SDL_Texture *shoreCornerTopRightTexture;
+    SDL_Texture *shoreCornerTopLeftTexture;
+    SDL_Texture *shoreCornerBottomRightTexture;
+    SDL_Texture *shoreCornerBottomLeftTexture;
+
     SDL_Texture *logoTexture;
-    Town towns[6];
+    Town towns[8];
     int tTowns; // total amount of towns
 
     //Pieces
@@ -99,12 +120,12 @@ typedef struct AppState
     Piece *selectedPiece;
     
     //where borrow stock piece textures https://nulltale.itch.io/heroes-chess
-    SDL_Texture *WpawnTexture;
-    SDL_Texture *WrookTexture;
-    SDL_Texture *WknightTexture;
-    SDL_Texture *WbishopTexture;
-    SDL_Texture *WkingTexture;
-    SDL_Texture *WqueenTexture;
+    SDL_Texture *bluePawnTexture;
+    SDL_Texture *blueRookTexture;
+    SDL_Texture *blueKnightTexture;
+    SDL_Texture *blueBishopTexture;
+    SDL_Texture *blueKingTexture;
+    SDL_Texture *blueQueenTexture;
 
     SDL_FRect pawnButton;
     SDL_FRect queenButton;
@@ -113,12 +134,12 @@ typedef struct AppState
     SDL_FRect bishopButton;
 
     //black piece textures
-    SDL_Texture *BpawnTexture;
-    SDL_Texture *BrookTexture;
-    SDL_Texture *BknightTexture;
-    SDL_Texture *BbishopTexture;
-    SDL_Texture *BkingTexture;
-    SDL_Texture *BqueenTexture;
+    SDL_Texture *redPawnTexture;
+    SDL_Texture *redRookTexture;
+    SDL_Texture *redKnightTexture;
+    SDL_Texture *redBihsopTexture;
+    SDL_Texture *redKingTexture;
+    SDL_Texture *redQueenTexture;
     //possible move textures
     SDL_Texture *movePossible;
     SDL_Texture *moveCapture;
