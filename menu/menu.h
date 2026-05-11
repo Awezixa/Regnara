@@ -18,7 +18,7 @@ void playButton(AppState *app);
 void drawPauseMenu(AppState *app);
 void unitIconUI(AppState *app);
 void goldUI(AppState *app);
-void buildingIconUI(AppState *app);
+void buildingIconUI(AppState *app, int owner, SDL_FRect container);
 void drawEndScreen(AppState *app);
 void mainMenuButton(AppState *app);
 void optionsButton(AppState *app);

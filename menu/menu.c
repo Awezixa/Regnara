@@ -147,7 +147,7 @@ void gameUI(AppState *app)
     SDL_SetRenderDrawColor(app->renderer, 200, 200, 200, 255); // Solid light gray
     SDL_RenderRect(app->renderer, &uiPanel);
     unitIconUI(app);
-    buildingIconUI(app);
+    //buildingIconUI(app);
     techTreeButton(app);
     endTurnButton(app);
 }
@@ -188,29 +188,6 @@ void unitIconUI(AppState *app)
 }
     
 
-void buildingIconUI(AppState * app)
-    {
-        char countStr[32];
-
-        int towns = (app->currentPlayer == 1) ? app->P1.towns : app->P2.towns;
-
-        snprintf(countStr, sizeof(countStr), " %d", towns);
-        SDL_FRect countPos = {
-            600.0f,                 // X
-            WINDOW_HEIGHT - 125.0f, // Y (below Turn UI)
-            150.0f,                 // Width
-            150.0f                  // Height
-        };
-
-        SDL_FRect townIcon = {
-            580.0f,
-            WINDOW_HEIGHT - 80.0f,
-            65.0f,
-            65.0f};
-
-        SDL_RenderTexture(app->renderer, app->townTexture, NULL, &townIcon);
-        drawText(app, countStr, countPos);
-    }
 
 void goldUI(AppState * app)
 {
@@ -333,35 +310,61 @@ void playerRectangles(AppState *app) {
 }
 
 void drawSinglePlayerStatus(AppState *app, SDL_FRect panel, SDL_Color color, const char* title, int playerNum) {
-    // 1. Draw Background
+    // 1. Draw Background and Outline
     SDL_SetRenderDrawBlendMode(app->renderer, SDL_BLENDMODE_BLEND);
     SDL_SetRenderDrawColor(app->renderer, color.r, color.g, color.b, color.a);
     SDL_RenderFillRect(app->renderer, &panel);
     
-    // Draw Outline
     SDL_SetRenderDrawColor(app->renderer, 255, 255, 255, 255);
     SDL_RenderRect(app->renderer, &panel);
 
     // 2. Define the vertical rows
-    float spacing = 35.0f;
+    float spacing = 40.0f; 
     SDL_FRect rows[8];
     for(int i = 0; i < 8; i++) {
         rows[i] = (SDL_FRect){ panel.x, panel.y + 10 + (i * spacing), panel.w, spacing };
     }
 
-    // 3. Get Player Data
-    int towns = (playerNum == 1) ? app->P1.towns : app->P2.towns;
-    int troops = (playerNum == 1) ? app->P1.pieceCount : app->P2.pieceCount;
-
-    // 4. Render the Text
+    // 3. Render the Title (Line 0)
     drawText(app, title, rows[0]);
 
-    char townStr[32], troopStr[32];
-    snprintf(townStr, sizeof(townStr), "Towns: %d", towns);
+    // 4. Render Town Icon + Count (Line 1)
+    // This replaces the old snprintf/drawText for towns
+    buildingIconUI(app, playerNum, rows[1]);
+
+    // 5. Render Troops (Line 2)
+    int troops = (playerNum == 1) ? app->P1.pieceCount : app->P2.pieceCount;
+    char troopStr[32];
     snprintf(troopStr, sizeof(troopStr), "Troops: %d", troops);
-
-    drawText(app, townStr, rows[1]);
     drawText(app, troopStr, rows[2]);
+}
 
-    // To add more piece-specific lines later, you would just continue with rows[3], rows[4], etc.
+void buildingIconUI(AppState *app, int owner, SDL_FRect container)
+{
+    // Get data based on the playerNum (owner) passed in
+    int towns = (owner == 1) ? app->P1.towns : app->P2.towns;
+    char countStr[16];
+    snprintf(countStr, sizeof(countStr), "%d", towns);
+
+    // Set icon size to fit the row height
+    float iconSize = container.h * 0.8f;
+    
+    // Position the icon on the left of the row
+    SDL_FRect townIcon = {
+        container.x + 20.0f, // Padding from the panel edge
+        container.y + (container.h - iconSize) / 2.0f,
+        iconSize,
+        iconSize
+    };
+
+    // Position the number to the right of the icon
+    SDL_FRect countPos = {
+        townIcon.x + townIcon.w + 10.0f,
+        container.y,
+        container.w - iconSize - 40.0f,
+        container.h
+    };
+
+    SDL_RenderTexture(app->renderer, app->townTexture, NULL, &townIcon);
+    drawText(app, countStr, countPos);
 }
