@@ -94,7 +94,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     app->redRookTexture  = LoadTexture(app->renderer, "Assets/pieces/red/rook.png");
     app->redQueenTexture  = LoadTexture(app->renderer, "Assets/pieces/red/queen.png");
     app->redKingTexture  = LoadTexture(app->renderer, "Assets/pieces/red/king.png");
-    
+
     //possible move loading
     app->movePossible = LoadTexture(app->renderer, "Assets/images/moves/possible.png");
     app->moveCapture = LoadTexture(app->renderer, "Assets/images/moves/impossible.png");
@@ -106,7 +106,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 
     //other game initializations
     app->gameState = STATE_MENU;
-    loadMap("Assets/maps/map2.txt");
+    loadMap("Assets/maps/map1.txt");
     app->piecePlaced = false;
     //world size initializations
     app->worldSize.x = (float)(MAP_COLS * TILE_SIZE);
