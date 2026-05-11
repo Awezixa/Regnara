@@ -3,6 +3,30 @@
 #include <string.h>
 #include "../game.h"
 
+/*
+
+Piece Upgrades
+- mage
+- lancer
+- catapualt
+- Envoy
+
+Building upgrades
+- increased town radius
+- increased gold income
+
+Generic/ random upgrades
+- 25% to gain half captured piece value
+- random spawing piece
+- upgrade platforms
+
+*/
+
+
+
+
+
+
 void initTechTree(TechTree *tree)
 {
     strcpy(tree->upgrades[0].name, "Lancer");

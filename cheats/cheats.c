@@ -22,7 +22,9 @@ void drawCheats(AppState *app){
     drawText(app, "CHEATS ON" , app->cheatText);
 }
 
-
+void presetMatch(AppState *app){
+    //force matters on where pieces are, what pieces spawn gold ammounts etc
+}
 
 
 
