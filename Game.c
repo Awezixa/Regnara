@@ -490,7 +490,7 @@ void updateGame(AppState *app){
         if (app->input.keyDown[SDL_SCANCODE_3]) app->selectedPieceType = BISHOP;
         if (app->input.keyDown[SDL_SCANCODE_4]) app->selectedPieceType = ROOK;
         if (app->input.keyDown[SDL_SCANCODE_5]) app->selectedPieceType = QUEEN;
-
+        //if (app->input.keyDown[SDL_SCANCODE_6]) app->selectedPieceType = ENVOY;
     // =========================
     // SPAWN + RENDER
     // =========================
@@ -529,11 +529,9 @@ void updateGame(AppState *app){
     {
         Piece *p = &app->pieces[i];
 
-        if (p->active &&
-            p->col == mouseCol &&
-            p->row == mouseRow)
+        if (p->active && p->col == mouseCol && p->row == mouseRow)
         {
-            if (app->input.mouseLeftPressed && app->selectedPiece == NULL && p->owner == app->currentPlayer)
+            if (app->input.mouseLeftPressed && app->selectedPiece == NULL && p->owner == app->currentPlayer && !p->moved)
             {
                 app->selectedPiece = p;
                 GenerateMoves(app, p);
@@ -544,15 +542,14 @@ void updateGame(AppState *app){
     // =========================
     // MOVE PIECE
     // =========================
-        if (app->cheats && app->selectedPiece && app->input.mouseLeftPressed && wasPieceSelected)
+    if (app->cheats && app->selectedPiece && app->input.mouseLeftPressed && wasPieceSelected)
     {
-
-                app->selectedPiece->col = mouseCol;
-                app->selectedPiece->row = mouseRow;
-
-                app->selectedPiece->pieceX = mouseCol * TILE_SIZE;
-                app->selectedPiece->pieceY = mouseRow * TILE_SIZE;
-                app->selectedPiece = NULL;
+        app->selectedPiece->col = mouseCol;
+        app->selectedPiece->row = mouseRow;
+        app->selectedPiece->pieceX = mouseCol * TILE_SIZE;
+        app->selectedPiece->pieceY = mouseRow * TILE_SIZE;
+        app->selectedPiece = NULL;
+        
     }else
     if (app->selectedPiece && app->input.mouseLeftPressed && wasPieceSelected)
     {
@@ -586,9 +583,18 @@ void updateGame(AppState *app){
                 // move piece
                 app->selectedPiece->col = m.x;
                 app->selectedPiece->row = m.y;
-
                 app->selectedPiece->pieceX = m.x * TILE_SIZE;
                 app->selectedPiece->pieceY = m.y * TILE_SIZE;
+
+                app->selectedPiece->moved = true;
+                if (app->cheats == true)
+                {
+                    for (int i = 0; i < app->maxPieceCapacity; i++)
+                    {
+                        //allow pieces to move as much as want
+                        app->pieces[i].moved = false;
+                    }
+                }
 
                 moved = true;
                 break;
@@ -641,6 +647,13 @@ void updateGame(AppState *app){
 }
 
 void endTurn(AppState *app) {
+
+    //reset all pieces for movement
+    for (int i = 0; i < app->maxPieceCapacity; i++)
+    {
+        app->pieces[i].moved = false;
+    }
+
     // 1. Process capture for the player who just finished their turn
     townCaptured(app);
 

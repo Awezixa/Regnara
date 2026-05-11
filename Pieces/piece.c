@@ -170,6 +170,18 @@ void renderPiece(AppState *app)
 
             if (tex)
             {
+
+                if (app->pieces[i].moved == true)
+                {
+                    SDL_SetTextureAlphaMod(tex, 110);
+                }
+                else{
+                    SDL_SetTextureAlphaMod(tex, 255);
+                }
+                
+
+
+
                 SDL_RenderTexture(app->renderer, tex, NULL, &p);
             }
         }

@@ -139,45 +139,50 @@ void initTowns(AppState *app){
 void townCaptured(AppState *app) {
     for (int t = 0; t < app->tTowns; t++) {
         Town *town = &app->towns[t];
-        bool kingPresent = false;
-        int kingOwner = 0;
+        int capturingOwner = 0;
+        int requiredTurns = 0;
 
-        // 1. Search for a King piece specifically at this town's location
+        //Check for a King or Envoy at the town's location
         for (int i = 0; i < app->maxPieceCapacity; i++) {
             Piece *p = &app->pieces[i];
             
-            // CRITICAL: Check the actual owner field of the piece
-            if (p->active && p->type == KING && p->row == town->row && p->col == town->col) {
-                kingPresent = true;
-                kingOwner = p->owner; // Use the piece's stored owner
-                break;
+            if (p->active && p->row == town->row && p->col == town->col) {
+                if (p->type == KING) {
+                    capturingOwner = p->owner;
+                    requiredTurns = 1; 
+                    break; 
+                } else if (p->type == ENVOY) {
+                    capturingOwner = p->owner;
+                    requiredTurns = 3; 
+                    break;
+                }
             }
         }
 
-        // 2. If a King is present and it's not the current town owner
-        if (kingPresent && town->owner != kingOwner) {
+        // Process Capture Logic
+        // Only increment if someone is there and they don't already own it
+        if (capturingOwner != 0 && town->owner != capturingOwner) {
             town->captureTurns++;
             
-            if (town->captureTurns >= 1) { // Captured after 1 turn
+            if (town->captureTurns >= requiredTurns) {
                 int oldOwner = town->owner;
-                town->owner = kingOwner;
+                town->owner = capturingOwner;
                 town->captureTurns = 0;
 
-                // 3. Update persistent player town counts accurately
-                if (kingOwner == 1) app->P1.towns++;
-                else if (kingOwner == 2) app->P2.towns++;
+                // Update player town counts
+                if (capturingOwner == 1) app->P1.towns++;
+                else if (capturingOwner == 2) app->P2.towns++;
 
-                // 4. Subtract from previous owner if it wasn't neutral
+                // Subtract from previous owner
                 if (oldOwner == 1) app->P1.towns--;
                 else if (oldOwner == 2) app->P2.towns--;
             }
         } else {
-            // Reset if the King moves away or if no King is present
+            // Reset if the tile is empty or the current owner is standing on it
             town->captureTurns = 0;
         }
     }
 }
-
 void drawTerritory(AppState *app) {
     // Set the blend mode once for the whole loop
     SDL_SetRenderDrawBlendMode(app->renderer, SDL_BLENDMODE_BLEND);
