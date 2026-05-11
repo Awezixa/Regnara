@@ -3,6 +3,8 @@
 
 void spawnPiece(AppState *app)
 {
+    if (app->selectedPiece != NULL){return;}
+    
     // 1. Check for click and use the dynamic capacity instead of MAX_PIECES
     if (app->input.mouseLeftPressed && app->pieceCount < app->maxPieceCapacity)
     {
@@ -71,6 +73,7 @@ void spawnPiece(AppState *app)
                                 *playerGold -= cost;
                                 app->pieceCount++;
 
+                                //app->selectedPieceType = NULL;
                                 if (app->currentPlayer == 1) app->P1.pieceCount++;
                                 else app->P2.pieceCount++;
 
