@@ -45,6 +45,10 @@ void initTechTree(TechTree *tree)
     tree->upgrades[3].cost = 40;
     tree->upgrades[3].required = -1;
 
+    strcpy(tree->upgrades[4].name, "Critical Strike");
+    tree->upgrades[4].cost = 35;
+    tree->upgrades[4].required = 3;
+    
     strcpy(tree->upgrades[5].name, "Spawn Extra");
     tree->upgrades[5].cost = 60;
     tree->upgrades[5].required = 0;
@@ -83,22 +87,34 @@ void unlockUpgrade(TechTree *tree, int index, int *gold)
 
 void printTechTree(AppState *app)
 {
-    app->techText.x = 930;
-    app->techText.y = 50;
-    app->techText.h = 200;
-    app->techText.w = 200;
+    SDL_FRect titleRect = {900, 50, 400, 60};
+    drawText(app, app->fontLarge, "TECH TREE", titleRect);
 
-    drawText(app, app->font, "TECH TREE", app->techText);
+    char buffer[128];
+
+    for (int i = 0; i < MAX_UPGRADES; i++)
+    {
+        sprintf(buffer,
+            "%d. %s - %dG [%s]",
+            i + 1,
+            app->techTreeP1.upgrades[i].name,
+            app->techTreeP1.upgrades[i].cost,
+            app->techTreeP1.upgrades[i].unlocked ? "UNLOCKED" : "LOCKED"
+        );
+
+        SDL_FRect rect = {
+            780,
+            170 + i * 70,
+            700,
+            50
+        };
+
+        drawText(app, app->font, buffer, rect);
+    }
+}
 
 
-    // for (int i = 0; i < MAX_UPGRADES; i++)
-    // {
-    //     printf("%d. %s | Cost: %d | %s\n",
-    //            i,
-    //            tree->upgrades[i].name,
-    //            tree->upgrades[i].cost,
-    //            tree->upgrades[i].unlocked ? "Unlocked" : "Locked");
-    // }
+   
 }
 
 bool isUpgradeUnlocked(TechTree *tree, int index)
