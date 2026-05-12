@@ -317,6 +317,23 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     {
         //showText(app->renderer, 500, 200, "TECH TREE (ESC to return)", (SDL_Color){255,255,255,255});
         printTechTree(app);
+        if (app->input.keyPressed[SDL_SCANCODE_1])
+        unlockUpgrade(&app->techTreeP1, 0, &app->P1.p1Gold);
+
+        if (app->input.keyPressed[SDL_SCANCODE_2])
+        unlockUpgrade(&app->techTreeP1, 1, &app->P1.p1Gold);
+
+        if (app->input.keyPressed[SDL_SCANCODE_3])
+        unlockUpgrade(&app->techTreeP1, 2, &app->P1.p1Gold);
+
+        if (app->input.keyPressed[SDL_SCANCODE_4])
+        unlockUpgrade(&app->techTreeP1, 3, &app->P1.p1Gold);
+
+        if (app->input.keyPressed[SDL_SCANCODE_5])
+        unlockUpgrade(&app->techTreeP1, 4, &app->P1.p1Gold);
+
+        if (app->input.keyPressed[SDL_SCANCODE_6])
+        unlockUpgrade(&app->techTreeP1, 5, &app->P1.p1Gold);
         if (app->input.keyPressed[SDL_SCANCODE_ESCAPE]) {
             app->gameState = STATE_PLAYING;
         }
