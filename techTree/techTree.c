@@ -114,9 +114,6 @@ void printTechTree(AppState *app)
 }
 
 
-   
-}
-
 bool isUpgradeUnlocked(TechTree *tree, int index)
 {
     if (index < 0 || index >= MAX_UPGRADES)
