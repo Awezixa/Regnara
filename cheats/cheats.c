@@ -19,7 +19,7 @@ void drawCheats(AppState *app){
     app->cheatText.w = 70.0f;
     app->cheatText.h = 60.0f;
 
-    drawText(app, "CHEATS ON" , app->cheatText);
+    drawText(app, app->font, "CHEATS ON" , app->cheatText);
 }
 
 void presetMatch(AppState *app){

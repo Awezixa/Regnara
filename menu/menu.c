@@ -26,7 +26,7 @@ void playButton(AppState *app)
     app->playbutton.y = 500.0f;
 
     SDL_RenderTexture(app->renderer, app->buttonOn, NULL, &app->playbutton);
-    drawText(app, "PLAY", app->playbutton);
+    drawText(app, app->font, "PLAY", app->playbutton);
 }
 
 // Xavier
@@ -41,16 +41,16 @@ void quitButton(AppState *app)
     app->quitbutton.y = 500.0f;
 
     SDL_RenderTexture(app->renderer, app->buttonHovered, NULL, &app->quitbutton);
-    drawText(app, "QUIT", app->quitbutton);
+    drawText(app, app->font, "QUIT", app->quitbutton);
 }
 
 // Xavier
-void drawText(AppState *app, const char *text, SDL_FRect container)
+void drawText(AppState *app, TTF_Font *font, const char *text, SDL_FRect container)
 {
     SDL_Color black = {255, 255, 255, 255}; // can change colour if needed
 
     // 1. Create a surface from the font
-    SDL_Surface *surface = TTF_RenderText_Blended(app->font, text, 0, black);
+    SDL_Surface *surface = TTF_RenderText_Blended(font, text, 0, black);
     if (!surface)
         return;
 
@@ -89,7 +89,7 @@ void endTurnButton(AppState *app)
     app->endTurnButton.y = WINDOW_HEIGHT - app->endTurnButton.h - 20.0f;
 
     SDL_RenderTexture(app->renderer, app->buttonOn, NULL, &app->endTurnButton);
-    drawText(app, "END TURN", app->endTurnButton);
+    drawText(app, app->font, "END TURN", app->endTurnButton);
 }
 
 void turnUI(AppState *app)
@@ -102,7 +102,7 @@ void turnUI(AppState *app)
     app->turnCount.h = 60.0f;
     app->turnCount.w = 200.0f;
 
-    drawText(app, turnStr, app->turnCount);
+    drawText(app, app->font, turnStr, app->turnCount);
 }
 
 void drawPauseMenu(AppState *app)
@@ -115,7 +115,7 @@ void drawPauseMenu(AppState *app)
     app->pauseTxt.x = (float)(WINDOW_WIDTH / 2) - (app->pauseTxt.w/2);
     app->pauseTxt.y = 200.0f;
 
-    drawText(app, pauseUI, app->pauseTxt);
+    drawText(app, app->font, pauseUI, app->pauseTxt);
     // add options button
     // add resume button
     quitPauseButton(app);
@@ -183,48 +183,8 @@ void unitIconUI(AppState *app)
         char cost[16];
         snprintf(cost, sizeof(cost), "%d ", pieceCost(types[i]));
         SDL_FRect costPos = {buttons[i]->x, buttons[i]->y + size, size, 20.0f};
-        drawText(app, cost, costPos);
+        drawText(app, app->font, cost, costPos);
     }
-}
-    
-
-
-void goldUI(AppState * app)
-{
-    SDL_FRect goldPanel = {
-        800.0f,                 // x position
-        WINDOW_HEIGHT - 207.0f, // y position
-        300.0f,                 // width
-        60.0f,                  // height
-    };
-
-    // gold amount
-    char goldAmmount[150];
-    int gold = (app->currentPlayer == 1) ? app->P1.p1Gold : app->P2.p2Gold;
-
-    snprintf(goldAmmount, sizeof(goldAmmount), ": %d", gold);
-    SDL_FRect textPos = {
-        900.0f,                 // X padding from left
-        WINDOW_HEIGHT - 250.0f, // Y position inside panel
-        140.0f,                 // Width
-        140.0f                  // Height
-    };
-
-    SDL_FRect icon = {850.0f, WINDOW_HEIGHT - 230.0f, 80.f, 80.0f};
-
-    // for rectangle loading
-    SDL_SetRenderDrawBlendMode(app->renderer, SDL_BLENDMODE_BLEND);
-    if(app->currentPlayer == 1){
-        SDL_SetRenderDrawColor(app->renderer, 0, 153, 255, 180);
-    }
-    else if(app->currentPlayer == 2){
-        SDL_SetRenderDrawColor(app->renderer, 255, 51, 0, 180);
-    }
-    SDL_RenderFillRect(app->renderer, &goldPanel);
-    // for icon and text loading
-    SDL_RenderRect(app->renderer, &goldPanel);
-    SDL_RenderTexture(app->renderer, app->goldTexture, NULL, &icon);
-    drawText(app, goldAmmount, textPos);
 }
 
 void drawEndScreen(AppState *app){
@@ -236,7 +196,7 @@ void drawEndScreen(AppState *app){
         120.0f,                 // Width
         120.0f                  // Height
     };
-    drawText(app, winner, textPos);
+    drawText(app, app->font, winner, textPos);
 }
 
 void quitPauseButton(AppState *app){
@@ -249,7 +209,7 @@ void quitPauseButton(AppState *app){
     app->quitbutton.y = 500.0f;
 
     SDL_RenderTexture(app->renderer, app->buttonHovered, NULL, &app->quitbutton);
-    drawText(app, "QUIT", app->quitbutton);
+    drawText(app, app->font, "QUIT", app->quitbutton);
 }
 
 void mainMenuButton(AppState *app){
@@ -262,7 +222,7 @@ void mainMenuButton(AppState *app){
     app->mainmenubutton.y = 300.0f;
 
     SDL_RenderTexture(app->renderer, app->buttonHovered, NULL, &app->mainmenubutton);
-    drawText(app, "MAIN MENU", app->mainmenubutton);
+    drawText(app, app->font, "MAIN MENU", app->mainmenubutton);
 }
 
 void optionsButton(AppState *app){
@@ -275,7 +235,7 @@ void optionsButton(AppState *app){
     app->optionsbutton.y = 400.0f;
 
     SDL_RenderTexture(app->renderer, app->buttonHovered, NULL, &app->optionsbutton);
-    drawText(app, "OPTIONS", app->optionsbutton);
+    drawText(app, app->font, "OPTIONS", app->optionsbutton);
 }
 
 void techTreeButton(AppState *app){
@@ -288,33 +248,32 @@ void techTreeButton(AppState *app){
     app->techTreeButton.y = WINDOW_HEIGHT - app->techTreeButton.h - 20.0f;
 
     SDL_RenderTexture(app->renderer, app->buttonHovered, NULL, &app->techTreeButton);
-    drawText(app, "TECH TREE", app->techTreeButton);    
+    drawText(app, app->font, "TECH TREE", app->techTreeButton);    
 }
 
 void playerRectangles(AppState *app) {
-    float panelW = 250.0f;
-    float panelH = 300.0f;
+    float panelW = 400.0f;
+    float panelH = 128.0f;
     float margin = 20.0f;
 
-    // Player 1 (Blue - Right side)
-    SDL_FRect p1Rect = { WINDOW_WIDTH - panelW - margin, margin, panelW, panelH };
-    SDL_Color p1Color = { 0, 153, 255, 180 };
+    // Player 1 (Blue - Left side)
+    SDL_FRect p1GoldRect = { 0, margin, panelW, panelH };
 
-    // Player 2 (Red - Left side)
-    SDL_FRect p2Rect = { margin, margin, panelW, panelH };
-    SDL_Color p2Color = { 255, 51, 0, 180 };
+    // Player 2 (Red - Right side)
+    SDL_FRect p2GoldRect = { WINDOW_WIDTH - panelW, margin, panelW, panelH };
 
     // Draw both using the helper
-    drawSinglePlayerStatus(app, p1Rect, p1Color, "PLAYER 1", 1);
-    drawSinglePlayerStatus(app, p2Rect, p2Color, "PLAYER 2", 2);
+    drawSinglePlayerStatus(app, p1GoldRect, "PLAYER 1", 1);
+    drawSinglePlayerStatus(app, p2GoldRect, "PLAYER 2", 2);
 }
 
-void drawSinglePlayerStatus(AppState *app, SDL_FRect panel, SDL_Color color, const char* title, int playerNum) {
+void drawSinglePlayerStatus(AppState *app, SDL_FRect panel, const char* title, int playerNum) {
     // 1. Draw Background and Outline
     SDL_SetRenderDrawBlendMode(app->renderer, SDL_BLENDMODE_BLEND);
-    SDL_SetRenderDrawColor(app->renderer, color.r, color.g, color.b, color.a);
-    SDL_RenderFillRect(app->renderer, &panel);
-    
+    if(playerNum == 1){
+    SDL_RenderTexture(app->renderer, app->blueGoldTexture, NULL, &panel);}
+    else{
+    SDL_RenderTexture(app->renderer, app->redGoldTexture, NULL, &panel);}
     SDL_SetRenderDrawColor(app->renderer, 255, 255, 255, 255);
     SDL_RenderRect(app->renderer, &panel);
 
@@ -326,45 +285,33 @@ void drawSinglePlayerStatus(AppState *app, SDL_FRect panel, SDL_Color color, con
     }
 
     // 3. Render the Title (Line 0)
-    drawText(app, title, rows[0]);
+    drawText(app, app->font, title, rows[0]);
 
-    // 4. Render Town Icon + Count (Line 1)
-    // This replaces the old snprintf/drawText for towns
-    buildingIconUI(app, playerNum, rows[1]);
+    // 4. Render Values
+    int gold = (playerNum == 1) ? app->P1.p1Gold : app->P2.p2Gold;
+    int towns = (playerNum == 1) ? app->P1.towns : app->P2.towns;
 
-    // 5. Render Troops (Line 2)
-    int troops = (playerNum == 1) ? app->P1.pieceCount : app->P2.pieceCount;
+    char goldStr[32];
+    char townStr[32];
     char troopStr[32];
-    snprintf(troopStr, sizeof(troopStr), "Troops: %d", troops);
-    drawText(app, troopStr, rows[2]);
-}
 
-void buildingIconUI(AppState *app, int owner, SDL_FRect container)
-{
-    // Get data based on the playerNum (owner) passed in
-    int towns = (owner == 1) ? app->P1.towns : app->P2.towns;
-    char countStr[16];
-    snprintf(countStr, sizeof(countStr), "%d", towns);
+    snprintf(goldStr, sizeof(goldStr), "%d", gold);
+    snprintf(townStr, sizeof(townStr), "%d", towns+1);
 
-    // Set icon size to fit the row height
-    float iconSize = container.h * 0.8f;
-    
-    // Position the icon on the left of the row
-    SDL_FRect townIcon = {
-        container.x + 20.0f, // Padding from the panel edge
-        container.y + (container.h - iconSize) / 2.0f,
-        iconSize,
-        iconSize
+    SDL_FRect goldRect = {
+    panel.x + 70.0f,
+    panel.y + 70.0f,
+    120.0f,
+    30.0f
     };
 
-    // Position the number to the right of the icon
-    SDL_FRect countPos = {
-        townIcon.x + townIcon.w + 10.0f,
-        container.y,
-        container.w - iconSize - 40.0f,
-        container.h
+    SDL_FRect townRect = {
+        panel.x + 254.0f,
+        panel.y + 70.0f,
+        120.0f,
+        30.0f
     };
 
-    SDL_RenderTexture(app->renderer, app->townTexture, NULL, &townIcon);
-    drawText(app, countStr, countPos);
+    drawText(app, app->fontLarge, townStr, townRect);
+    drawText(app, app->fontLarge, goldStr, goldRect);
 }

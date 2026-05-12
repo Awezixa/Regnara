@@ -88,7 +88,7 @@ void printTechTree(AppState *app)
     app->techText.h = 200;
     app->techText.w = 200;
 
-    drawText(app, "TECH TREE", app->techText);
+    drawText(app, app->font, "TECH TREE", app->techText);
 
 
     // for (int i = 0; i < MAX_UPGRADES; i++)

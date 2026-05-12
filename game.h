@@ -58,6 +58,7 @@ typedef struct AppState
     SDL_Window *window;
     SDL_Renderer *renderer;
     TTF_Font *font;
+    TTF_Font *fontLarge;
     InputState input;
     Uint64 lastTicksMS;
     float dt;
@@ -109,6 +110,11 @@ typedef struct AppState
     SDL_Texture *shoreCornerBottomLeftTexture;
 
     SDL_Texture *logoTexture;
+    SDL_Texture *blueGoldTexture;
+    SDL_Texture *redGoldTexture;
+    SDL_Texture *blueTownsTexture;
+    SDL_Texture *redTownsTexture;
+
     Town towns[8];
     int tTowns; // total amount of towns
 

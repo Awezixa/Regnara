@@ -43,6 +43,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 
     //font loading
     app->font = TTF_OpenFont("Assets/FORCED SQUARE.ttf", 30);
+    app->fontLarge = TTF_OpenFont("Assets/FORCED SQUARE.ttf", 50);
     if (!app->font)
     {
         SDL_Log("TTF_OpenFont failed: %s", SDL_GetError());
@@ -77,8 +78,14 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     app->shoreCornerBottomRightTexture  = LoadTexture(app->renderer, "Assets/tiles/shore/shoreCornerBottomRight.png");
 
     app->logoTexture = LoadTexture(app->renderer, "Assets/images/regnaraLogo.png");
-    app->buttonOn = LoadTexture(app->renderer, "Assets/images/buttons/buttonOn.png");
-    app->buttonHovered = LoadTexture(app->renderer, "Assets/images/buttons/button.png");
+    app->buttonOn = LoadTexture(app->renderer, "Assets/UI/menus/buttonOn.png");
+    app->buttonHovered = LoadTexture(app->renderer, "Assets/UI/menus/buttonOff.png");
+    
+    app->blueGoldTexture = LoadTexture(app->renderer, "Assets/UI/inRound/goldBlue.png");
+    app->blueTownsTexture = LoadTexture(app->renderer, "Assets/UI/inRound/townsBlue.png");
+    app->redGoldTexture = LoadTexture(app->renderer, "Assets/UI/inRound/goldRed.png");
+    app->redTownsTexture = LoadTexture(app->renderer, "Assets/UI/inRound/townsRed.png");
+    
     //white piece loading
     app->bluePawnTexture  = LoadTexture(app->renderer, "Assets/pieces/blue/pawn.png");
     app->blueKnightTexture  = LoadTexture(app->renderer, "Assets/pieces/blue/knight.png");
@@ -97,7 +104,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 
     //possible move loading
     app->movePossible = LoadTexture(app->renderer, "Assets/images/moves/possible.png");
-    app->moveCapture = LoadTexture(app->renderer, "Assets/images/moves/impossible.png");
+    app->moveCapture = LoadTexture(app->renderer, "Assets/images/moves/impossible.png");    
     //final check that all textures there and load
     if (!app->logoTexture || !app->grassTexture) {
         SDL_Log("CRITICAL ERROR: Core assets missing. Closing app.");
@@ -629,7 +636,6 @@ void updateGame(AppState *app){
     // UI
     // =========================
     turnUI(app);
-    goldUI(app);
     playerRectangles(app);
     gameUI(app);
     if (app->input.mouseLeftPressed)
