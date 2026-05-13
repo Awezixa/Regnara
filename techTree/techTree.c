@@ -25,74 +25,66 @@ Generic/ random upgrades
 
 void initTechTree(TechTree *tree)
 {
-    strcpy(tree->upgrades[0].name, "Lancer");
+    strcpy(tree->upgrades[0].name, "knight");
     tree->upgrades[0].cost = 30;
     tree->upgrades[0].required = -1;
 
-    strcpy(tree->upgrades[1].name, "Catapult");
+    strcpy(tree->upgrades[1].name, "bishop");
     tree->upgrades[1].cost = 50;
     tree->upgrades[1].required = 0;
 
-    strcpy(tree->upgrades[2].name, "Mage");
+    strcpy(tree->upgrades[2].name, "rook");
     tree->upgrades[2].cost = 70;
     tree->upgrades[2].required = 1;
 
-    strcpy(tree->upgrades[3].name, "Town Income");
+    strcpy(tree->upgrades[3].name, "queen");
     tree->upgrades[3].cost = 40;
     tree->upgrades[3].required = -1;
 
-    strcpy(tree->upgrades[4].name, "Upgrade Platform");
+    strcpy(tree->upgrades[4].name, "Spawn Extra");
     tree->upgrades[4].cost = 35;
     tree->upgrades[4].required = 3;
     
-    strcpy(tree->upgrades[5].name, "Spawn Extra");
+    strcpy(tree->upgrades[5].name, "envoy");
     tree->upgrades[5].cost = 60;
     tree->upgrades[5].required = 0;
 
-    for (int i = 0; i < MAX_UPGRADES; i++)
-        tree->upgrades[i].unlocked = 0;
+    strcpy(tree->upgrades[6].name, "mage");
+    tree->upgrades[6].cost = 60;
+    tree->upgrades[6].required = 0;
+
+    strcpy(tree->upgrades[7].name, "UPG PLAT I");
+    tree->upgrades[7].cost = 60;
+    tree->upgrades[7].required = 0;
+
+    strcpy(tree->upgrades[8].name, "UPG PLAT II");
+    tree->upgrades[8].cost = 60;
+    tree->upgrades[8].required = 0;
+
+    strcpy(tree->upgrades[9].name, "UPG PLAT III");
+    tree->upgrades[9].cost = 60;
+    tree->upgrades[9].required = 0;
+
+    for (int i = 0; i < MAX_UPGRADES; i++)tree->upgrades[i].unlocked = 0;
+    
 }
 
-void unlockUpgrade(TechTree *tree, int index, int *gold)
+// In techTree.c
+bool unlockUpgrade(TechTree *tree, int index, int *gold)
 {
     Upgrade *u = &tree->upgrades[index];
 
-    if (u->required != -1 && !tree->upgrades[u->required].unlocked)
-    {
-        printf("Unlock %s first!\n", tree->upgrades[u->required].name);
-        return;
-    }
-
-    if (u->unlocked)
-    {
-        printf("Already unlocked\n");
-        return;
-    }
+    if (u->required != -1 && !tree->upgrades[u->required].unlocked) return false;
+    if (u->unlocked) return false;
 
     if (*gold >= u->cost)
     {
         *gold -= u->cost;
         u->unlocked = 1;
         printf("Unlocked: %s\n", u->name);
+        return true; // Success!
     }
-    else
-    {
-        printf("Not enough gold\n");
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    return false;
 }
 
 void printTechTree(AppState *app)

@@ -154,7 +154,7 @@ void gameUI(AppState *app)
 
 void unitIconUI(AppState *app)
 {
-    pieceType types[] = {PAWN, KNIGHT, BISHOP, ROOK, QUEEN};
+    pieceType types[] = {PAWN, KNIGHT, BISHOP, ROOK, QUEEN, ENVOY, MAGE, CATAPAULT};
     SDL_Texture* texturesP1[] = {app->bluePawnTexture, app->blueKnightTexture, app->blueBishopTexture, app->blueRookTexture, app->blueQueenTexture};
     SDL_Texture* texturesP2[] = {app->redPawnTexture, app->redKnightTexture, app->redBihsopTexture, app->redRookTexture, app->redQueenTexture};
     SDL_FRect* buttons[] = {&app->pawnButton, &app->knightButton, &app->bishopButton, &app->rookButton, &app->queenButton};
@@ -196,6 +196,8 @@ void drawEndScreen(AppState *app){
         120.0f,                 // Width
         120.0f                  // Height
     };
+    mainMenuButton(app);
+    quitButton(app);
     drawText(app, app->font, winner, textPos);
 }
 

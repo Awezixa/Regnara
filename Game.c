@@ -42,6 +42,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
         return SDL_APP_FAILURE;
     }
 
+    //SDL_SetRenderLogicalPresentation(app->renderer, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_LOGICAL_PRESENTATION_LETTERBOX);
+
     //font loading
     app->font = TTF_OpenFont("Assets/FORCED SQUARE.ttf", 30);
     app->fontLarge = TTF_OpenFont("Assets/FORCED SQUARE.ttf", 50);
@@ -132,6 +134,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     app->maxPieceCapacity = 20;
     app->pieces = (Piece *) malloc(sizeof(Piece) * app->maxPieceCapacity);
     app->pieceCount = 0;
+    app->maxPlayerPieces = 9;
     for (int i = 0; i < app->maxPieceCapacity; i++){
         app->pieces[i].active = false;
     }
@@ -338,7 +341,13 @@ SDL_AppResult SDL_AppIterate(void *appstate)
             SDL_FRect btnRect = { 780, 170 + i * 70, 700, 50 };
             
             if (SDL_PointInRectFloat(&mouse, &btnRect)) {
-                unlockUpgrade(tree, i, gold);
+                if(unlockUpgrade(tree, i, gold)){
+                    if (i == 4){
+                        increaseTroopLimit(app, 5);
+                        app->maxPlayerPieces+=5;
+                    }
+                    
+                }
             }
         }
     }
@@ -389,10 +398,12 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     case STATE_END:
     {
         drawEndScreen(app);
-
-        if (app->input.keyPressed[SDL_SCANCODE_RETURN])
-            app->gameState = STATE_MENU;
-
+        SDL_FPoint mousePos = {app->input.mouseX, app->input.mouseY};
+        if (app->input.mouseLeftPressed){
+            if (app->input.keyPressed[SDL_SCANCODE_RETURN]||(SDL_PointInRectFloat(&mousePos, &app->mainmenubutton))) app->gameState = STATE_MENU;
+            if(SDL_PointInRectFloat(&mousePos, &app->mainmenubutton))return SDL_APP_SUCCESS;
+        }
+        
         break;
     }
 
@@ -529,7 +540,7 @@ void updateGame(AppState *app){
         if (app->input.keyDown[SDL_SCANCODE_3]) app->selectedPieceType = BISHOP;
         if (app->input.keyDown[SDL_SCANCODE_4]) app->selectedPieceType = ROOK;
         if (app->input.keyDown[SDL_SCANCODE_5]) app->selectedPieceType = QUEEN;
-        //if (app->input.keyDown[SDL_SCANCODE_6]) app->selectedPieceType = ENVOY;
+        if (app->input.keyDown[SDL_SCANCODE_6]) app->selectedPieceType = ENVOY;
     // =========================
     // SPAWN + RENDER
     // =========================
@@ -550,6 +561,12 @@ void updateGame(AppState *app){
     if (app->cheats){
         drawCheats(app);
         infiniteMoney(app);
+        //increaseTroopLimit(app, 20);
+        if (app->input.keyPressed[SDL_SCANCODE_J])
+        {
+            presetMatch(app);
+        }
+        
     } 
     
     
@@ -766,6 +783,10 @@ void resetGame(AppState *app){
     app->P2.pieceCount = 0;
 
     app->cheats = false;
+    
+
+    initTechTree(&app->techTreeP1);
+    initTechTree(&app->techTreeP2);
     initTowns(app);
     startGame(app);
 }

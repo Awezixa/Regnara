@@ -74,6 +74,7 @@ typedef struct AppState
     int currentPlayer;
     int turnCounter;
     int winner;
+    int maxPlayerPieces;
     SDL_FRect p1Rect;
     SDL_FRect p2Rect;
     // Tech Tree
