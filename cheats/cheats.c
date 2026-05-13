@@ -13,8 +13,7 @@ void infiniteMoney(AppState *app){
 }
 
 void drawCheats(AppState *app){
-    //SDL_Log("OK");
-    app->cheatText.x = 60.0f;
+    app->cheatText.x = (float)(WINDOW_WIDTH / 2) - 50.0f;
     app->cheatText.y = 60.0f;
     app->cheatText.w = 70.0f;
     app->cheatText.h = 60.0f;

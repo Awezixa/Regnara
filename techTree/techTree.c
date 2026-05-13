@@ -23,10 +23,6 @@ Generic/ random upgrades
 */
 
 
-
-
-
-
 void initTechTree(TechTree *tree)
 {
     strcpy(tree->upgrades[0].name, "Lancer");
@@ -45,7 +41,7 @@ void initTechTree(TechTree *tree)
     tree->upgrades[3].cost = 40;
     tree->upgrades[3].required = -1;
 
-    strcpy(tree->upgrades[4].name, "Critical Strike");
+    strcpy(tree->upgrades[4].name, "Upgrade Platform");
     tree->upgrades[4].cost = 35;
     tree->upgrades[4].required = 3;
     
@@ -83,6 +79,20 @@ void unlockUpgrade(TechTree *tree, int index, int *gold)
     {
         printf("Not enough gold\n");
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
 
 void printTechTree(AppState *app)
@@ -116,8 +126,7 @@ void printTechTree(AppState *app)
 
 bool isUpgradeUnlocked(TechTree *tree, int index)
 {
-    if (index < 0 || index >= MAX_UPGRADES)
-    return false;
+    if (index < 0 || index >= MAX_UPGRADES) return false;
 
-return tree->upgrades[index].unlocked;
+    return tree->upgrades[index].unlocked;
 }

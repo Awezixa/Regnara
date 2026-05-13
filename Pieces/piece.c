@@ -16,6 +16,7 @@ void spawnPiece(AppState *app)
             if (*playerGold < cost)
             {
                //add some indicator here
+               app->errorTimer = 1.5f;//UI feedback for not enough gold
                 return;
             }
 
@@ -210,21 +211,24 @@ bool isTileWalkable(int row, int col)
 
 bool pieceSpawnable(AppState *app, int player)
 {
-    if (app->pieceCount >= app->maxPieceCapacity)
-    {
-        return false;
-    }
+    if (app->pieceCount >= app->maxPieceCapacity){return false;}
+
     int count = (player == 1) ? app->P1.pieceCount : app->P2.pieceCount;
 
-    if (count >= 9)
-    {
-        return false;
-    }
+    if (count >= 9)return false;
 
-    if (app->selectedPieceType == KING)
+    TechTree *tree = (player == 1) ? &app->techTreeP1 : &app->techTreeP2;
+    //add unlock checks here for pieces
+    if (app->selectedPiece == KNIGHT && !tree->upgrades[0].unlocked)//checking if prev node unlocked need update it
     {
+        app->errorTimer = 2.0f;
         return false;
     }
+    
+
+
+
+    if (app->selectedPieceType == KING)return false;
 
     return true;
 }

@@ -4,6 +4,7 @@
 //file includes
 #include "game.h"
 #include "Pieces/moves.h"
+#include "techTree/techTree.h"
 static void UpdateCamera(AppState *app);
 //clamp function = restriction of value to specific range
 
@@ -35,7 +36,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     }
 
     // create window and renderer
-    if (!SDL_CreateWindowAndRenderer(APP_NAME, WINDOW_WIDTH, WINDOW_HEIGHT, 0, &app->window, &app->renderer))
+    if (!SDL_CreateWindowAndRenderer(APP_NAME, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_FULLSCREEN, &app->window, &app->renderer))
     {
         SDL_Log("SDL_CreateWindowAndRenderer failed: %s", SDL_GetError());
         return SDL_APP_FAILURE;
@@ -141,6 +142,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     app->winner = 0;
     app->P1.p1Gold = 10;
     app->P2.p2Gold = 10;
+    app->errorTimer = 0.0f;
     // TECH TREE INIT
     initTechTree(&app->techTreeP1);
     initTechTree(&app->techTreeP2);
@@ -315,30 +317,43 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     }
     case TECH_TREE:
     {
-        //showText(app->renderer, 500, 200, "TECH TREE (ESC to return)", (SDL_Color){255,255,255,255});
-        printTechTree(app);
-        if (app->input.keyPressed[SDL_SCANCODE_1])
-        unlockUpgrade(&app->techTreeP1, 0, &app->P1.p1Gold);
+    // Use the pointer to the current player's tree
+    TechTree *tree = (app->currentPlayer == 1) ? &app->techTreeP1 : &app->techTreeP2;
+    int *gold = (app->currentPlayer == 1) ? &app->P1.p1Gold : &app->P2.p2Gold;
 
-        if (app->input.keyPressed[SDL_SCANCODE_2])
-        unlockUpgrade(&app->techTreeP1, 1, &app->P1.p1Gold);
+    // Handle the error timer for "Not enough gold"
+    if (app->errorTimer > 0.0f) {
+        app->errorTimer -= app->dt;
+    }
 
-        if (app->input.keyPressed[SDL_SCANCODE_3])
-        unlockUpgrade(&app->techTreeP1, 2, &app->P1.p1Gold);
+    // Call your centralized print function
+    printTechTree(app);
 
-        if (app->input.keyPressed[SDL_SCANCODE_4])
-        unlockUpgrade(&app->techTreeP1, 3, &app->P1.p1Gold);
-
-        if (app->input.keyPressed[SDL_SCANCODE_5])
-        unlockUpgrade(&app->techTreeP1, 4, &app->P1.p1Gold);
-
-        if (app->input.keyPressed[SDL_SCANCODE_6])
-        unlockUpgrade(&app->techTreeP1, 5, &app->P1.p1Gold);
-        if (app->input.keyPressed[SDL_SCANCODE_ESCAPE]) {
-            app->gameState = STATE_PLAYING;
+    // Manual click handling for the first 3 upgrades (example)
+    if (app->input.mouseLeftPressed) {
+        SDL_FPoint mouse = {app->input.mouseX, app->input.mouseY};
+        
+        for (int i = 0; i < MAX_UPGRADES; i++) {
+            // Calculate a rectangle for each upgrade similar to printTechTree
+            SDL_FRect btnRect = { 780, 170 + i * 70, 700, 50 };
+            
+            if (SDL_PointInRectFloat(&mouse, &btnRect)) {
+                unlockUpgrade(tree, i, gold);
+            }
         }
+    }
 
-        break;
+    // Display error message if timer is active
+    if (app->errorTimer > 0.0f) {
+        SDL_FRect errPos = { 400, 800, 400, 255 };
+        drawText(app, app->font, "Not enough gold!", errPos);
+    }
+
+    if (app->input.keyPressed[SDL_SCANCODE_ESCAPE]|| app->input.keyPressed[SDL_SCANCODE_T]) {
+        app->gameState = STATE_PLAYING;
+    }
+    break;
+
     }
 
     case STATE_PAUSED:
@@ -690,9 +705,14 @@ void endTurn(AppState *app) {
 
     // 3. Give gold to the NEW active player (start of turn income)
     if (app->currentPlayer == 1) {
-        app->P1.p1Gold += 7 ; //+ (app->P1.towns * 5)
-    } else {
-        app->P2.p2Gold += 7; //+ (app->P2.towns * 5)
+
+        int bonus = isUpgradeUnlocked(&app->techTreeP1, 3) ? 5 : 0;
+        app->P1.p1Gold += 7 + bonus;
+
+    } else if(app->currentPlayer == 2){
+        
+        int bonus = isUpgradeUnlocked(&app->techTreeP2, 3) ? 5 : 0;
+        app->P2.p2Gold += 7 + bonus;
     }
     
     // 4. Cap the gold

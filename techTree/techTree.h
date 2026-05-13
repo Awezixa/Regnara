@@ -3,7 +3,7 @@
 #include <stdbool.h>
 
 
-#define MAX_UPGRADES 6
+#define MAX_UPGRADES 20
 
 typedef struct AppState AppState;
 
