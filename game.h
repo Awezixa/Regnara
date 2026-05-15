@@ -133,10 +133,11 @@ typedef struct AppState
     SDL_Texture *blueBishopTexture;
     SDL_Texture *blueKingTexture;
     SDL_Texture *blueQueenTexture;
+
     SDL_Texture *blueEnvoyTexture;
-    SDL_Texture *blueMageTexture;
-    SDL_Texture *blueCatapaultTexture;
     SDL_Texture *blueLancerTexture;
+    SDL_Texture *blueMageTexture;
+    SDL_Texture *blueCatapultTexture;
 
     SDL_FRect pawnButton;
     SDL_FRect queenButton;
@@ -145,7 +146,7 @@ typedef struct AppState
     SDL_FRect bishopButton;
     SDL_FRect envoyButton;
     SDL_FRect mageButton;
-    SDL_FRect catapaultButton;
+    SDL_FRect catapultButton;
     SDL_FRect lancerButton;
 
 
@@ -156,13 +157,17 @@ typedef struct AppState
     SDL_Texture *redBihsopTexture;
     SDL_Texture *redKingTexture;
     SDL_Texture *redQueenTexture;
+
     SDL_Texture *redEnvoyTexture;
-    SDL_Texture *redMageTexture;
-    SDL_Texture *redCatapaultTexture;
     SDL_Texture *redLancerTexture;
+    SDL_Texture *redMageTexture;
+    SDL_Texture *redCatapultTexture;
+
     //possible move textures
     SDL_Texture *movePossible;
     SDL_Texture *moveCapture;
+    SDL_Texture *moveRanged;
+    SDL_Texture *moveLancer;
     
     bool piecePlaced;
     float pieceX, pieceY;
@@ -193,6 +198,10 @@ typedef struct AppState
     int possibleMoveCount;
 
     SDL_Texture *possibleMovesTexture;
+
+    //variables for the ranged attacks
+    SDL_Point possibleAttacks[64];
+    int possibleAttackCount;
     
 } AppState;
 

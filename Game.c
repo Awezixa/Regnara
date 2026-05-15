@@ -96,10 +96,11 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     app->blueRookTexture  = LoadTexture(app->renderer, "Assets/pieces/blue/rook.png");
     app->blueQueenTexture  = LoadTexture(app->renderer, "Assets/pieces/blue/queen.png");
     app->blueKingTexture  = LoadTexture(app->renderer, "Assets/pieces/blue/king.png");
-    app->blueEnvoyTexture  = LoadTexture(app->renderer, "Assets/pieces/blue/envoy.png");
-    app->blueMageTexture  = LoadTexture(app->renderer, "Assets/pieces/blue/mage.png");
-    app->blueCatapaultTexture  = LoadTexture(app->renderer, "Assets/pieces/blue/catapult.png");
-    app->blueLancerTexture  = LoadTexture(app->renderer, "Assets/pieces/blue/lancer.png");
+    
+    app->blueEnvoyTexture = LoadTexture(app->renderer, "Assets/pieces/blue/envoy.png");
+    app->blueLancerTexture = LoadTexture(app->renderer, "Assets/pieces/blue/lancer.png");
+    app->blueMageTexture = LoadTexture(app->renderer, "Assets/pieces/blue/mage.png");
+    app->blueCatapultTexture = LoadTexture(app->renderer, "Assets/pieces/blue/catapult.png");
 
     //black piece loading
     app->redPawnTexture  = LoadTexture(app->renderer, "Assets/pieces/red/pawn.png");
@@ -108,14 +109,17 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     app->redRookTexture  = LoadTexture(app->renderer, "Assets/pieces/red/rook.png");
     app->redQueenTexture  = LoadTexture(app->renderer, "Assets/pieces/red/queen.png");
     app->redKingTexture  = LoadTexture(app->renderer, "Assets/pieces/red/king.png");
-    app->redEnvoyTexture  = LoadTexture(app->renderer, "Assets/pieces/red/envoy.png");
-    app->redMageTexture  = LoadTexture(app->renderer, "Assets/pieces/red/mage.png");
-    app->redCatapaultTexture  = LoadTexture(app->renderer, "Assets/pieces/red/catapult.png");
-    app->redLancerTexture  = LoadTexture(app->renderer, "Assets/pieces/red/lancer.png");
+    
+    app->redEnvoyTexture = LoadTexture(app->renderer, "Assets/pieces/red/envoy.png");
+    app->redLancerTexture = LoadTexture(app->renderer, "Assets/pieces/red/lancer.png");
+    app->redMageTexture = LoadTexture(app->renderer, "Assets/pieces/red/mage.png");
+    app->redCatapultTexture = LoadTexture(app->renderer, "Assets/pieces/red/catapult.png");
 
     //possible move loading
     app->movePossible = LoadTexture(app->renderer, "Assets/images/moves/possible.png");
-    app->moveCapture = LoadTexture(app->renderer, "Assets/images/moves/impossible.png");    
+    app->moveCapture = LoadTexture(app->renderer, "Assets/images/moves/impossible.png"); 
+    app->moveRanged = LoadTexture(app->renderer, "Assets/images/moves/ranged.png");
+    app->moveLancer = LoadTexture(app->renderer, "Assets/images/moves/lancer.png");
     //final check that all textures there and load
     if (!app->logoTexture || !app->grassTexture) {
         SDL_Log("CRITICAL ERROR: Core assets missing. Closing app.");
@@ -543,8 +547,9 @@ void updateGame(AppState *app){
         else if (SDL_PointInRectFloat(&mousePos, &app->rookButton)) {app->selectedPieceType = ROOK;} 
         else if (SDL_PointInRectFloat(&mousePos, &app->queenButton)) {app->selectedPieceType = QUEEN;}
         else if (SDL_PointInRectFloat(&mousePos, &app->envoyButton)) {app->selectedPieceType = ENVOY;}
+        else if (SDL_PointInRectFloat(&mousePos, &app->lancerButton)) {app->selectedPieceType = LANCER;}
         else if (SDL_PointInRectFloat(&mousePos, &app->mageButton)) {app->selectedPieceType = MAGE;}
-        else if (SDL_PointInRectFloat(&mousePos, &app->catapaultButton)) {app->selectedPieceType = CATAPAULT;}
+        else if (SDL_PointInRectFloat(&mousePos, &app->catapultButton)) {app->selectedPieceType = CATAPULT;}
     }
         if (app->input.keyDown[SDL_SCANCODE_1]) app->selectedPieceType = PAWN;
         if (app->input.keyDown[SDL_SCANCODE_2]) app->selectedPieceType = KNIGHT;
@@ -552,6 +557,9 @@ void updateGame(AppState *app){
         if (app->input.keyDown[SDL_SCANCODE_4]) app->selectedPieceType = ROOK;
         if (app->input.keyDown[SDL_SCANCODE_5]) app->selectedPieceType = QUEEN;
         if (app->input.keyDown[SDL_SCANCODE_6]) app->selectedPieceType = ENVOY;
+        if (app->input.keyDown[SDL_SCANCODE_7]) app->selectedPieceType = LANCER;
+        if (app->input.keyDown[SDL_SCANCODE_8]) app->selectedPieceType = MAGE;
+        if (app->input.keyDown[SDL_SCANCODE_9]) app->selectedPieceType = CATAPULT;
     // =========================
     // SPAWN + RENDER
     // =========================
@@ -606,77 +614,127 @@ void updateGame(AppState *app){
         }
     }
 
+// =========================
+// MOVE PIECE
+// =========================
+if (app->cheats && app->selectedPiece && app->input.mouseLeftPressed && wasPieceSelected)
+{
+    app->selectedPiece->col = mouseCol;
+    app->selectedPiece->row = mouseRow;
+    app->selectedPiece->pieceX = mouseCol * TILE_SIZE;
+    app->selectedPiece->pieceY = mouseRow * TILE_SIZE;
+
+    app->selectedPiece = NULL;
+}
+else if (app->selectedPiece && app->input.mouseLeftPressed && wasPieceSelected)
+{
+    bool actionTaken = false;
+
     // =========================
-    // MOVE PIECE
+    // 1. NORMAL MOVEMENT
     // =========================
-    if (app->cheats && app->selectedPiece && app->input.mouseLeftPressed && wasPieceSelected)
+    for (int i = 0; i < app->possibleMoveCount; i++)
     {
+        SDL_Point m = app->possibleMoves[i];
+
+        // must click valid move tile
+        if (m.x != mouseCol || m.y != mouseRow)
+            continue;
+
+        // walkable check
+        if (!isTileWalkable(mouseRow, mouseCol))
+            continue;
+
+        Piece *target = GetPieceAt(app, mouseRow, mouseCol);
+
+        // friendly piece = blocked
+        if (target && target->owner == app->selectedPiece->owner)
+            continue;
+
+        // =========================
+        // CAPTURES
+        // =========================
+        if (target && target->owner != app->selectedPiece->owner)
+        {
+            if (app->selectedPiece->type == LANCER)
+            {
+                LancerAttack(app, app->selectedPiece, mouseRow, mouseCol);
+            }
+            else
+            {
+                CapturePiece(app, mouseRow, mouseCol);
+            }
+        }
+
+        // =========================
+        // MOVE PIECE
+        // =========================
         app->selectedPiece->col = mouseCol;
         app->selectedPiece->row = mouseRow;
         app->selectedPiece->pieceX = mouseCol * TILE_SIZE;
         app->selectedPiece->pieceY = mouseRow * TILE_SIZE;
-        app->selectedPiece = NULL;
-        
-    }else
-    if (app->selectedPiece && app->input.mouseLeftPressed && wasPieceSelected)
+
+        app->selectedPiece->moved = true;
+
+        actionTaken = true;
+        break;
+    }
+
+    // =========================
+    // 2. RANGED ATTACKS
+    // =========================
+    if (!actionTaken)
     {
-        bool moved = false;
-
-        for (int i = 0; i < app->possibleMoveCount; i++)
+        for (int i = 0; i < app->possibleAttackCount; i++)
         {
-            SDL_Point m = app->possibleMoves[i];
+            SDL_Point a = app->possibleAttacks[i];
 
-            // 🚫 Block water tiles
-            if (!isTileWalkable(m.y, m.x)) {
+            // must click valid attack tile
+            if (a.x != mouseCol || a.y != mouseRow)
                 continue;
-            }
 
-            if (m.x == mouseCol && m.y == mouseRow)
+            Piece *target = GetPieceAt(app, mouseRow, mouseCol);
+
+            // attack requires enemy
+            if (!target || target->owner == app->selectedPiece->owner)
+                continue;
+
+            // =========================
+            // MAGE
+            // =========================
+            if (app->selectedPiece->type == MAGE)
             {
-                Piece *target = GetPieceAt(app, mouseRow, mouseCol);
-
-                // ⚔️ capture ONLY if enemy
-                if (target && target->owner != app->selectedPiece->owner)
-                {
-                    CapturePiece(app, mouseRow, mouseCol);
-                }
-
-                // 🚫 block friendly pieces
-                if (target && target->owner == app->selectedPiece->owner)
-                {
-                    continue;
-                }
-
-                // move piece
-                app->selectedPiece->col = m.x;
-                app->selectedPiece->row = m.y;
-                app->selectedPiece->pieceX = m.x * TILE_SIZE;
-                app->selectedPiece->pieceY = m.y * TILE_SIZE;
-
-                app->selectedPiece->moved = true;
-                if (app->cheats == true)
-                {
-                    for (int i = 0; i < app->maxPieceCapacity; i++)
-                    {
-                        //allow pieces to move as much as want
-                        app->pieces[i].moved = false;
-                    }
-                }
-
-                moved = true;
-                break;
+                CapturePiece(app, mouseRow, mouseCol);
             }
-        }
 
-        // cancel if clicking same tile
-        if (!moved && mouseCol == app->selectedPiece->col && mouseRow == app->selectedPiece->row)
-        {
-            moved = true;
-        }
+            // =========================
+            // CATAPULT
+            // =========================
+            else if (app->selectedPiece->type == CATAPULT)
+            {
+                printf("CALLED");
+                CatapultAttack(app, mouseRow, mouseCol);
+            }
 
+            app->selectedPiece->moved = true;
+
+            actionTaken = true;
+            break;
+        }
+    }
+
+    // =========================
+    // CLEAR SELECTION
+    // =========================
+    if (actionTaken || 
+       (mouseCol == app->selectedPiece->col &&
+        mouseRow == app->selectedPiece->row))
+    {
         app->selectedPiece = NULL;
         app->possibleMoveCount = 0;
+        app->possibleAttackCount = 0;
     }
+}
 
     // =========================
     // DRAW PIECES
@@ -718,6 +776,7 @@ void endTurn(AppState *app) {
     for (int i = 0; i < app->maxPieceCapacity; i++)
     {
         app->pieces[i].moved = false;
+        app->pieces[i].abilityUsed = false;
     }
 
     // 1. Process capture for the player who just finished their turn

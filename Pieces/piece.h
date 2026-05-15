@@ -26,7 +26,7 @@ typedef enum pieceType{
     KNIGHT,
     ENVOY,
     MAGE,
-    CATAPAULT, 
+    CATAPULT, 
     LANCER
 } pieceType;
 
@@ -40,6 +40,7 @@ typedef struct Piece
     bool active;
     pieceType type;
     bool moved;
+    bool abilityUsed;
 } Piece;
 
 

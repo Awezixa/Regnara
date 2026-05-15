@@ -150,11 +150,15 @@ void renderPiece(AppState *app)
                 switch (app->pieces[i].type)
                 {
                     case PAWN:tex = app->bluePawnTexture;break;
-                    case KING:tex = app->blueKingTexture;break;
-                    case QUEEN:tex = app->blueQueenTexture;break;
-                    case ROOK:tex = app->blueRookTexture;break;
                     case KNIGHT:tex = app->blueKnightTexture;break;
                     case BISHOP:tex = app->blueBishopTexture;break;
+                    case ROOK:tex = app->blueRookTexture;break;
+                    case QUEEN:tex = app->blueQueenTexture;break;
+                    case KING:tex = app->blueKingTexture;break;
+                    case ENVOY:tex = app->blueEnvoyTexture;break;
+                    case LANCER: tex = app->blueLancerTexture; break;
+                    case MAGE: tex = app->blueMageTexture; break;
+                    case CATAPULT: tex = app->blueCatapultTexture; break;
                     default: tex = app->bluePawnTexture; break;
                 }
             }
@@ -163,11 +167,15 @@ void renderPiece(AppState *app)
                 switch (app->pieces[i].type)
                 {
                     case PAWN:tex = app->redPawnTexture;break;
-                    case KING:tex = app->redKingTexture;break;
-                    case QUEEN:tex = app->redQueenTexture;break;
-                    case ROOK:tex = app->redRookTexture;break;
                     case KNIGHT:tex = app->redKnightTexture;break;
                     case BISHOP:tex = app->redBihsopTexture;break;
+                    case ROOK:tex = app->redRookTexture;break;
+                    case QUEEN:tex = app->redQueenTexture;break;
+                    case KING:tex = app->redKingTexture;break;
+                    case ENVOY:tex = app->redEnvoyTexture;break;
+                    case LANCER: tex = app->redLancerTexture; break;
+                    case MAGE: tex = app->redMageTexture; break;
+                    case CATAPULT: tex = app->redCatapultTexture; break;
                     default: tex = app->redPawnTexture;break;
                 }
             }
@@ -246,7 +254,7 @@ bool pieceSpawnable(AppState *app, int player)
         app->errorTimer = 2.0f;
         return false;
     }
-     if (app->selectedPieceType == CATAPAULT && !tree->upgrades[7].unlocked)//checking if prev node unlocked need update it
+     if (app->selectedPieceType == CATAPULT && !tree->upgrades[7].unlocked)//checking if prev node unlocked need update it
     {
         app->errorTimer = 2.0f;
         return false;
@@ -298,13 +306,14 @@ bool inTerritory(AppState *app, int row, int col){
 int pieceCost(pieceType type){
     switch(type){
         case PAWN: return 1;break;
-        case QUEEN:return 6;break;
-        case ROOK:return 3;break;
         case KNIGHT:return 2;break;
         case BISHOP:return 4;break;
-        case ENVOY: return 2; break;
-        case MAGE: return 6; break;
-        case CATAPAULT: return 8; break;
+        case ROOK:return 3;break;
+        case QUEEN:return 6;break;
+        case ENVOY: return 4;break;
+        case LANCER: return 5;break;
+        case MAGE: return 7;break;
+        case CATAPULT: return 9;break;
         default: return 0;
     }
 }
