@@ -183,9 +183,6 @@ void renderPiece(AppState *app)
                     SDL_SetTextureAlphaMod(tex, 255);
                 }
                 
-
-
-
                 SDL_RenderTexture(app->renderer, tex, NULL, &p);
             }
         }
@@ -212,18 +209,51 @@ bool isTileWalkable(int row, int col)
 bool pieceSpawnable(AppState *app, int player)
 {
     if (app->pieceCount >= app->maxPieceCapacity){return false;}
-
     int count = (player == 1) ? app->P1.pieceCount : app->P2.pieceCount;
-
     if (count >= app->maxPlayerPieces)return false;
 
     TechTree *tree = (player == 1) ? &app->techTreeP1 : &app->techTreeP2;
     //add unlock checks here for pieces
-    if (app->selectedPiece == KNIGHT && !tree->upgrades[0].unlocked)//checking if prev node unlocked need update it
+    if (app->selectedPieceType == KNIGHT && !tree->upgrades[0].unlocked)//checking if prev node unlocked need update it
     {
         app->errorTimer = 2.0f;
         return false;
     }
+
+    if (app->selectedPieceType == BISHOP && !tree->upgrades[1].unlocked)//checking if prev node unlocked need update it
+    {
+        app->errorTimer = 2.0f;
+        return false;
+    }
+
+    if (app->selectedPieceType == ROOK && !tree->upgrades[2].unlocked)//checking if prev node unlocked need update it
+    {
+        app->errorTimer = 2.0f;
+        return false;
+    }
+    if (app->selectedPieceType == QUEEN && !tree->upgrades[3].unlocked)//checking if prev node unlocked need update it
+    {
+        app->errorTimer = 2.0f;
+        return false;
+    }
+     if (app->selectedPieceType == ENVOY && !tree->upgrades[5].unlocked)//checking if prev node unlocked need update it
+    {
+        app->errorTimer = 2.0f;
+        return false;
+    }
+    if (app->selectedPieceType == MAGE && !tree->upgrades[6].unlocked)//checking if prev node unlocked need update it
+    {
+        app->errorTimer = 2.0f;
+        return false;
+    }
+     if (app->selectedPieceType == CATAPAULT && !tree->upgrades[7].unlocked)//checking if prev node unlocked need update it
+    {
+        app->errorTimer = 2.0f;
+        return false;
+    }
+
+
+
 
     if (app->selectedPieceType == KING)return false;
 
@@ -272,6 +302,9 @@ int pieceCost(pieceType type){
         case ROOK:return 3;break;
         case KNIGHT:return 2;break;
         case BISHOP:return 4;break;
+        case ENVOY: return 2; break;
+        case MAGE: return 6; break;
+        case CATAPAULT: return 8; break;
         default: return 0;
     }
 }

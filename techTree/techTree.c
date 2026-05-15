@@ -53,7 +53,7 @@ void initTechTree(TechTree *tree)
     tree->upgrades[6].cost = 60;
     tree->upgrades[6].required = 0;
 
-    strcpy(tree->upgrades[7].name, "UPG PLAT I");
+    strcpy(tree->upgrades[7].name, "catapult");
     tree->upgrades[7].cost = 60;
     tree->upgrades[7].required = 0;
 

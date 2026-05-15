@@ -154,17 +154,17 @@ void gameUI(AppState *app)
 
 void unitIconUI(AppState *app)
 {
-    pieceType types[] = {PAWN, KNIGHT, BISHOP, ROOK, QUEEN, ENVOY, MAGE, CATAPAULT};
-    SDL_Texture* texturesP1[] = {app->bluePawnTexture, app->blueKnightTexture, app->blueBishopTexture, app->blueRookTexture, app->blueQueenTexture};
-    SDL_Texture* texturesP2[] = {app->redPawnTexture, app->redKnightTexture, app->redBihsopTexture, app->redRookTexture, app->redQueenTexture};
-    SDL_FRect* buttons[] = {&app->pawnButton, &app->knightButton, &app->bishopButton, &app->rookButton, &app->queenButton};
+    pieceType types[] = {PAWN, KNIGHT, BISHOP, ROOK, QUEEN, ENVOY, MAGE, CATAPAULT, LANCER};
+    SDL_Texture* texturesP1[] = {app->bluePawnTexture, app->blueKnightTexture, app->blueBishopTexture, app->blueRookTexture, app->blueQueenTexture, app->blueEnvoyTexture, app->blueMageTexture, app->blueCatapaultTexture, app->blueLancerTexture};
+    SDL_Texture* texturesP2[] = {app->redPawnTexture, app->redKnightTexture, app->redBihsopTexture, app->redRookTexture, app->redQueenTexture, app->redEnvoyTexture, app->redMageTexture, app->redCatapaultTexture, app->redLancerTexture};
+    SDL_FRect* buttons[] = {&app->pawnButton, &app->knightButton, &app->bishopButton, &app->rookButton, &app->queenButton, &app->envoyButton, &app->mageButton, &app->catapaultButton, &app->lancerButton};
     
     float spacing = 90.0f;
     float startX = (WINDOW_WIDTH / 2.0f) - ((spacing * 5) / 2.0f);
     float size = 64.0f;
     
 
-    for (int i = 0; i < 5; i++)
+    for (int i = 0; i < 9; i++)
     {
         buttons[i]->x = startX + (i *spacing);
         buttons[i]->y = WINDOW_HEIGHT - 110.0f;

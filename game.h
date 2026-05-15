@@ -133,12 +133,21 @@ typedef struct AppState
     SDL_Texture *blueBishopTexture;
     SDL_Texture *blueKingTexture;
     SDL_Texture *blueQueenTexture;
+    SDL_Texture *blueEnvoyTexture;
+    SDL_Texture *blueMageTexture;
+    SDL_Texture *blueCatapaultTexture;
+    SDL_Texture *blueLancerTexture;
 
     SDL_FRect pawnButton;
     SDL_FRect queenButton;
     SDL_FRect knightButton;
     SDL_FRect rookButton;
     SDL_FRect bishopButton;
+    SDL_FRect envoyButton;
+    SDL_FRect mageButton;
+    SDL_FRect catapaultButton;
+    SDL_FRect lancerButton;
+
 
     //black piece textures
     SDL_Texture *redPawnTexture;
@@ -147,6 +156,10 @@ typedef struct AppState
     SDL_Texture *redBihsopTexture;
     SDL_Texture *redKingTexture;
     SDL_Texture *redQueenTexture;
+    SDL_Texture *redEnvoyTexture;
+    SDL_Texture *redMageTexture;
+    SDL_Texture *redCatapaultTexture;
+    SDL_Texture *redLancerTexture;
     //possible move textures
     SDL_Texture *movePossible;
     SDL_Texture *moveCapture;

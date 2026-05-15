@@ -96,6 +96,10 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     app->blueRookTexture  = LoadTexture(app->renderer, "Assets/pieces/blue/rook.png");
     app->blueQueenTexture  = LoadTexture(app->renderer, "Assets/pieces/blue/queen.png");
     app->blueKingTexture  = LoadTexture(app->renderer, "Assets/pieces/blue/king.png");
+    app->blueEnvoyTexture  = LoadTexture(app->renderer, "Assets/pieces/blue/envoy.png");
+    app->blueMageTexture  = LoadTexture(app->renderer, "Assets/pieces/blue/mage.png");
+    app->blueCatapaultTexture  = LoadTexture(app->renderer, "Assets/pieces/blue/catapult.png");
+    app->blueLancerTexture  = LoadTexture(app->renderer, "Assets/pieces/blue/lancer.png");
 
     //black piece loading
     app->redPawnTexture  = LoadTexture(app->renderer, "Assets/pieces/red/pawn.png");
@@ -104,6 +108,10 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     app->redRookTexture  = LoadTexture(app->renderer, "Assets/pieces/red/rook.png");
     app->redQueenTexture  = LoadTexture(app->renderer, "Assets/pieces/red/queen.png");
     app->redKingTexture  = LoadTexture(app->renderer, "Assets/pieces/red/king.png");
+    app->redEnvoyTexture  = LoadTexture(app->renderer, "Assets/pieces/red/envoy.png");
+    app->redMageTexture  = LoadTexture(app->renderer, "Assets/pieces/red/mage.png");
+    app->redCatapaultTexture  = LoadTexture(app->renderer, "Assets/pieces/red/catapult.png");
+    app->redLancerTexture  = LoadTexture(app->renderer, "Assets/pieces/red/lancer.png");
 
     //possible move loading
     app->movePossible = LoadTexture(app->renderer, "Assets/images/moves/possible.png");
@@ -534,6 +542,9 @@ void updateGame(AppState *app){
         else if (SDL_PointInRectFloat(&mousePos, &app->bishopButton)) {app->selectedPieceType = BISHOP;} 
         else if (SDL_PointInRectFloat(&mousePos, &app->rookButton)) {app->selectedPieceType = ROOK;} 
         else if (SDL_PointInRectFloat(&mousePos, &app->queenButton)) {app->selectedPieceType = QUEEN;}
+        else if (SDL_PointInRectFloat(&mousePos, &app->envoyButton)) {app->selectedPieceType = ENVOY;}
+        else if (SDL_PointInRectFloat(&mousePos, &app->mageButton)) {app->selectedPieceType = MAGE;}
+        else if (SDL_PointInRectFloat(&mousePos, &app->catapaultButton)) {app->selectedPieceType = CATAPAULT;}
     }
         if (app->input.keyDown[SDL_SCANCODE_1]) app->selectedPieceType = PAWN;
         if (app->input.keyDown[SDL_SCANCODE_2]) app->selectedPieceType = KNIGHT;
