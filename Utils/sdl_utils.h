@@ -41,4 +41,10 @@ SDL_Texture* LoadTexture(SDL_Renderer *renderer, const char *path);
 // =======================================================
 void showText(SDL_Renderer *renderer, int x, int y, const char *text, SDL_Color color);
 
+//texture handling
+bool LoadAllGameTextures(AppState *app);
+void CleanupAllTextures(AppState *app);
+
+
+
 #endif // SDL_UTILS_H#endif // SDL_UTILS_H

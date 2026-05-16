@@ -1,6 +1,6 @@
 #include "sdl_utils.h"
 #include <stdio.h>
-
+#include "../game.h"
 
 static SDL_AudioDeviceID audio_device = 0;
 
@@ -144,4 +144,119 @@ SDL_Texture* LoadTexture(SDL_Renderer *renderer, const char *path) {
         SDL_Log("SUCCESS: Loaded texture: %s", path);
     }
     return texture;
+}
+
+bool LoadAllGameTextures(AppState *app) {
+    // 1. Define a struct to map your pointers to file paths
+    typedef struct {
+        SDL_Texture **target;
+        const char *path;
+    } TextureRegistry;
+
+    TextureRegistry registry[] = {
+        // Tiles
+        {&app->grassTexture, "Assets/tiles/grass.png"},
+        {&app->waterTexture, "Assets/tiles/water.png"},
+        {&app->bridgeTopTexture, "Assets/tiles/bridgeTop.png"},
+        {&app->bridgeBottomTexture, "Assets/tiles/bridgeBottom.png"},
+        {&app->treeTexture, "Assets/tiles/trees.png"},
+        {&app->treeLeftTexture, "Assets/tiles/treesLeft.png"},
+        {&app->treeRightTexture, "Assets/tiles/treesRight.png"},
+        {&app->townTexture, "Assets/tiles/town.png"},
+        {&app->upgradePlatformTexture, "Assets/tiles/upgradePlat.png"},
+
+        // Shores
+        {&app->shoreLeftTexture, "Assets/tiles/shore/shoreLeft.png"},
+        {&app->shoreRightTexture, "Assets/tiles/shore/shoreRight.png"},
+        {&app->shoreTopTexture, "Assets/tiles/shore/shoreTop.png"},
+        {&app->shoreBottomTexture, "Assets/tiles/shore/shoreBottom.png"},
+        {&app->shoreTopLeftTexture, "Assets/tiles/shore/shoreTopLeft.png"},
+        {&app->shoreBottomLeftTexture, "Assets/tiles/shore/shoreBottomLeft.png"},
+        {&app->shoreTopRightTexture, "Assets/tiles/shore/shoreTopRight.png"},
+        {&app->shoreBottomRightTexture, "Assets/tiles/shore/shoreBottomRight.png"},
+        {&app->shoreCornerTopLeftTexture, "Assets/tiles/shore/shoreCornerTopLeft.png"},
+        {&app->shoreCornerBottomLeftTexture, "Assets/tiles/shore/shoreCornerBottomLeft.png"},
+        {&app->shoreCornerTopRightTexture, "Assets/tiles/shore/shoreCornerTopRight.png"},
+        {&app->shoreCornerBottomRightTexture, "Assets/tiles/shore/shoreCornerBottomRight.png"},
+
+        // UI & Logo
+        {&app->logoTexture, "Assets/images/regnaraLogo.png"},
+        {&app->buttonOn, "Assets/UI/menus/buttonOn.png"},
+        {&app->buttonHovered, "Assets/UI/menus/buttonOff.png"},
+        {&app->blueGoldTexture, "Assets/UI/inRound/goldBlue.png"},
+        {&app->blueTownsTexture, "Assets/UI/inRound/townsBlue.png"},
+        {&app->redGoldTexture, "Assets/UI/inRound/goldRed.png"},
+        {&app->redTownsTexture, "Assets/UI/inRound/townsRed.png"},
+
+        // Blue Pieces
+        {&app->bluePawnTexture, "Assets/pieces/blue/pawn.png"},
+        {&app->blueKnightTexture, "Assets/pieces/blue/knight.png"},
+        {&app->blueBishopTexture, "Assets/pieces/blue/bishop.png"},
+        {&app->blueRookTexture, "Assets/pieces/blue/rook.png"},
+        {&app->blueQueenTexture, "Assets/pieces/blue/queen.png"},
+        {&app->blueKingTexture, "Assets/pieces/blue/king.png"},
+        {&app->blueEnvoyTexture,    "Assets/pieces/blue/envoy.png"},
+        {&app->blueLancerTexture,   "Assets/pieces/blue/lancer.png"},
+        {&app->blueMageTexture,     "Assets/pieces/blue/mage.png"},
+        {&app->blueCatapultTexture, "Assets/pieces/blue/catapult.png"},
+
+        // Red Pieces
+        {&app->redPawnTexture, "Assets/pieces/red/pawn.png"},
+        {&app->redKnightTexture, "Assets/pieces/red/knight.png"},
+        {&app->redBihsopTexture, "Assets/pieces/red/bishop.png"},
+        {&app->redRookTexture, "Assets/pieces/red/rook.png"},
+        {&app->redQueenTexture, "Assets/pieces/red/queen.png"},
+        {&app->redKingTexture, "Assets/pieces/red/king.png"},
+        {&app->redEnvoyTexture,     "Assets/pieces/red/envoy.png"},
+        {&app->redLancerTexture,    "Assets/pieces/red/lancer.png"},
+        {&app->redMageTexture,      "Assets/pieces/red/mage.png"},
+        {&app->redCatapultTexture,  "Assets/pieces/red/catapult.png"},
+
+        // Moves
+        {&app->movePossible, "Assets/images/moves/possible.png"},
+        {&app->moveCapture, "Assets/images/moves/impossible.png"},
+        {&app->moveRanged,  "Assets/images/moves/ranged.png"},
+        {&app->moveLancer,  "Assets/images/moves/lancer.png"}
+    };
+
+    int totalTextures = sizeof(registry) / sizeof(TextureRegistry);
+
+    for (int i = 0; i < totalTextures; i++) {
+        *registry[i].target = LoadTexture(app->renderer, registry[i].path);
+        
+        // 2. Immediate Centralized Error Check
+        if (*registry[i].target == NULL) {
+            SDL_Log("CRITICAL ERROR: Failed to load %s", registry[i].path);
+            return false; // Stop initialization if any core asset is missing
+        }
+    }
+
+    return true; // All textures loaded successfully
+}
+
+void CleanupAllTextures(AppState *app) {
+    // Use an array of pointers to your textures
+    SDL_Texture* allTextures[] = {
+        app->grassTexture, app->waterTexture, app->bridgeTopTexture, 
+        app->bridgeBottomTexture, app->treeTexture, app->treeLeftTexture, 
+        app->treeRightTexture, app->townTexture, app->upgradePlatformTexture,
+        app->shoreLeftTexture, app->shoreRightTexture, app->shoreTopTexture, 
+        app->shoreBottomTexture, app->shoreTopLeftTexture, app->shoreBottomLeftTexture, 
+        app->shoreTopRightTexture, app->shoreBottomRightTexture, app->shoreCornerTopLeftTexture, 
+        app->shoreCornerBottomLeftTexture, app->shoreCornerTopRightTexture, app->shoreCornerBottomRightTexture,
+        app->logoTexture, app->buttonOn, app->buttonHovered, 
+        app->blueGoldTexture, app->blueTownsTexture, app->redGoldTexture, app->redTownsTexture,
+        app->bluePawnTexture, app->blueKnightTexture, app->blueBishopTexture, 
+        app->blueRookTexture, app->blueQueenTexture, app->blueKingTexture,
+        app->blueEnvoyTexture, app->blueLancerTexture, app->blueMageTexture, app->blueCatapultTexture,
+        app->redPawnTexture, app->redKnightTexture, app->redBihsopTexture, 
+        app->redRookTexture, app->redQueenTexture, app->redKingTexture,
+        app->redEnvoyTexture, app->redLancerTexture, app->redMageTexture, app->redCatapultTexture,
+        app->movePossible, app->moveCapture, app->moveRanged, app->moveLancer, app->possibleMovesTexture
+    };
+
+    int count = sizeof(allTextures) / sizeof(SDL_Texture*);
+    for (int i = 0; i < count; i++) {
+        if (allTextures[i]) SDL_DestroyTexture(allTextures[i]);
+    }
 }

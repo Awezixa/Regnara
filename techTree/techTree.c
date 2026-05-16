@@ -6,55 +6,93 @@
 /*
 
 Piece Upgrades
-- mage
-- lancer
-- catapualt
-- Envoy
+
 
 Building upgrades
-- increased town radius
 - increased gold income
 
 Generic/ random upgrades
 - 25% to gain half captured piece value
-- random spawing piece
 - upgrade platforms
 
 */
+/*
+pre-requisites to add
 
+**Queen**
+Needs Rook and Catapult
+
+**Rook**
+Needs Knight
+
+**Bishop**
+Needs Knight
+
+**Knight**
+Needs Pawn (Start)
+
+**Catapult**
+Needs Mage and Rook
+
+**Mage**
+Needs Lancer and Bishop
+
+**Lancer**
+Needs Envoy and Knight
+
+**Envoy**
+Needs Pawn(Start)
+
+**Extra Money from Towns**
+Needs Pawn(Start)
+
+**Extra set of pieces**
+Needs Extra Money from Towns
+
+**Upgrade Platform III**
+Needs Upgrade Platform II
+
+**Upgrade Platform II**
+Needs Upgrade Platform I
+
+**Upgrade Platform I**
+Needs Pawn (Start)
+
+
+*/
 
 void initTechTree(TechTree *tree)
 {
     strcpy(tree->upgrades[0].name, "knight");
-    tree->upgrades[0].cost = 30;
+    tree->upgrades[0].cost = 5;
     tree->upgrades[0].required = -1;
 
     strcpy(tree->upgrades[1].name, "bishop");
-    tree->upgrades[1].cost = 50;
+    tree->upgrades[1].cost = 8;
     tree->upgrades[1].required = 0;
 
     strcpy(tree->upgrades[2].name, "rook");
-    tree->upgrades[2].cost = 70;
+    tree->upgrades[2].cost = 8;
     tree->upgrades[2].required = 1;
 
     strcpy(tree->upgrades[3].name, "queen");
-    tree->upgrades[3].cost = 40;
+    tree->upgrades[3].cost = 10;
     tree->upgrades[3].required = -1;
 
-    strcpy(tree->upgrades[4].name, "Spawn Extra");
-    tree->upgrades[4].cost = 35;
+    strcpy(tree->upgrades[4].name, "Envoy");
+    tree->upgrades[4].cost = 15;
     tree->upgrades[4].required = 3;
     
-    strcpy(tree->upgrades[5].name, "envoy");
-    tree->upgrades[5].cost = 60;
+    strcpy(tree->upgrades[5].name, "Lancer");
+    tree->upgrades[5].cost = 5;
     tree->upgrades[5].required = 0;
 
-    strcpy(tree->upgrades[6].name, "mage");
-    tree->upgrades[6].cost = 60;
+    strcpy(tree->upgrades[6].name, "Mage");
+    tree->upgrades[6].cost = 12;
     tree->upgrades[6].required = 0;
 
-    strcpy(tree->upgrades[7].name, "catapult");
-    tree->upgrades[7].cost = 60;
+    strcpy(tree->upgrades[7].name, "Catapult");
+    tree->upgrades[7].cost = 12;
     tree->upgrades[7].required = 0;
 
     strcpy(tree->upgrades[8].name, "UPG PLAT II");
@@ -89,6 +127,9 @@ bool unlockUpgrade(TechTree *tree, int index, int *gold)
 
 void printTechTree(AppState *app)
 {
+    // 1. Identify which tree to display
+    TechTree *tree = (app->currentPlayer == 1) ? &app->techTreeP1 : &app->techTreeP2;
+
     SDL_FRect titleRect = {900, 50, 400, 60};
     drawText(app, app->fontLarge, "TECH TREE", titleRect);
 
@@ -96,12 +137,13 @@ void printTechTree(AppState *app)
 
     for (int i = 0; i < MAX_UPGRADES; i++)
     {
+        // 2. Use the 'tree' pointer instead of 'app->techTreeP1'
         sprintf(buffer,
             "%d. %s - %dG [%s]",
             i + 1,
-            app->techTreeP1.upgrades[i].name,
-            app->techTreeP1.upgrades[i].cost,
-            app->techTreeP1.upgrades[i].unlocked ? "UNLOCKED" : "LOCKED"
+            tree->upgrades[i].name,
+            tree->upgrades[i].cost,
+            tree->upgrades[i].unlocked ? "UNLOCKED" : "LOCKED"
         );
 
         SDL_FRect rect = {
@@ -114,7 +156,6 @@ void printTechTree(AppState *app)
         drawText(app, app->font, buffer, rect);
     }
 }
-
 
 bool isUpgradeUnlocked(TechTree *tree, int index)
 {
