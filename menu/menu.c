@@ -198,7 +198,7 @@ void unitIconUI(AppState *app)
     float spacing = 120.0f;
     float startX = (WINDOW_WIDTH / 2.0f) - (((unitCount - 1) * spacing) / 2.0f);
     float sizex = 96.0f;
-    float sizey = 120.0f;
+    float sizey = 144.0f;
 
     for (int i = 0; i < unitCount; i++)
     {
