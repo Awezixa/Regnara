@@ -243,14 +243,66 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 
         break;
     }
-
+    //done to have overlay instead of specific state
     case STATE_PLAYING:
+    case TECH_TREE:
     {  
         app->inGame = true;
         updateGame(app);
 
+        if(app->gameState == TECH_TREE){
+            SDL_SetRenderDrawBlendMode(app->renderer, SDL_BLENDMODE_BLEND);
+            SDL_SetRenderDrawColor(app->renderer, 0, 0, 0, 150); 
+            SDL_FRect screen = {0, 0, WINDOW_WIDTH, WINDOW_HEIGHT};
+            SDL_RenderFillRect(app->renderer, &screen);
+
+            techTreeOverlay(app);
+
+        // Use the pointer to the current player's tree
+        TechTree *tree = (app->currentPlayer == 1) ? &app->techTreeP1 : &app->techTreeP2;
+        int *gold = (app->currentPlayer == 1) ? &app->P1.p1Gold : &app->P2.p2Gold;
+
+        // Handle the error timer for "Not enough gold"
+        if (app->errorTimer > 0.0f) {
+            app->errorTimer -= app->dt;
+        }
+
+        // Manual click handling for the first 3 upgrades (example)
+        if (app->input.mouseLeftPressed) {
+            SDL_FPoint mouse = {app->input.mouseX, app->input.mouseY};
+            
+            for (int i = 0; i < MAX_UPGRADES; i++) {
+                // Calculate a rectangle for each upgrade similar to printTechTree
+                SDL_FRect btnRect = { 780, 170 + i * 70, 700, 50 };
+                
+                if (SDL_PointInRectFloat(&mouse, &btnRect)) {
+                    if(unlockUpgrade(tree, i, gold)){
+                        if (i == 10){
+                            increaseTroopLimit(app, 5);
+                            app->maxPlayerPieces+=5;
+                        }
+                        
+                    }
+                }
+            }
+        }
+
+        // Display error message if timer is active
+        if (app->errorTimer > 0.0f) {
+            SDL_FRect errPos = { 400, 800, 400, 255 };
+            drawText(app, app->font, "Not enough gold!", errPos);
+        }
+
+        if (app->input.keyPressed[SDL_SCANCODE_ESCAPE]) {
+            app->gameState = STATE_PLAYING;
+        }
+            }
+
+
         break;   
     }
+
+
     case STATE_OPTIONS:
     {
         if (app->input.keyPressed[SDL_SCANCODE_ESCAPE] && app->inGame == true ){
@@ -260,52 +312,6 @@ SDL_AppResult SDL_AppIterate(void *appstate)
             app->gameState = STATE_MENU;
         }
         break;
-    }
-    case TECH_TREE:
-    {
-    // Use the pointer to the current player's tree
-    TechTree *tree = (app->currentPlayer == 1) ? &app->techTreeP1 : &app->techTreeP2;
-    int *gold = (app->currentPlayer == 1) ? &app->P1.p1Gold : &app->P2.p2Gold;
-
-    // Handle the error timer for "Not enough gold"
-    if (app->errorTimer > 0.0f) {
-        app->errorTimer -= app->dt;
-    }
-
-    // Call your centralized print function
-    printTechTree(app);
-
-    // Manual click handling for the first 3 upgrades (example)
-    if (app->input.mouseLeftPressed) {
-        SDL_FPoint mouse = {app->input.mouseX, app->input.mouseY};
-        
-        for (int i = 0; i < MAX_UPGRADES; i++) {
-            // Calculate a rectangle for each upgrade similar to printTechTree
-            SDL_FRect btnRect = { 780, 170 + i * 70, 700, 50 };
-            
-            if (SDL_PointInRectFloat(&mouse, &btnRect)) {
-                if(unlockUpgrade(tree, i, gold)){
-                    if (i == 4){
-                        increaseTroopLimit(app, 5);
-                        app->maxPlayerPieces+=5;
-                    }
-                    
-                }
-            }
-        }
-    }
-
-    // Display error message if timer is active
-    if (app->errorTimer > 0.0f) {
-        SDL_FRect errPos = { 400, 800, 400, 255 };
-        drawText(app, app->font, "Not enough gold!", errPos);
-    }
-
-    if (app->input.keyPressed[SDL_SCANCODE_ESCAPE]|| app->input.keyPressed[SDL_SCANCODE_T]) {
-        app->gameState = STATE_PLAYING;
-    }
-    break;
-
     }
 
     case STATE_PAUSED:
@@ -705,12 +711,12 @@ void endTurn(AppState *app) {
     // 3. Give gold to the NEW active player (start of turn income)
     if (app->currentPlayer == 1) {
 
-        int bonus = isUpgradeUnlocked(&app->techTreeP1, 3) ? 5 : 0;
+        int bonus = isUpgradeUnlocked(&app->techTreeP1, 2) ? 5 : 0;
         app->P1.p1Gold += 7 + bonus;
 
     } else if(app->currentPlayer == 2){
         
-        int bonus = isUpgradeUnlocked(&app->techTreeP2, 3) ? 5 : 0;
+        int bonus = isUpgradeUnlocked(&app->techTreeP2, 2) ? 5 : 0;
         app->P2.p2Gold += 7 + bonus;
     }
     

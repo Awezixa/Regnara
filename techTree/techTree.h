@@ -3,7 +3,7 @@
 #include <stdbool.h>
 
 
-#define MAX_UPGRADES 15
+#define MAX_UPGRADES 13
 
 typedef struct AppState AppState;
 
@@ -11,7 +11,8 @@ typedef struct {
     char name[50];
     int cost;
     int unlocked;
-    int required;
+    int required1;
+    int required2;
 } Upgrade;
 
 typedef struct {
@@ -20,6 +21,7 @@ typedef struct {
 
 void initTechTree(TechTree *tree);
 bool unlockUpgrade(TechTree *tree, int index, int *gold);
-void printTechTree(AppState *app);
+void techTreeOverlay(AppState *app);
 bool isUpgradeUnlocked(TechTree *tree, int index);
+void upgradePlatform(AppState *app, TechTree *tree);
 #endif
