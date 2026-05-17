@@ -152,38 +152,108 @@ void gameUI(AppState *app)
     endTurnButton(app);
 }
 
+UIState getPieceUIState(AppState *app, pieceType type)
+{
+    if (!pieceUnlocked(app, type))
+        return UI_LOCKED;
+
+    if (pieceCountReached(app, type))
+        return UI_UNAVAILABLE;
+
+    return UI_AVAILABLE;
+}
+
 void unitIconUI(AppState *app)
 {
-    pieceType types[] = {PAWN, KNIGHT, BISHOP, ROOK, QUEEN, ENVOY, MAGE, CATAPULT, LANCER};
-    SDL_Texture* texturesP1[] = {app->bluePawnTexture, app->blueKnightTexture, app->blueBishopTexture, app->blueRookTexture, app->blueQueenTexture, app->blueEnvoyTexture, app->blueMageTexture, app->blueCatapultTexture, app->blueLancerTexture};
-    SDL_Texture* texturesP2[] = {app->redPawnTexture, app->redKnightTexture, app->redBishopTexture, app->redRookTexture, app->redQueenTexture, app->redEnvoyTexture, app->redMageTexture, app->redCatapultTexture, app->redLancerTexture};
-    SDL_FRect* buttons[] = {&app->pawnButton, &app->knightButton, &app->bishopButton, &app->rookButton, &app->queenButton, &app->envoyButton, &app->mageButton, &app->catapultButton, &app->lancerButton};
-    
-    float spacing = 90.0f;
-    float startX = (WINDOW_WIDTH / 2.0f) - ((spacing * 5) / 2.0f);
-    float size = 64.0f;
-    
-
-    for (int i = 0; i < 9; i++)
+    UnitUIButton units[] =
     {
-        buttons[i]->x = startX + (i *spacing);
-        buttons[i]->y = WINDOW_HEIGHT - 110.0f;
-        buttons[i]->w = size;
-        buttons[i]->h = size;
+        {   PAWN, ENVOY,
+            &app->pawnButton,
+            app->UIBluePawnAvailable, app->UIBluePawnUnavailable, app->UIBluePawnLocked,
+            app->UIRedPawnAvailable, app->UIRedPawnUnavailable, app->UIRedPawnLocked},
 
-        if (app->selectedPieceType == types[i])
+        {   KNIGHT, LANCER,
+            &app->knightButton,
+            app->UIBlueKnightAvailable, app->UIBlueKnightUnavailable, app->UIBlueKnightLocked,
+            app->UIRedKnightAvailable, app->UIRedKnightUnavailable, app->UIRedKnightLocked},
+
+        {   BISHOP, MAGE,
+            &app->bishopButton,
+            app->UIBlueBishopAvailable, app->UIBlueBishopUnavailable, app->UIBlueBishopLocked,
+            app->UIRedBishopAvailable, app->UIRedBishopUnavailable, app->UIRedBishopLocked},
+
+        {   ROOK, CATAPULT,
+            &app->rookButton,
+            app->UIBlueRookAvailable, app->UIBlueRookUnavailable, app->UIBlueRookLocked,
+            app->UIRedRookAvailable, app->UIRedRookUnavailable, app->UIRedRookLocked},
+
+        {   QUEEN, QUEEN,
+            &app->queenButton,
+            app->UIBlueQueenAvailable, app->UIBlueQueenUnavailable, app->UIBlueQueenLocked,
+            app->UIRedQueenAvailable, app->UIRedQueenUnavailable, app->UIRedQueenLocked},
+    };
+
+    int unitCount = sizeof(units) / sizeof(units[0]);
+
+    float spacing = 120.0f;
+    float startX = (WINDOW_WIDTH / 2.0f) - (((unitCount - 1) * spacing) / 2.0f);
+    float sizex = 96.0f;
+    float sizey = 120.0f;
+
+    for (int i = 0; i < unitCount; i++)
+    {
+        units[i].button->x = startX + (i * spacing);
+        units[i].button->y = WINDOW_HEIGHT - 110.0f;
+        units[i].button->w = sizex;
+        units[i].button->h = sizey;
+
+        UIState state = getPieceUIState(app, units[i].baseType);
+
+        SDL_Texture *tex = NULL;
+
+        if (app->currentPlayer == 1)
         {
-            SDL_SetRenderDrawColor(app->renderer, 255, 255, 255, 100);
-            SDL_RenderFillRect(app->renderer, buttons[i]);
+            if (state == UI_AVAILABLE)
+                tex = units[i].blueAvailable;
+
+            else if (state == UI_UNAVAILABLE)
+                tex = units[i].blueUnavailable;
+
+            else
+                tex = units[i].blueLocked;
+        }
+        else
+        {
+            if (state == UI_AVAILABLE)
+                tex = units[i].redAvailable;
+
+            else if (state == UI_UNAVAILABLE)
+                tex = units[i].redUnavailable;
+
+            else
+                tex = units[i].redLocked;
         }
 
-        SDL_Texture* tex = (app->currentPlayer == 1) ? texturesP1[i] : texturesP2[i];
-        SDL_RenderTexture(app->renderer, tex, NULL, buttons[i]);
+        SDL_RenderTexture(app->renderer, tex, NULL, units[i].button);
 
-        char cost[16];
-        snprintf(cost, sizeof(cost), "%d ", pieceCost(types[i]));
-        SDL_FRect costPos = {buttons[i]->x, buttons[i]->y + size, size, 20.0f};
-        drawText(app, app->font, cost, costPos);
+        if (app->selectedPieceType == units[i].baseType)
+        {
+            SDL_Texture *overlay;
+
+            if (app->currentPlayer == 1)
+                overlay = app->UIBlueOverlayAvailable;
+            else
+                overlay = app->UIRedOverlayAvailable;
+
+            SDL_FRect overlayRect = {
+                units[i].button->x,
+                units[i].button->y - 33.0f,
+                96,
+                36
+            };
+
+            SDL_RenderTexture(app->renderer, overlay, NULL, &overlayRect);
+        }
     }
 }
 

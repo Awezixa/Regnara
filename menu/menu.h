@@ -1,10 +1,35 @@
 #ifndef MENU_H
 #define MENU_H
 
+#include "../pieces/piece.h"
+
 typedef struct AppState AppState;
 
 void drawOptions(AppState *app);
 
+typedef struct
+{
+    pieceType baseType;
+    pieceType upgradeType;
+
+    SDL_FRect *button;
+
+    SDL_Texture *blueAvailable;
+    SDL_Texture *blueUnavailable;
+    SDL_Texture *blueLocked;
+
+    SDL_Texture *redAvailable;
+    SDL_Texture *redUnavailable;
+    SDL_Texture *redLocked;
+
+} UnitUIButton;
+
+typedef enum
+{
+    UI_LOCKED,
+    UI_UNAVAILABLE,
+    UI_AVAILABLE
+} UIState;
 
 
 //Xavier
@@ -25,4 +50,7 @@ void quitPauseButton(AppState *app);
 void techTreeButton(AppState *app);
 void playerRectangles(AppState *app);
 void drawSinglePlayerStatus(AppState *app, SDL_FRect panel, const char* title, int playerNum);
+
+//Tiago
+UIState getPieceUIState(AppState *app, pieceType type);
 #endif 

@@ -327,3 +327,13 @@ int countPiecesByType(AppState *app, int player, pieceType type) {
     }
     return total;
 }
+
+bool pieceUnlocked(AppState *app, pieceType type)
+{
+    return true;
+}
+
+bool pieceCountReached(AppState *app, pieceType type)
+{
+    return false;
+}
