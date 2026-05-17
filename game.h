@@ -111,10 +111,8 @@ typedef struct AppState
     SDL_Texture *shoreCornerBottomLeftTexture;
 
     SDL_Texture *logoTexture;
-    SDL_Texture *blueGoldTexture;
-    SDL_Texture *redGoldTexture;
-    SDL_Texture *blueTownsTexture;
-    SDL_Texture *redTownsTexture;
+    SDL_Texture *blueInfoBox;
+    SDL_Texture *redInfoBox;
 
     Town towns[8];
     int tTowns; // total amount of towns
@@ -126,7 +124,7 @@ typedef struct AppState
     pieceType selectedPieceType;
     Piece *selectedPiece;
     
-    //where borrow stock piece textures https://nulltale.itch.io/heroes-chess
+    //blue piece textures
     SDL_Texture *bluePawnTexture;
     SDL_Texture *blueRookTexture;
     SDL_Texture *blueKnightTexture;
@@ -139,6 +137,18 @@ typedef struct AppState
     SDL_Texture *blueMageTexture;
     SDL_Texture *blueCatapultTexture;
 
+    SDL_Texture *bluePawnUsedTexture;
+    SDL_Texture *blueKnightUsedTexture;
+    SDL_Texture *blueBishopUsedTexture;
+    SDL_Texture *blueRookUsedTexture;
+    SDL_Texture *blueQueenUsedTexture;
+    SDL_Texture *blueKingUsedTexture;
+
+    SDL_Texture *blueEnvoyUsedTexture;
+    SDL_Texture *blueLancerUsedTexture;
+    SDL_Texture *blueMageUsedTexture;
+    SDL_Texture *blueCatapultUsedTexture;
+
     SDL_FRect pawnButton;
     SDL_FRect queenButton;
     SDL_FRect knightButton;
@@ -150,11 +160,11 @@ typedef struct AppState
     SDL_FRect lancerButton;
 
 
-    //black piece textures
+    //red piece textures
     SDL_Texture *redPawnTexture;
     SDL_Texture *redRookTexture;
     SDL_Texture *redKnightTexture;
-    SDL_Texture *redBihsopTexture;
+    SDL_Texture *redBishopTexture;
     SDL_Texture *redKingTexture;
     SDL_Texture *redQueenTexture;
 
@@ -162,6 +172,187 @@ typedef struct AppState
     SDL_Texture *redLancerTexture;
     SDL_Texture *redMageTexture;
     SDL_Texture *redCatapultTexture;
+
+    SDL_Texture *redPawnUsedTexture;
+    SDL_Texture *redKnightUsedTexture;
+    SDL_Texture *redBishopUsedTexture;
+    SDL_Texture *redRookUsedTexture;
+    SDL_Texture *redQueenUsedTexture;
+    SDL_Texture *redKingUsedTexture;
+
+    SDL_Texture *redEnvoyUsedTexture;
+    SDL_Texture *redLancerUsedTexture;
+    SDL_Texture *redMageUsedTexture;
+    SDL_Texture *redCatapultUsedTexture;
+
+    //UILocked
+
+    SDL_Texture *UIBluePawnLocked;
+    SDL_Texture *UIBlueKnightLocked;
+    SDL_Texture *UIBlueBishopLocked;
+    SDL_Texture *UIBlueRookLocked;
+    SDL_Texture *UIBlueQueenLocked;
+    SDL_Texture *UIBlueKingLocked;
+
+    SDL_Texture *UIBlueEnvoyLocked;
+    SDL_Texture *UIBlueLancerLocked;
+    SDL_Texture *UIBlueMageLocked;
+    SDL_Texture *UIBlueCatapultLocked;
+
+    SDL_Texture *UIRedPawnLocked;
+    SDL_Texture *UIRedKnightLocked;
+    SDL_Texture *UIRedBishopLocked;
+    SDL_Texture *UIRedRookLocked;
+    SDL_Texture *UIRedQueenLocked;
+    SDL_Texture *UIRedKingLocked;
+
+    SDL_Texture *UIRedEnvoyLocked;
+    SDL_Texture *UIRedLancerLocked;
+    SDL_Texture *UIRedMageLocked;
+    SDL_Texture *UIRedCatapultLocked;
+
+    //UIAvailable
+
+    SDL_Texture *UIBluePawnAvailable;
+    SDL_Texture *UIBlueKnightAvailable;
+    SDL_Texture *UIBlueBishopAvailable;
+    SDL_Texture *UIBlueRookAvailable;
+    SDL_Texture *UIBlueQueenAvailable;
+    SDL_Texture *UIBlueKingAvailable;
+
+    SDL_Texture *UIBlueEnvoyAvailable;
+    SDL_Texture *UIBlueLancerAvailable;
+    SDL_Texture *UIBlueMageAvailable;
+    SDL_Texture *UIBlueCatapultAvailable;
+
+    SDL_Texture *UIRedPawnAvailable;
+    SDL_Texture *UIRedKnightAvailable;
+    SDL_Texture *UIRedBishopAvailable;
+    SDL_Texture *UIRedRookAvailable;
+    SDL_Texture *UIRedQueenAvailable;
+    SDL_Texture *UIRedKingAvailable;
+
+    SDL_Texture *UIRedEnvoyAvailable;
+    SDL_Texture *UIRedLancerAvailable;
+    SDL_Texture *UIRedMageAvailable;
+    SDL_Texture *UIRedCatapultAvailable;
+
+    //UIUnavailable
+
+    SDL_Texture *UIBluePawnUnavailable;
+    SDL_Texture *UIBlueKnightUnavailable;
+    SDL_Texture *UIBlueBishopUnavailable;
+    SDL_Texture *UIBlueRookUnavailable;
+    SDL_Texture *UIBlueQueenUnavailable;
+    SDL_Texture *UIBlueKingUnavailable;
+
+    SDL_Texture *UIBlueEnvoyUnavailable;
+    SDL_Texture *UIBlueLancerUnavailable;
+    SDL_Texture *UIBlueMageUnavailable;
+    SDL_Texture *UIBlueCatapultUnavailable;
+
+    SDL_Texture *UIRedPawnUnavailable;
+    SDL_Texture *UIRedKnightUnavailable;
+    SDL_Texture *UIRedBishopUnavailable;
+    SDL_Texture *UIRedRookUnavailable;
+    SDL_Texture *UIRedQueenUnavailable;
+    SDL_Texture *UIRedKingUnavailable;
+
+    SDL_Texture *UIRedEnvoyUnavailable;
+    SDL_Texture *UIRedLancerUnavailable;
+    SDL_Texture *UIRedMageUnavailable;
+    SDL_Texture *UIRedCatapultUnavailable;
+
+    //techTreeLocked
+
+    SDL_Texture *techTreeBluePawnLocked;
+    SDL_Texture *techTreeBlueKnightLocked;
+    SDL_Texture *techTreeBlueBishopLocked;
+    SDL_Texture *techTreeBlueRookLocked;
+    SDL_Texture *techTreeBlueQueenLocked;
+    SDL_Texture *techTreeBlueEnvoyLocked;
+    SDL_Texture *techTreeBlueLancerLocked;
+    SDL_Texture *techTreeBlueMageLocked;
+    SDL_Texture *techTreeBlueCatapultLocked;
+    SDL_Texture *techTreeBlueGoldLocked;
+    SDL_Texture *techTreeBluePiecesLocked;
+    SDL_Texture *techTreeBluePlatformLocked;
+
+    SDL_Texture *techTreeRedPawnLocked;
+    SDL_Texture *techTreeRedKnightLocked;
+    SDL_Texture *techTreeRedBishopLocked;
+    SDL_Texture *techTreeRedRookLocked;
+    SDL_Texture *techTreeRedQueenLocked;
+    SDL_Texture *techTreeRedEnvoyLocked;
+    SDL_Texture *techTreeRedLancerLocked;
+    SDL_Texture *techTreeRedMageLocked;
+    SDL_Texture *techTreeRedCatapultLocked;
+    SDL_Texture *techTreeRedGoldLocked;
+    SDL_Texture *techTreeRedPiecesLocked;
+    SDL_Texture *techTreeRedPlatformLocked;
+
+    //techTreeBuyable
+
+    SDL_Texture *techTreeBluePawnBuyable;
+    SDL_Texture *techTreeBlueKnightBuyable;
+    SDL_Texture *techTreeBlueBishopBuyable;
+    SDL_Texture *techTreeBlueRookBuyable;
+    SDL_Texture *techTreeBlueQueenBuyable;
+    SDL_Texture *techTreeBlueEnvoyBuyable;
+    SDL_Texture *techTreeBlueLancerBuyable;
+    SDL_Texture *techTreeBlueMageBuyable;
+    SDL_Texture *techTreeBlueCatapultBuyable;
+    SDL_Texture *techTreeBlueGoldBuyable;
+    SDL_Texture *techTreeBluePiecesBuyable;
+    SDL_Texture *techTreeBluePlatformBuyable;
+
+    SDL_Texture *techTreeRedPawnBuyable;
+    SDL_Texture *techTreeRedKnightBuyable;
+    SDL_Texture *techTreeRedBishopBuyable;
+    SDL_Texture *techTreeRedRookBuyable;
+    SDL_Texture *techTreeRedQueenBuyable;
+    SDL_Texture *techTreeRedEnvoyBuyable;
+    SDL_Texture *techTreeRedLancerBuyable;
+    SDL_Texture *techTreeRedMageBuyable;
+    SDL_Texture *techTreeRedCatapultBuyable;
+    SDL_Texture *techTreeRedGoldBuyable;
+    SDL_Texture *techTreeRedPiecesBuyable;
+    SDL_Texture *techTreeRedPlatformBuyable;
+
+    //techTreeBought
+
+    SDL_Texture *techTreeBluePawnBought;
+    SDL_Texture *techTreeBlueKnightBought;
+    SDL_Texture *techTreeBlueBishopBought;
+    SDL_Texture *techTreeBlueRookBought;
+    SDL_Texture *techTreeBlueQueenBought;
+    SDL_Texture *techTreeBlueEnvoyBought;
+    SDL_Texture *techTreeBlueLancerBought;
+    SDL_Texture *techTreeBlueMageBought;
+    SDL_Texture *techTreeBlueCatapultBought;
+    SDL_Texture *techTreeBlueGoldBought;
+    SDL_Texture *techTreeBluePiecesBought;
+    SDL_Texture *techTreeBluePlatformBought;
+
+    SDL_Texture *techTreeRedPawnBought;
+    SDL_Texture *techTreeRedKnightBought;
+    SDL_Texture *techTreeRedBishopBought;
+    SDL_Texture *techTreeRedRookBought;
+    SDL_Texture *techTreeRedQueenBought;
+    SDL_Texture *techTreeRedEnvoyBought;
+    SDL_Texture *techTreeRedLancerBought;
+    SDL_Texture *techTreeRedMageBought;
+    SDL_Texture *techTreeRedCatapultBought;
+    SDL_Texture *techTreeRedGoldBought;
+    SDL_Texture *techTreeRedPiecesBought;
+    SDL_Texture *techTreeRedPlatformBought;
+
+    //UIOverlays
+
+    SDL_Texture *UIRedOverlayAvailable;
+    SDL_Texture *UIBlueOverlayAvailable;
+    SDL_Texture *UIRedOverlayUnavailable;
+    SDL_Texture *UIBlueOverlayUnavailable;
 
     //possible move textures
     SDL_Texture *movePossible;
@@ -176,6 +367,7 @@ typedef struct AppState
     SDL_Texture *buttonOn;
     SDL_Texture *buttonHovered;
     SDL_Texture *goldTexture;
+    SDL_Texture *techTreeBackground;
     SDL_FRect playbutton;
     SDL_FRect quitbutton;
     SDL_FRect optionsbutton;

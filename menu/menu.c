@@ -156,7 +156,7 @@ void unitIconUI(AppState *app)
 {
     pieceType types[] = {PAWN, KNIGHT, BISHOP, ROOK, QUEEN, ENVOY, MAGE, CATAPULT, LANCER};
     SDL_Texture* texturesP1[] = {app->bluePawnTexture, app->blueKnightTexture, app->blueBishopTexture, app->blueRookTexture, app->blueQueenTexture, app->blueEnvoyTexture, app->blueMageTexture, app->blueCatapultTexture, app->blueLancerTexture};
-    SDL_Texture* texturesP2[] = {app->redPawnTexture, app->redKnightTexture, app->redBihsopTexture, app->redRookTexture, app->redQueenTexture, app->redEnvoyTexture, app->redMageTexture, app->redCatapultTexture, app->redLancerTexture};
+    SDL_Texture* texturesP2[] = {app->redPawnTexture, app->redKnightTexture, app->redBishopTexture, app->redRookTexture, app->redQueenTexture, app->redEnvoyTexture, app->redMageTexture, app->redCatapultTexture, app->redLancerTexture};
     SDL_FRect* buttons[] = {&app->pawnButton, &app->knightButton, &app->bishopButton, &app->rookButton, &app->queenButton, &app->envoyButton, &app->mageButton, &app->catapultButton, &app->lancerButton};
     
     float spacing = 90.0f;
@@ -273,9 +273,9 @@ void drawSinglePlayerStatus(AppState *app, SDL_FRect panel, const char* title, i
     // 1. Draw Background and Outline
     SDL_SetRenderDrawBlendMode(app->renderer, SDL_BLENDMODE_BLEND);
     if(playerNum == 1){
-    SDL_RenderTexture(app->renderer, app->blueGoldTexture, NULL, &panel);}
+    SDL_RenderTexture(app->renderer, app->blueInfoBox, NULL, &panel);}
     else{
-    SDL_RenderTexture(app->renderer, app->redGoldTexture, NULL, &panel);}
+    SDL_RenderTexture(app->renderer, app->redInfoBox, NULL, &panel);}
     SDL_SetRenderDrawColor(app->renderer, 255, 255, 255, 255);
     SDL_RenderRect(app->renderer, &panel);
 

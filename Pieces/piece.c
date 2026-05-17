@@ -168,7 +168,7 @@ void renderPiece(AppState *app)
                 {
                     case PAWN:tex = app->redPawnTexture;break;
                     case KNIGHT:tex = app->redKnightTexture;break;
-                    case BISHOP:tex = app->redBihsopTexture;break;
+                    case BISHOP:tex = app->redBishopTexture;break;
                     case ROOK:tex = app->redRookTexture;break;
                     case QUEEN:tex = app->redQueenTexture;break;
                     case KING:tex = app->redKingTexture;break;
