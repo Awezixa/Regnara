@@ -53,4 +53,6 @@ void drawSinglePlayerStatus(AppState *app, SDL_FRect panel, const char* title, i
 
 //Tiago
 UIState getPieceUIState(AppState *app, pieceType type);
+pieceType getUpgradeType(pieceType type);
+SDL_Texture *getPieceTexture(AppState *app, pieceType type, UIState state);
 #endif 
