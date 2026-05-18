@@ -42,7 +42,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
         return SDL_APP_FAILURE;
     }
 
-    //SDL_SetRenderLogicalPresentation(app->renderer, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_LOGICAL_PRESENTATION_LETTERBOX);
+    SDL_SetRenderLogicalPresentation(app->renderer, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_LOGICAL_PRESENTATION_LETTERBOX);
 
     //font loading
     app->font = TTF_OpenFont("Assets/FORCED SQUARE.ttf", 30);
@@ -133,11 +133,25 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
         }
     }
     break;
-    case SDL_EVENT_MOUSE_MOTION:
-        in->mouseX = event->motion.x;
-        in->mouseY = event->motion.y;
-        break;
+    case SDL_EVENT_MOUSE_MOTION:{
+        float logicalX, logicalY;
+        SDL_RenderCoordinatesFromWindow(app->renderer, 
+                                           event->motion.x, 
+                                           event->motion.y, 
+                                           &logicalX, &logicalY);
+        in->mouseX = logicalX;
+        in->mouseY = logicalY;
+    }
+    break;
     case SDL_EVENT_MOUSE_BUTTON_DOWN:
+        {float logicalX, logicalY;
+        SDL_RenderCoordinatesFromWindow(app->renderer, 
+                                           event->button.x, 
+                                           event->button.y, 
+                                           &logicalX, &logicalY);
+        in->mouseX = logicalX;
+        in->mouseY = logicalY;}
+
         if (event->button.button == SDL_BUTTON_LEFT)
         {
             if (!in->mouseLeftDown)
