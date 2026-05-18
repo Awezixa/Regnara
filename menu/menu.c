@@ -165,41 +165,42 @@ UIState getPieceUIState(AppState *app, pieceType type)
 
 void unitIconUI(AppState *app)
 {
+    SDL_FPoint mousePoint = {app->input.mouseX, app->input.mouseY};
+
     UnitUIButton units[] =
     {
-        {   PAWN, ENVOY,
-            &app->pawnButton,
-            app->UIBluePawnAvailable, app->UIBluePawnUnavailable, app->UIBluePawnLocked,
-            app->UIRedPawnAvailable, app->UIRedPawnUnavailable, app->UIRedPawnLocked},
+        { PAWN, ENVOY, &app->pawnButton,
+          app->UIBluePawnAvailable, app->UIBluePawnUnavailable, app->UIBluePawnLocked,
+          app->UIRedPawnAvailable, app->UIRedPawnUnavailable, app->UIRedPawnLocked },
 
-        {   KNIGHT, LANCER,
-            &app->knightButton,
-            app->UIBlueKnightAvailable, app->UIBlueKnightUnavailable, app->UIBlueKnightLocked,
-            app->UIRedKnightAvailable, app->UIRedKnightUnavailable, app->UIRedKnightLocked},
+        { KNIGHT, LANCER, &app->knightButton,
+          app->UIBlueKnightAvailable, app->UIBlueKnightUnavailable, app->UIBlueKnightLocked,
+          app->UIRedKnightAvailable, app->UIRedKnightUnavailable, app->UIRedKnightLocked },
 
-        {   BISHOP, MAGE,
-            &app->bishopButton,
-            app->UIBlueBishopAvailable, app->UIBlueBishopUnavailable, app->UIBlueBishopLocked,
-            app->UIRedBishopAvailable, app->UIRedBishopUnavailable, app->UIRedBishopLocked},
+        { BISHOP, MAGE, &app->bishopButton,
+          app->UIBlueBishopAvailable, app->UIBlueBishopUnavailable, app->UIBlueBishopLocked,
+          app->UIRedBishopAvailable, app->UIRedBishopUnavailable, app->UIRedBishopLocked },
 
-        {   ROOK, CATAPULT,
-            &app->rookButton,
-            app->UIBlueRookAvailable, app->UIBlueRookUnavailable, app->UIBlueRookLocked,
-            app->UIRedRookAvailable, app->UIRedRookUnavailable, app->UIRedRookLocked},
+        { ROOK, CATAPULT, &app->rookButton,
+          app->UIBlueRookAvailable, app->UIBlueRookUnavailable, app->UIBlueRookLocked,
+          app->UIRedRookAvailable, app->UIRedRookUnavailable, app->UIRedRookLocked },
 
-        {   QUEEN, QUEEN,
-            &app->queenButton,
-            app->UIBlueQueenAvailable, app->UIBlueQueenUnavailable, app->UIBlueQueenLocked,
-            app->UIRedQueenAvailable, app->UIRedQueenUnavailable, app->UIRedQueenLocked},
+        { QUEEN, QUEEN, &app->queenButton,
+          app->UIBlueQueenAvailable, app->UIBlueQueenUnavailable, app->UIBlueQueenLocked,
+          app->UIRedQueenAvailable, app->UIRedQueenUnavailable, app->UIRedQueenLocked },
     };
 
     int unitCount = sizeof(units) / sizeof(units[0]);
 
     float spacing = 120.0f;
     float startX = (WINDOW_WIDTH / 2.0f) - (((unitCount - 1) * spacing) / 2.0f);
+
     float sizex = 96.0f;
     float sizey = 144.0f;
 
+    // ----------------------------
+    // 1. POSITION + DRAW UNIT ICONS
+    // ----------------------------
     for (int i = 0; i < unitCount; i++)
     {
         units[i].button->x = startX + (i * spacing);
@@ -213,37 +214,26 @@ void unitIconUI(AppState *app)
 
         if (app->currentPlayer == 1)
         {
-            if (state == UI_AVAILABLE)
-                tex = units[i].blueAvailable;
-
-            else if (state == UI_UNAVAILABLE)
-                tex = units[i].blueUnavailable;
-
-            else
-                tex = units[i].blueLocked;
+            if (state == UI_AVAILABLE) tex = units[i].blueAvailable;
+            else if (state == UI_UNAVAILABLE) tex = units[i].blueUnavailable;
+            else tex = units[i].blueLocked;
         }
         else
         {
-            if (state == UI_AVAILABLE)
-                tex = units[i].redAvailable;
-
-            else if (state == UI_UNAVAILABLE)
-                tex = units[i].redUnavailable;
-
-            else
-                tex = units[i].redLocked;
+            if (state == UI_AVAILABLE) tex = units[i].redAvailable;
+            else if (state == UI_UNAVAILABLE) tex = units[i].redUnavailable;
+            else tex = units[i].redLocked;
         }
 
         SDL_RenderTexture(app->renderer, tex, NULL, units[i].button);
 
+        // highlight selected type
         if (app->selectedPieceType == units[i].baseType)
         {
-            SDL_Texture *overlay;
-
-            if (app->currentPlayer == 1)
-                overlay = app->UIBlueOverlayAvailable;
-            else
-                overlay = app->UIRedOverlayAvailable;
+            SDL_Texture *overlay =
+                (app->currentPlayer == 1)
+                ? app->UIBlueOverlayAvailable
+                : app->UIRedOverlayAvailable;
 
             SDL_FRect overlayRect = {
                 units[i].button->x,
@@ -255,6 +245,66 @@ void unitIconUI(AppState *app)
             SDL_RenderTexture(app->renderer, overlay, NULL, &overlayRect);
         }
     }
+
+    // ----------------------------
+    // 2. CLICK SELECTION
+    // ----------------------------
+    if (app->input.mouseLeftPressed)
+    {
+        for (int i = 0; i < unitCount; i++)
+        {
+            if (SDL_PointInRectFloat(&mousePoint, units[i].button))
+            {
+                app->selectedPieceType = units[i].baseType;
+            }
+        }
+    }
+
+    // ----------------------------
+    // 3. UPGRADE BUTTON
+    // ----------------------------
+
+    if (app->selectedPiece != NULL)
+    {
+        pieceType upgradeType =
+            getUpgradeType(app->selectedPiece->type);
+
+        if (upgradeType != KING)
+        {
+        SDL_FRect upgradeButton = {
+            startX + ((unitCount - 1) * spacing) + spacing,
+            WINDOW_HEIGHT - 110.0f,
+            sizex,
+            sizey
+        };
+
+        printf("Selected type: %d\n", app->selectedPieceType);
+        printf("Upgrade type: %d\n", getUpgradeType(app->selectedPieceType));
+
+        UIState state = getPieceUIState(app, upgradeType);
+        SDL_Texture *tex = getPieceTexture(app, upgradeType, state);
+
+        SDL_RenderTexture(app->renderer, tex, NULL, &upgradeButton);
+
+        if (app->input.mouseLeftPressed &&
+            SDL_PointInRectFloat(&mousePoint, &upgradeButton))
+            {
+                if (state == UI_AVAILABLE)
+                {
+                    app->selectedPiece->type = upgradeType;
+
+                    // optional gold cost
+                    int cost = pieceCost(upgradeType);
+
+                    if (app->currentPlayer == 1)
+                        app->P1.p1Gold -= cost;
+                    else
+                        app->P2.p2Gold -= cost;
+
+                    app->selectedPiece = NULL;
+                }
+            }
+    }}
 }
 
 void drawEndScreen(AppState *app){
@@ -386,4 +436,141 @@ void drawSinglePlayerStatus(AppState *app, SDL_FRect panel, const char* title, i
 
     drawText(app, app->fontLarge, townStr, townRect);
     drawText(app, app->fontLarge, goldStr, goldRect);
+}
+
+SDL_Texture *getPieceTexture(AppState *app, pieceType type, UIState state)
+{
+    // Decide player-based color set first
+    int isPlayer1 = (app->currentPlayer == 1);
+
+    switch (type)
+    {
+        case PAWN:
+            if (isPlayer1)
+            {
+                if (state == UI_AVAILABLE) return app->UIBluePawnAvailable;
+                if (state == UI_UNAVAILABLE) return app->UIBluePawnUnavailable;
+                return app->UIBluePawnLocked;
+            }
+            else
+            {
+                if (state == UI_AVAILABLE) return app->UIRedPawnAvailable;
+                if (state == UI_UNAVAILABLE) return app->UIRedPawnUnavailable;
+                return app->UIRedPawnLocked;
+            }
+
+        case KNIGHT:
+            if (isPlayer1)
+            {
+                if (state == UI_AVAILABLE) return app->UIBlueKnightAvailable;
+                if (state == UI_UNAVAILABLE) return app->UIBlueKnightUnavailable;
+                return app->UIBlueKnightLocked;
+            }
+            else
+            {
+                if (state == UI_AVAILABLE) return app->UIRedKnightAvailable;
+                if (state == UI_UNAVAILABLE) return app->UIRedKnightUnavailable;
+                return app->UIRedKnightLocked;
+            }
+
+        case BISHOP:
+            if (isPlayer1)
+            {
+                if (state == UI_AVAILABLE) return app->UIBlueBishopAvailable;
+                if (state == UI_UNAVAILABLE) return app->UIBlueBishopUnavailable;
+                return app->UIBlueBishopLocked;
+            }
+            else
+            {
+                if (state == UI_AVAILABLE) return app->UIRedBishopAvailable;
+                if (state == UI_UNAVAILABLE) return app->UIRedBishopUnavailable;
+                return app->UIRedBishopLocked;
+            }
+
+        case ROOK:
+            if (isPlayer1)
+            {
+                if (state == UI_AVAILABLE) return app->UIBlueRookAvailable;
+                if (state == UI_UNAVAILABLE) return app->UIBlueRookUnavailable;
+                return app->UIBlueRookLocked;
+            }
+            else
+            {
+                if (state == UI_AVAILABLE) return app->UIRedRookAvailable;
+                if (state == UI_UNAVAILABLE) return app->UIRedRookUnavailable;
+                return app->UIRedRookLocked;
+            }
+
+        case QUEEN:
+            if (isPlayer1)
+            {
+                if (state == UI_AVAILABLE) return app->UIBlueQueenAvailable;
+                if (state == UI_UNAVAILABLE) return app->UIBlueQueenUnavailable;
+                return app->UIBlueQueenLocked;
+            }
+            else
+            {
+                if (state == UI_AVAILABLE) return app->UIRedQueenAvailable;
+                if (state == UI_UNAVAILABLE) return app->UIRedQueenUnavailable;
+                return app->UIRedQueenLocked;
+            }
+        
+        case ENVOY:
+            if (isPlayer1)
+            {
+                if (state == UI_AVAILABLE) return app->UIBlueEnvoyAvailable;
+                if (state == UI_UNAVAILABLE) return app->UIBlueEnvoyUnavailable;
+                return app->UIBlueEnvoyLocked;
+            }
+            else
+            {
+                if (state == UI_AVAILABLE) return app->UIRedEnvoyAvailable;
+                if (state == UI_UNAVAILABLE) return app->UIRedEnvoyUnavailable;
+                return app->UIRedEnvoyLocked;
+            }
+
+        case LANCER:
+            if (isPlayer1)
+            {
+                if (state == UI_AVAILABLE) return app->UIBlueLancerAvailable;
+                if (state == UI_UNAVAILABLE) return app->UIBlueLancerUnavailable;
+                return app->UIBlueLancerLocked;
+            }
+            else
+            {
+                if (state == UI_AVAILABLE) return app->UIRedLancerAvailable;
+                if (state == UI_UNAVAILABLE) return app->UIRedLancerUnavailable;
+                return app->UIRedLancerLocked;
+            }
+
+        case MAGE:
+            if (isPlayer1)
+            {
+                if (state == UI_AVAILABLE) return app->UIBlueMageAvailable;
+                if (state == UI_UNAVAILABLE) return app->UIBlueMageUnavailable;
+                return app->UIBlueMageLocked;
+            }
+            else
+            {
+                if (state == UI_AVAILABLE) return app->UIRedMageAvailable;
+                if (state == UI_UNAVAILABLE) return app->UIRedMageUnavailable;
+                return app->UIRedMageLocked;
+            }
+
+        case CATAPULT:
+            if (isPlayer1)
+            {
+                if (state == UI_AVAILABLE) return app->UIBlueCatapultAvailable;
+                if (state == UI_UNAVAILABLE) return app->UIBlueCatapultUnavailable;
+                return app->UIBlueCatapultLocked;
+            }
+            else
+            {
+                if (state == UI_AVAILABLE) return app->UIRedCatapultAvailable;
+                if (state == UI_UNAVAILABLE) return app->UIRedCatapultUnavailable;
+                return app->UIRedCatapultLocked;
+            }
+        default:
+            return NULL;
+    }
 }

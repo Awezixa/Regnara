@@ -337,3 +337,24 @@ bool pieceCountReached(AppState *app, pieceType type)
 {
     return false;
 }
+
+pieceType getUpgradeType(pieceType type)
+{
+    switch(type)
+    {
+        case PAWN:
+            return ENVOY;
+
+        case KNIGHT:
+            return LANCER;
+
+        case BISHOP:
+            return MAGE;
+
+        case ROOK:
+            return CATAPULT;
+
+        default:
+            return KING;
+    }
+}
