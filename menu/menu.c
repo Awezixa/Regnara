@@ -368,7 +368,7 @@ void drawSinglePlayerStatus(AppState *app, SDL_FRect panel, const char* title, i
     char troopStr[32];
 
     snprintf(goldStr, sizeof(goldStr), "%d", gold);
-    snprintf(townStr, sizeof(townStr), "%d", towns+1);
+    snprintf(townStr, sizeof(townStr), "%d", towns);
 
     SDL_FRect goldRect = {
     panel.x + 70.0f,

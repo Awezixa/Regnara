@@ -32,7 +32,7 @@ void presetMatch(AppState *app) {
 
     for(int i = 0; i < app->maxPieceCapacity; i++) app->pieces[i].active = false;
 
-    for (int i = 0; i <= 4; i++) {
+    for (int i = 0; i <= 11; i++) {
         app->techTreeP1.upgrades[i].unlocked = 1;
         app->techTreeP2.upgrades[i].unlocked = 1;
     }
@@ -49,8 +49,8 @@ void presetMatch(AppState *app) {
         }
     }
     struct {int r; int c; pieceType type; int owner;} presets[] = {
-        {9, 9, KING, 1}, {5, 6, KNIGHT, 1}, {12, 47, BISHOP, 1}, {24, 10, ROOK, 1}, {7, 25, KNIGHT, 1}, {10, 45, ENVOY, 1},// P1 Pieces
-        {35, 45, KING, 2}, {35, 44, KNIGHT, 2}, {34, 45, BISHOP, 2}, {36, 45, ROOK, 2}, {32, 45, ENVOY, 2} // P2 Pieces
+        {14, 9, KING, 1}, {14, 6, KNIGHT, 1}, {10, 39, BISHOP, 1}, {24, 10, ROOK, 1}, {9, 37, KNIGHT, 1}, {8, 42, ENVOY, 1},{23, 12, CATAPULT, 1},{12, 12, ENVOY, 1},// P1 Pieces
+        {32, 8, KING, 2}, {30, 9, KNIGHT, 2}, {29, 43, BISHOP, 2}, {26, 14, ROOK, 2}, {32, 45, ENVOY, 2}, {12, 35, QUEEN, 2}, {23, 15, LANCER, 2}, {25, 17, ENVOY, 2}, // P2 Pieces
     };
 
     int numPresets = sizeof(presets) / sizeof(presets[0]); 

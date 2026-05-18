@@ -70,31 +70,31 @@ void initTechTree(TechTree *tree)
 
     // Index 8: Catapult (Needs Mage + Rook)
     strcpy(tree->upgrades[8].name, "Catapult");
-    tree->upgrades[8].cost = 20;
+    tree->upgrades[8].cost = 18;
     tree->upgrades[8].required1 = 7; // Mage
     tree->upgrades[8].required2 = 4; // Rook
 
     // Index 9: Queen (Needs Rook + Catapult)
     strcpy(tree->upgrades[9].name, "Queen");
-    tree->upgrades[9].cost = 30;
+    tree->upgrades[9].cost = 20;
     tree->upgrades[9].required1 = 4; // Rook
     tree->upgrades[9].required2 = 8; // Catapult
 
     // Index 10: Extra Pieces (Needs Extra Money)
     strcpy(tree->upgrades[10].name, "Spawn Extra");
-    tree->upgrades[10].cost = 25;
+    tree->upgrades[10].cost = 15;
     tree->upgrades[10].required1 = 2; // Extra Money
     tree->upgrades[10].required2 = -1;
 
     // Index 11: UPG Platform II (Needs UPG Platform I)
     strcpy(tree->upgrades[11].name, "UPG PLAT II");
-    tree->upgrades[11].cost = 30;
+    tree->upgrades[11].cost = 18;
     tree->upgrades[11].required1 = 3; // Plat I
     tree->upgrades[11].required2 = -1;
 
     // Index 12: UPG Platform III (Needs UPG Platform II)
     strcpy(tree->upgrades[12].name, "UPG PLAT III");
-    tree->upgrades[12].cost = 45;
+    tree->upgrades[12].cost = 25;
     tree->upgrades[12].required1 = 11; // Plat II
     tree->upgrades[12].required2 = -1;
 

@@ -89,6 +89,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     app->P1.p1Gold = 10;
     app->P2.p2Gold = 10;
     app->errorTimer = 0.0f;
+    app->inGame = false;
     // TECH TREE INIT
     initTechTree(&app->techTreeP1);
     initTechTree(&app->techTreeP2);
@@ -257,6 +258,10 @@ SDL_AppResult SDL_AppIterate(void *appstate)
             SDL_RenderFillRect(app->renderer, &screen);
 
             techTreeOverlay(app);
+
+            if(app->input.keyPressed[SDL_SCANCODE_T]){
+                app->gameState = STATE_PLAYING; 
+            }
 
         // Use the pointer to the current player's tree
         TechTree *tree = (app->currentPlayer == 1) ? &app->techTreeP1 : &app->techTreeP2;
@@ -484,8 +489,14 @@ void updateGame(AppState *app){
     spawnPiece(app);
     renderPiece(app);
     //
-    if (app->input.keyPressed[SDL_SCANCODE_T] || (app->input.mouseLeftPressed && SDL_PointInRectFloat(&mousePos, &app->techTreeButton))) {
+    if ((app->input.keyPressed[SDL_SCANCODE_T]) || (app->input.mouseLeftPressed && SDL_PointInRectFloat(&mousePos, &app->techTreeButton))) {
         app->gameState = TECH_TREE;
+        if(app->gameState == STATE_PLAYING){
+            app->gameState = TECH_TREE;
+            return;
+        }
+        
+
     }
 
     if (app->input.keyPressed[SDL_SCANCODE_C])
@@ -741,14 +752,14 @@ void winCondition(AppState *app){
     //king capturing win condition in piece capturing
 }
 
-void resetGame(AppState *app){
-    for (int i = 0; i < 8; i++)
-    {
+void resetGame(AppState *app) {
+   
+    for (int i = 0; i < app->tTowns; i++) {
         app->towns[i].owner = 0;
+        app->towns[i].captureTurns = 0;
     }
 
-    for (int i = 0; i < app->maxPieceCapacity; i++)
-    {
+    for (int i = 0; i < app->maxPieceCapacity; i++) {
         app->pieces[i].active = false;
         app->pieces[i].owner = 0;
     }
@@ -757,7 +768,7 @@ void resetGame(AppState *app){
     app->selectedPiece = NULL;
     app->possibleMoveCount = 0;
     
-    //reset player stats
+    
     app->currentPlayer = 1;
     app->turnCounter = 1;
     app->winner = 0;
@@ -771,12 +782,12 @@ void resetGame(AppState *app){
     app->P2.pieceCount = 0;
 
     app->cheats = false;
-    
 
+  
     initTechTree(&app->techTreeP1);
     initTechTree(&app->techTreeP2);
     initTowns(app);
-    startGame(app);
+    startGame(app); 
 }
 
 void startGame(AppState *app){

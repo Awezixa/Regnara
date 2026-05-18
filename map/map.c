@@ -121,15 +121,37 @@ int townCount(void){
 }
 
 
-void initTowns(AppState *app){
+void initTowns(AppState *app) {
     app->tTowns = 0;
+    int spawnFound = 0;
+
+    app->P1.towns = 0;
+    app->P2.towns = 0;
+
     for (int r = 0; r < MAP_ROWS; r++) {
         for (int c = 0; c < MAP_COLS; c++) {
-            if (map_data[r][c] == 'C') {
+            char tile = map_data[r][c];
+
+            if (tile == 'C' || tile == 'S') {
+                // Use the new higher limit
+                if (app->tTowns >= 24) break; 
+
                 app->towns[app->tTowns].row = r;
                 app->towns[app->tTowns].col = c;
-                app->towns[app->tTowns].owner = 0; // Neutral
                 app->towns[app->tTowns].captureTurns = 0;
+
+                if (tile == 'S') {
+                    spawnFound++;
+                    // This logic assumes the FIRST 'S' found is P1, 
+                    // and the SECOND 'S' found is P2.
+                    int owner = (spawnFound == 1) ? 1 : 2;
+                    app->towns[app->tTowns].owner = owner;
+
+                    if (owner == 1) app->P1.towns++;
+                    else if (owner == 2) app->P2.towns++;
+                } else {
+                    app->towns[app->tTowns].owner = 0; // Neutral Town
+                }
                 app->tTowns++;
             }
         }
@@ -183,33 +205,29 @@ void townCaptured(AppState *app) {
         }
     }
 }
+
+
 void drawTerritory(AppState *app) {
-    // Set the blend mode once for the whole loop
     SDL_SetRenderDrawBlendMode(app->renderer, SDL_BLENDMODE_BLEND);
 
-    int spawnCount = 0;
-
+    // This loop now handles both Towns and Captured Spawn Points
     for (int t = 0; t < app->tTowns; t++) {
         Town *town = &app->towns[t];
 
         if (town->owner != 0) {
-            // Set Color: Blue for P1, Red for P2
+            // Blue for P1, Red for P2
             if (town->owner == 1) {
                 SDL_SetRenderDrawColor(app->renderer, 0, 100, 255, 80); 
             } else {
                 SDL_SetRenderDrawColor(app->renderer, 255, 50, 50, 80);
             }
 
-            // Loop through the 3x3 radius (-1, 0, 1)
             for (int dr = -1; dr <= 1; dr++) {
                 for (int dc = -1; dc <= 1; dc++) {
-                    // CRITICAL: Offset from the actual town position
                     int r = town->row + dr;
                     int c = town->col + dc;
 
-                    // 3. Bounds check to ensure we stay on the map
                     if (r >= 0 && r < MAP_ROWS && c >= 0 && c < MAP_COLS) {
-                        // 4. Convert World Grid to Screen Rect
                         SDL_FRect tileRect = camera2d_world_to_screen_rect(
                             &app->camera,
                             (float)(c * TILE_SIZE),
@@ -223,41 +241,5 @@ void drawTerritory(AppState *app) {
             }
         }
     }
-
-    //spawn territory rendering
-    for (int i = 0; i < MAP_ROWS; i++)
-    {
-        for (int j = 0; j < MAP_COLS; j++)
-        {
-            if(map_data[i][j]== SPAWN_POINT)
-            {
-                spawnCount++;
-
-                if (spawnCount == 1) {
-                    SDL_SetRenderDrawColor(app->renderer, 0, 100, 255, 80); 
-                } else {
-                    SDL_SetRenderDrawColor(app->renderer, 255, 50, 50, 80);
-                }
-
-                //to draw square
-                for (int dr = -1; dr <= 1; dr++)
-                {
-                    for (int dc = -1; dc <= 1; dc++)
-                    {
-                        //tile row and col
-                        int tr = i + dr;
-                        int tc = j + dc;
-
-                        if (tr >= 0 && tr < MAP_ROWS && tc >= 0 && tc < MAP_COLS) {
-                            SDL_FRect tileRect = camera2d_world_to_screen_rect(&app->camera, (float)(tc * TILE_SIZE), (float)(tr * TILE_SIZE), (float)TILE_SIZE, (float)TILE_SIZE);
-                            SDL_RenderFillRect(app->renderer, &tileRect);
-                            
-                        }
-                    }
-
-                }
-            }
-        
-        }
-    }
+    // Note: The old spawnCount loop has been removed to allow dynamic ownership colors.
 }

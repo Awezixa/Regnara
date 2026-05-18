@@ -114,7 +114,7 @@ typedef struct AppState
     SDL_Texture *blueInfoBox;
     SDL_Texture *redInfoBox;
 
-    Town towns[8];
+    Town towns[24];
     int tTowns; // total amount of towns
 
     //Pieces
@@ -388,7 +388,6 @@ typedef struct AppState
     float errorTimer;
     SDL_Point possibleMoves[32];
     int possibleMoveCount;
-
     SDL_Texture *possibleMovesTexture;
 
     //variables for the ranged attacks
