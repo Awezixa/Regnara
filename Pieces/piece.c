@@ -88,48 +88,6 @@ void spawnPiece(AppState *app)
     }
 }
 
-// back up spawn piece if original breaks
-
-// void spawnPiece(AppState *app)
-// {
-//     // 1. Only run if a click happened and we have room for more pieces
-//     if (app->input.mouseLeftPressed && app->pieceCount < MAX_PIECES)
-//     {
-//         // 2. Convert Mouse Screen Position to World Coordinates
-//         float worldX = (app->input.mouseX / app->camera.zoom) + app->camera.x;
-//         float worldY = (app->input.mouseY / app->camera.zoom) + app->camera.y;
-
-//         // 3. Convert World Units to Grid Indices
-//         // col corresponds to X (horizontal), row corresponds to Y (vertical)
-//         int col = (int)(worldX / TILE_SIZE);
-//         int row = (int)(worldY / TILE_SIZE);
-
-//         // 4. Bounds Check: Ensure the click is actually on the map
-//         if (row >= 0 && row < MAP_ROWS && col >= 0 && col < MAP_COLS)
-//         {
-//             // 5. Tile Check: Use map_data[row][col] correctly
-//             char tile = map_data[row][col];
-//             if (tile == GRASS_TILE || tile == BRIDGE_TILE || tile == SPAWN_POINT)
-//             {
-//                 // 6. Find the first available slot in the piece array
-//                 for (int i = 0; i < MAX_PIECES; i++)
-//                 {
-//                     if (!app->pieces[i].active)
-//                     {
-//                         // 7. Snap to Grid: Set piece world position to the tile's top-left
-//                         app->pieces[i].pieceX = (float)(col * TILE_SIZE);
-//                         app->pieces[i].pieceY = (float)(row * TILE_SIZE);
-
-//                         app->pieces[i].active = true;
-//                         app->pieceCount++;
-//                         break; // Exit the loop after spawning one piece
-//                     }
-//                 }
-//             }
-//         }
-//     }
-// }
-
 void renderPiece(AppState *app)
 {
     for (int i = 0; i < app->maxPieceCapacity; i++)
@@ -330,12 +288,107 @@ int countPiecesByType(AppState *app, int player, pieceType type) {
 
 bool pieceUnlocked(AppState *app, pieceType type)
 {
-    return true;
+    TechTree *tree;
+
+    if (app->currentPlayer == 1)
+        tree = &app->techTreeP1;
+    else
+        tree = &app->techTreeP2;
+
+    switch(type)
+    {
+        // base units always unlocked
+        case PAWN:
+        case KING:
+            return true;
+
+        case KNIGHT:
+            return tree->upgrades[0].unlocked;
+
+        case BISHOP:
+            return tree->upgrades[5].unlocked;
+
+        case ROOK:
+            return tree->upgrades[4].unlocked;
+
+        case QUEEN:
+            return tree->upgrades[9].unlocked;
+
+        case ENVOY:
+            return tree->upgrades[1].unlocked;
+
+        case MAGE:
+            return tree->upgrades[7].unlocked;
+
+        case CATAPULT:
+            return tree->upgrades[8].unlocked;
+
+        case LANCER:
+            return tree->upgrades[6].unlocked;
+
+        default:
+            return false;
+    }
 }
 
 bool pieceCountReached(AppState *app, pieceType type)
 {
-    return false;
+    int player =
+        app->currentPlayer;
+
+    int count =
+        countPiecesByType(app, player, type);
+
+    int towns =
+        (player == 1)
+        ? app->P1.towns + 1
+        : app->P2.towns + 1;
+
+    int maxAllowed = 0;
+
+    switch(type)
+    {
+        case PAWN:
+            maxAllowed = towns * 8;
+            break;
+
+        case KNIGHT:
+            maxAllowed = towns * 2;
+            break;
+
+        case BISHOP:
+            maxAllowed = towns * 2;
+            break;
+
+        case ROOK:
+            maxAllowed = towns * 2;
+            break;
+
+        case QUEEN:
+            maxAllowed = towns;
+            break;
+
+        case ENVOY:
+            maxAllowed = towns * 2;
+            break;
+
+        case LANCER:
+            maxAllowed = towns * 2;
+            break;
+
+        case MAGE:
+            maxAllowed = towns * 2;
+            break;
+
+        case CATAPULT:
+            maxAllowed = towns * 1;
+            break;
+
+        default:
+            return false;
+    }
+
+    return count >= maxAllowed;
 }
 
 pieceType getUpgradeType(pieceType type)

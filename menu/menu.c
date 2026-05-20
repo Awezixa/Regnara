@@ -204,7 +204,7 @@ void unitIconUI(AppState *app)
     for (int i = 0; i < unitCount; i++)
     {
         units[i].button->x = startX + (i * spacing);
-        units[i].button->y = WINDOW_HEIGHT - 110.0f;
+        units[i].button->y = WINDOW_HEIGHT - 160.0f;
         units[i].button->w = sizex;
         units[i].button->h = sizey;
 
@@ -228,7 +228,7 @@ void unitIconUI(AppState *app)
         SDL_RenderTexture(app->renderer, tex, NULL, units[i].button);
 
         // highlight selected type
-        if (app->selectedPieceType == units[i].baseType)
+        if (app->selectedPieceType == units[i].baseType && state == UI_AVAILABLE)
         {
             SDL_Texture *overlay =
                 (app->currentPlayer == 1)
@@ -244,6 +244,7 @@ void unitIconUI(AppState *app)
 
             SDL_RenderTexture(app->renderer, overlay, NULL, &overlayRect);
         }
+
     }
 
     // ----------------------------
@@ -273,7 +274,7 @@ void unitIconUI(AppState *app)
         {
         SDL_FRect upgradeButton = {
             startX + ((unitCount - 1) * spacing) + spacing,
-            WINDOW_HEIGHT - 110.0f,
+            WINDOW_HEIGHT - 160.0f,
             sizex,
             sizey
         };
