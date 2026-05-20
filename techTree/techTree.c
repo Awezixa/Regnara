@@ -98,6 +98,8 @@ void initTechTree(TechTree *tree)
     tree->upgrades[12].required1 = 11; // Plat II
     tree->upgrades[12].required2 = -1;
 
+    tree->upgradePlatformLevel = 0;
+
     for (int i = 0; i < MAX_UPGRADES; i++) tree->upgrades[i].unlocked = 0;
 }
 
@@ -118,6 +120,20 @@ bool unlockUpgrade(TechTree *tree, int index, int *gold)
     {
         *gold -= u->cost;
         u->unlocked = 1;
+
+        if (index == 3)
+        {
+            tree->upgradePlatformLevel = 1;
+        }
+        else if (index == 11)
+        {
+            tree->upgradePlatformLevel = 2;
+        }
+        else if (index == 12)
+        {
+            tree->upgradePlatformLevel = 3;
+        }
+
         printf("Unlocked: %s\n", u->name);
         return true;
     }

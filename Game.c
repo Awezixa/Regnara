@@ -492,10 +492,6 @@ void updateGame(AppState *app){
         if (app->input.keyDown[SDL_SCANCODE_3]) app->selectedPieceType = BISHOP;
         if (app->input.keyDown[SDL_SCANCODE_4]) app->selectedPieceType = ROOK;
         if (app->input.keyDown[SDL_SCANCODE_5]) app->selectedPieceType = QUEEN;
-        if (app->input.keyDown[SDL_SCANCODE_6]) app->selectedPieceType = ENVOY;
-        if (app->input.keyDown[SDL_SCANCODE_7]) app->selectedPieceType = LANCER;
-        if (app->input.keyDown[SDL_SCANCODE_8]) app->selectedPieceType = MAGE;
-        if (app->input.keyDown[SDL_SCANCODE_9]) app->selectedPieceType = CATAPULT;
     // =========================
     // SPAWN + RENDER
     // =========================

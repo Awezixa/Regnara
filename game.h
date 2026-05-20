@@ -211,6 +211,9 @@ typedef struct AppState
     SDL_Texture *UIRedMageLocked;
     SDL_Texture *UIRedCatapultLocked;
 
+    SDL_Texture *UIBlueUpgPlatLocked;
+    SDL_Texture *UIRedUpgPlatLocked;
+
     //UIAvailable
 
     SDL_Texture *UIBluePawnAvailable;
@@ -236,6 +239,9 @@ typedef struct AppState
     SDL_Texture *UIRedLancerAvailable;
     SDL_Texture *UIRedMageAvailable;
     SDL_Texture *UIRedCatapultAvailable;
+
+    SDL_Texture *UIBlueUpgPlatAvailable;
+    SDL_Texture *UIRedUpgPlatAvailable;
 
     //UIUnavailable
 

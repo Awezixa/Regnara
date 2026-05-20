@@ -17,6 +17,7 @@ typedef struct {
 
 typedef struct {
     Upgrade upgrades[MAX_UPGRADES];
+    int upgradePlatformLevel;
 } TechTree;
 
 void initTechTree(TechTree *tree);

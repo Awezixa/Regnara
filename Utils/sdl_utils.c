@@ -407,6 +407,13 @@ bool LoadAllGameTextures(AppState *app) {
         {&app->UIBlueOverlayAvailable,  "Assets/cards/blueCards/overlays/availableOverlay.png"},
         {&app->UIRedOverlayUnavailable,  "Assets/cards/redCards/overlays/unavailableOverlay.png"},
         {&app->UIBlueOverlayUnavailable,  "Assets/cards/blueCards/overlays/unavailableOverlay.png"},
+
+        //Upgrade Platforms
+        
+        {&app->UIBlueUpgPlatAvailable,  "Assets/cards/blueCards/available/upgPlat.png"},
+        {&app->UIBlueUpgPlatLocked,  "Assets/cards/blueCards/locked/upgPlat.png"},
+        {&app->UIRedUpgPlatLocked,  "Assets/cards/redCards/locked/upgPlat.png"},
+        {&app->UIRedUpgPlatAvailable,  "Assets/cards/redCards/available/upgPlat.png"}
     };
 
     int totalTextures = sizeof(registry) / sizeof(TextureRegistry);
