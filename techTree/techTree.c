@@ -33,16 +33,16 @@ void initTechTree(TechTree *tree)
     tree->upgrades[1].cost = 5;
     tree->upgrades[1].required1 = -1;
     tree->upgrades[1].required2 = -1;
-    strcpy(tree->upgrades[0].description, "An agile fighter capable of bypassing obstacles easily.");
-    strcpy(tree->upgrades[0].unlocksText, "- Rook Upgrade Path\n- Bishop Upgrade Path");
-    strcpy(tree->upgrades[0].givesText, "Unlocks Knight training option");
+    strcpy(tree->upgrades[0].description, "The King's right hand man in conquering the land");
+    strcpy(tree->upgrades[0].unlocksText, "- Lancer Upgrade\n- Mage Upgrade\n- Catapult Upgrade\n- Queen unlock");
+    strcpy(tree->upgrades[0].givesText, "Unlocks Envoy upgrad option and can claim towns in 3 turns");
 
     // Index 2: Extra Money (Needs Pawn - Start)
     strcpy(tree->upgrades[2].name, "Town Income");
     tree->upgrades[2].cost = 10;
     tree->upgrades[2].required1 = -1;
     tree->upgrades[2].required2 = -1;
-    strcpy(tree->upgrades[2].description, "Improves your macroeconomic administration across settlements.");
+    strcpy(tree->upgrades[2].description, "Increase gold amount gained based on towns controlled");
     strcpy(tree->upgrades[2].unlocksText, "- Unit increase Cap");
     strcpy(tree->upgrades[2].givesText, "+5 bonus Gold every single turn round");
 
@@ -51,90 +51,89 @@ void initTechTree(TechTree *tree)
     tree->upgrades[3].cost = 15;
     tree->upgrades[3].required1 = -1;
     tree->upgrades[3].required2 = -1;
-    strcpy(tree->upgrades[0].description, "An agile fighter capable of bypassing obstacles easily.");
-    strcpy(tree->upgrades[0].unlocksText, "- Rook Upgrade Path\n- Bishop Upgrade Path");
-    strcpy(tree->upgrades[0].givesText, "Unlocks Knight training option");
+    strcpy(tree->upgrades[3].description, "A platform of magical powers that can improve your pieces");
+    strcpy(tree->upgrades[3].unlocksText, "- Upgrade platform II effects\n- UPG PLAT III effects");
+    strcpy(tree->upgrades[3].givesText, "Gives a random chance of upgrading a piece to a better piece");
 
     // Index 4: Rook (Needs Knight)
     strcpy(tree->upgrades[4].name, "Rook");
     tree->upgrades[4].cost = 8;
     tree->upgrades[4].required1 = 0; // Knight
     tree->upgrades[4].required2 = -1;
-    strcpy(tree->upgrades[0].description, "An agile fighter capable of bypassing obstacles easily.");
-    strcpy(tree->upgrades[0].unlocksText, "- Rook Upgrade Path\n- Bishop Upgrade Path");
-    strcpy(tree->upgrades[0].givesText, "Unlocks Knight training option");
+    strcpy(tree->upgrades[4].description, "A strong defensive piece to help fortify the land");
+    strcpy(tree->upgrades[4].unlocksText, "- Rook Upgrade Path\n- Queen unlock");
+    strcpy(tree->upgrades[4].givesText, "Unlocks Rook training option");
 
     // Index 5: Bishop (Needs Knight)
     strcpy(tree->upgrades[5].name, "Bishop");
     tree->upgrades[5].cost = 8;
     tree->upgrades[5].required1 = 0; // Knight
     tree->upgrades[5].required2 = -1;
-    strcpy(tree->upgrades[0].description, "An agile fighter capable of bypassing obstacles easily.");
-    strcpy(tree->upgrades[0].unlocksText, "- Rook Upgrade Path\n- Bishop Upgrade Path");
-    strcpy(tree->upgrades[0].givesText, "Unlocks Knight training option");
+    strcpy(tree->upgrades[5].description, "A piece with plenty wisdom");
+    strcpy(tree->upgrades[5].unlocksText, "- Bishop Upgrade Path\n- Rook Upgrade Path\n- Queen unlock");
+    strcpy(tree->upgrades[5].givesText, "Unlocks Rook training option");
 
     // Index 6: Lancer (Needs Envoy + Knight)
     strcpy(tree->upgrades[6].name, "Lancer");
     tree->upgrades[6].cost = 12;
     tree->upgrades[6].required1 = 1; // Envoy
     tree->upgrades[6].required2 = 0; // Knight
-    strcpy(tree->upgrades[0].description, "An agile fighter capable of bypassing obstacles easily.");
-    strcpy(tree->upgrades[0].unlocksText, "- Rook Upgrade Path\n- Bishop Upgrade Path");
-    strcpy(tree->upgrades[0].givesText, "Unlocks Knight training option");
+    strcpy(tree->upgrades[6].description, "The knights better version, cabable of dealing with multiple units at a time");
+    strcpy(tree->upgrades[6].unlocksText, "- Rook Upgrade Path\n- Bishop Upgrade Path");
+    strcpy(tree->upgrades[6].givesText, "Unlocks Lancer Upgrade to Knight and Lancer training Option");
 
     // Index 7: Mage (Needs Lancer + Bishop)
     strcpy(tree->upgrades[7].name, "Mage");
     tree->upgrades[7].cost = 15;
     tree->upgrades[7].required1 = 6; // Lancer
     tree->upgrades[7].required2 = 5; // Bishop
-    strcpy(tree->upgrades[0].description, "An agile fighter capable of bypassing obstacles easily.");
-    strcpy(tree->upgrades[0].unlocksText, "- Rook Upgrade Path\n- Bishop Upgrade Path");
-    strcpy(tree->upgrades[0].givesText, "Unlocks Knight training option");
+    strcpy(tree->upgrades[7].description, "A piece empowered by an unknown force");
+    strcpy(tree->upgrades[7].unlocksText, "- Catapult upgrade\n- Queen Path");
+    strcpy(tree->upgrades[7].givesText, "Unlocks Mage Upgrade to Bishop and Mage training Option");
 
     // Index 8: Catapult (Needs Mage + Rook)
     strcpy(tree->upgrades[8].name, "Catapult");
     tree->upgrades[8].cost = 18;
     tree->upgrades[8].required1 = 7; // Mage
     tree->upgrades[8].required2 = 4; // Rook
-    strcpy(tree->upgrades[0].description, "An agile fighter capable of bypassing obstacles easily.");
-    strcpy(tree->upgrades[0].unlocksText, "- Rook Upgrade Path\n- Bishop Upgrade Path");
-    strcpy(tree->upgrades[0].givesText, "Unlocks Knight training option");
+    strcpy(tree->upgrades[8].description, "A powerful yet slow ranged unit");
+    strcpy(tree->upgrades[8].unlocksText, "- Queen unlock");
+    strcpy(tree->upgrades[8].givesText, "Unlocks Knight training option");
 
     // Index 9: Queen (Needs Rook + Catapult)
     strcpy(tree->upgrades[9].name, "Queen");
     tree->upgrades[9].cost = 20;
     tree->upgrades[9].required1 = 4; // Rook
     tree->upgrades[9].required2 = 8; // Catapult
-    strcpy(tree->upgrades[0].description, "An agile fighter capable of bypassing obstacles easily.");
-    strcpy(tree->upgrades[0].unlocksText, "- Rook Upgrade Path\n- Bishop Upgrade Path");
-    strcpy(tree->upgrades[0].givesText, "Unlocks Knight training option");
+    strcpy(tree->upgrades[9].description, "The Strongest on the board some may call her");
+    strcpy(tree->upgrades[9].unlocksText, "A path to Victory!!");
+    strcpy(tree->upgrades[9].givesText, "Unlocks Knight training option");
 
     // Index 10: Extra Pieces (Needs Extra Money)
     strcpy(tree->upgrades[10].name, "Unit Cap increase");
     tree->upgrades[10].cost = 15;
     tree->upgrades[10].required1 = 2; // Extra Money
     tree->upgrades[10].required2 = -1;
-    strcpy(tree->upgrades[0].description, "An agile fighter capable of bypassing obstacles easily.");
-    strcpy(tree->upgrades[0].unlocksText, "- Rook Upgrade Path\n- Bishop Upgrade Path");
-    strcpy(tree->upgrades[0].givesText, "Unlocks Knight training option");
+    strcpy(tree->upgrades[10].description, "Army growth for longevity");
+    strcpy(tree->upgrades[10].givesText, "Increase Unit cap by 5");
 
     // Index 11: UPG Platform II (Needs UPG Platform I)
     strcpy(tree->upgrades[11].name, "UPG PLAT II");
     tree->upgrades[11].cost = 18;
     tree->upgrades[11].required1 = 3; // Plat I
     tree->upgrades[11].required2 = -1;
-    strcpy(tree->upgrades[0].description, "An agile fighter capable of bypassing obstacles easily.");
-    strcpy(tree->upgrades[0].unlocksText, "- Rook Upgrade Path\n- Bishop Upgrade Path");
-    strcpy(tree->upgrades[0].givesText, "Unlocks Knight training option");
+    strcpy(tree->upgrades[11].description, "A platform of magical powers that can improve your pieces");
+    strcpy(tree->upgrades[11].unlocksText, "- Unlocks UPG PLAT III");
+    strcpy(tree->upgrades[11].givesText, "Improves upgrade chances Rook, Bishop and Lancer");
 
     // Index 12: UPG Platform III (Needs UPG Platform II)
     strcpy(tree->upgrades[12].name, "UPG PLAT III");
     tree->upgrades[12].cost = 25;
     tree->upgrades[12].required1 = 11; // Plat II
     tree->upgrades[12].required2 = -1;
-    strcpy(tree->upgrades[0].description, "An agile fighter capable of bypassing obstacles easily.");
-    strcpy(tree->upgrades[0].unlocksText, "- Rook Upgrade Path\n- Bishop Upgrade Path");
-    strcpy(tree->upgrades[0].givesText, "Unlocks Knight training option");
+    strcpy(tree->upgrades[12].description, "A platform of magical powers that can improve your pieces");
+    strcpy(tree->upgrades[12].unlocksText, "An outlet for your inner gambler");
+    strcpy(tree->upgrades[12].givesText, "Improves upgrade chances for a Queen, Catapult and Mage");
 
     tree->upgradePlatformLevel = 0;
 

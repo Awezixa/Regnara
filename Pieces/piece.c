@@ -418,6 +418,5 @@ pieceType getUpgradeType(pieceType type)
             return CATAPULT;
 
         default:
-            return KING;
     }
 }

@@ -444,7 +444,7 @@ void UpdateCamera(AppState *app){
     // camera->y = SDL_clamp(camera->x, min_y, maxY);
 }
 
-void updateGame(AppState *app){
+void updateGame(AppState *app) {
     
     // 1. UPDATE CORE SYSTEMS & RENDERING WORLD BACKGROUND FIRST
     UpdateCamera(app);
@@ -488,23 +488,9 @@ void updateGame(AppState *app){
         if (app->input.keyDown[SDL_SCANCODE_7]) app->selectedPieceType = LANCER;
         if (app->input.keyDown[SDL_SCANCODE_8]) app->selectedPieceType = MAGE;
         if (app->input.keyDown[SDL_SCANCODE_9]) app->selectedPieceType = CATAPULT;
-    // =========================
-    // SPAWN + RENDER
-    // =========================
-    
-    spawnPiece(app);
-    renderPiece(app);
-    //
-    if ((app->input.keyPressed[SDL_SCANCODE_T]) || (app->input.mouseLeftPressed && SDL_PointInRectFloat(&mousePos, &app->techTreeButton))) {
-        app->gameState = TECH_TREE;
-        if(app->gameState == STATE_PLAYING){
-            app->gameState = TECH_TREE;
-            return;
-        }
-        
 
-
-        spawnPiece(app); // Spawning and moving code handles board calculations
+        // FIXED: Spawning and board checking runs uniformly outside of old broken triggers
+        spawnPiece(app);
 
         // --- Core Piece Selection & Movement State Machine ---
         int mouseCol = (int)((app->input.mouseX / app->camera.zoom + app->camera.x) / TILE_SIZE);
@@ -612,23 +598,23 @@ void updateGame(AppState *app){
     if (app->input.keyPressed[SDL_SCANCODE_T] || 
        (app->input.mouseLeftPressed && SDL_PointInRectFloat(&mousePos, &app->techTreeButton))) 
     {
-        app->showTechTree = !app->showTechTree; // Flip boolean state flag
+        app->showTechTree = !app->showTechTree; // Toggle logic flag safely
     }
 
     if (app->showTechTree) 
     {
         if (app->input.keyPressed[SDL_SCANCODE_ESCAPE]) {
-            app->showTechTree = false; // Gracefully shut down interface screen window
+            app->showTechTree = false; // Gracefully shut down interface panel
         }
 
         // Blend dimming screen barrier filter
         SDL_SetRenderDrawBlendMode(app->renderer, SDL_BLENDMODE_BLEND);
-        SDL_SetRenderDrawColor(app->renderer, 0, 0, 0, 150); 
+        SDL_SetRenderDrawColor(app->renderer, 0, 0, 0, 150);
         SDL_FRect screen = {0, 0, WINDOW_WIDTH, WINDOW_HEIGHT};
         SDL_RenderFillRect(app->renderer, &screen);
 
         // Draw structural asset maps and handle interactive coordinate inputs
-        techTreeOverlay(app); 
+        techTreeOverlay(app);
 
         // Error message popup alerts
         if (app->errorTimer > 0.0f) {
@@ -639,7 +625,6 @@ void updateGame(AppState *app){
     }
 
     winCondition(app); // Process target objective evaluations
-}
 }
 
 void endTurn(AppState *app) {
