@@ -25,4 +25,6 @@ bool unlockUpgrade(TechTree *tree, int index, int *gold);
 void techTreeOverlay(AppState *app);
 bool isUpgradeUnlocked(TechTree *tree, int index);
 void upgradePlatform(AppState *app, TechTree *tree);
+bool isSelectedPieceOnUpgradeTile(AppState *app);
+bool isUpgradePlatformUnlocked(TechTree *tree);
 #endif

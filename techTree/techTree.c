@@ -207,3 +207,19 @@ bool isUpgradeUnlocked(TechTree *tree, int index)
 
     return tree->upgrades[index].unlocked;
 }
+
+bool isUpgradePlatformUnlocked(TechTree *tree)
+{
+    return tree->upgradePlatformLevel > 0;
+}
+
+bool isSelectedPieceOnUpgradeTile(AppState *app)
+{
+    if (!app->selectedPiece)
+        return false;
+
+    int row = app->selectedPiece->row;
+    int col = app->selectedPiece->col;
+
+    return map_data[row][col] == 'U';
+}

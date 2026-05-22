@@ -172,6 +172,16 @@ bool isTileWalkable(int row, int col)
     return true;
 }
 
+bool pieceOnUpgradeTile(Piece *piece)
+{
+    if (piece == NULL)
+    {
+        return false;
+    }
+
+    return map_data[piece->row][piece->col] == 'U';
+}
+
 bool pieceSpawnable(AppState *app, int player)
 {
     if (app->pieceCount >= app->maxPieceCapacity){return false;}

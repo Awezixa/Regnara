@@ -262,7 +262,59 @@ void unitIconUI(AppState *app)
     }
 
     // ----------------------------
-    // 3. UPGRADE BUTTON
+    // 3. UPGRADE PLATFORM BUTTON (7)
+    // ----------------------------
+
+    if (app->selectedPiece && isSelectedPieceOnUpgradeTile(app))
+    {
+        TechTree *tree =
+            (app->currentPlayer == 1)
+            ? &app->techTreeP1
+            : &app->techTreeP2;
+
+        float upgradePlatformX =
+            startX + (unitCount * spacing) + spacing;
+
+        SDL_FRect platformButton = {
+            upgradePlatformX,
+            WINDOW_HEIGHT - 160.0f,
+            sizex,
+            sizey
+        };
+
+        UIState state =
+            isUpgradePlatformUnlocked(tree)
+            ? UI_AVAILABLE
+            : UI_LOCKED;
+
+        SDL_Texture *tex =
+            (app->currentPlayer == 1)
+                ? (state == UI_AVAILABLE
+                    ? app->UIBlueUpgPlatAvailable
+                    : app->UIBlueUpgPlatLocked)
+                : (state == UI_AVAILABLE
+                    ? app->UIRedUpgPlatAvailable
+                    : app->UIRedUpgPlatLocked);
+
+        SDL_RenderTexture(app->renderer, tex, NULL, &platformButton);
+
+        // click handling (placeholder for now)
+        if (app->input.mouseLeftPressed)
+        {
+            SDL_FPoint mouse = { app->input.mouseX, app->input.mouseY };
+
+            if (SDL_PointInRectFloat(&mouse, &platformButton))
+            {
+                if (state == UI_AVAILABLE)
+                {
+                    printf("Upgrade Platform clicked!\n");
+                }
+            }
+        }
+    }
+
+    // ----------------------------
+    // 4. UPGRADE BUTTON
     // ----------------------------
 
     if (app->selectedPiece != NULL)
@@ -305,7 +357,8 @@ void unitIconUI(AppState *app)
                     app->selectedPiece = NULL;
                 }
             }
-    }}
+    }
+    }
 }
 
 void drawEndScreen(AppState *app){
