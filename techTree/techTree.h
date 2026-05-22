@@ -32,5 +32,6 @@ void techTreeOverlay(AppState *app);
 bool isUpgradeUnlocked(TechTree *tree, int index);
 void upgradePlatform(AppState *app, TechTree *tree);
 void descBox(AppState *app,  Upgrade *u);
-
+bool isSelectedPieceOnUpgradeTile(AppState *app);
+bool isUpgradePlatformUnlocked(TechTree *tree);
 #endif

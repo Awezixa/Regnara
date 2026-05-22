@@ -301,4 +301,21 @@ void descBox(AppState *app, Upgrade *u) {
         snprintf(actionStr, sizeof(actionStr), "COST: %d GOLD", u->cost);
     }
     drawText(app, app->font, actionStr, costRect);
+
+}
+
+bool isUpgradePlatformUnlocked(TechTree *tree)
+{
+    return tree->upgradePlatformLevel > 0;
+}
+
+bool isSelectedPieceOnUpgradeTile(AppState *app)
+{
+    if (!app->selectedPiece)
+        return false;
+
+    int row = app->selectedPiece->row;
+    int col = app->selectedPiece->col;
+
+    return map_data[row][col] == 'U';
 }

@@ -160,6 +160,8 @@ typedef struct AppState
     SDL_FRect catapultButton;
     SDL_FRect lancerButton;
 
+    SDL_FRect upgradePlatformButton;
+
 
     //red piece textures
     SDL_Texture *redPawnTexture;
