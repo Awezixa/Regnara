@@ -413,7 +413,8 @@ bool LoadAllGameTextures(AppState *app) {
         {&app->UIBlueUpgPlatAvailable,  "Assets/cards/blueCards/available/upgPlat.png"},
         {&app->UIBlueUpgPlatLocked,  "Assets/cards/blueCards/locked/upgPlat.png"},
         {&app->UIRedUpgPlatLocked,  "Assets/cards/redCards/locked/upgPlat.png"},
-        {&app->UIRedUpgPlatAvailable,  "Assets/cards/redCards/available/upgPlat.png"}
+        {&app->UIRedUpgPlatAvailable,  "Assets/cards/redCards/available/upgPlat.png"},
+        {&app->controlsTexture,  "Assets/UI/regnaraControls.png"}
     };
 
     int totalTextures = sizeof(registry) / sizeof(TextureRegistry);
@@ -493,7 +494,7 @@ void CleanupAllTextures(AppState *app) {
         app->techTreeRedPawnBought, app->techTreeRedKnightBought, app->techTreeRedBishopBought, app->techTreeRedRookBought,
         app->techTreeRedQueenBought, app->techTreeRedEnvoyBought, app->techTreeRedLancerBought, app->techTreeRedMageBought,
         app->techTreeRedCatapultBought, app->techTreeRedGoldBought, app->techTreeRedPiecesBought, app->techTreeRedPlatformBought,
-        app->UIRedOverlayAvailable, app->UIBlueOverlayAvailable, app->UIRedOverlayUnavailable, app->UIBlueOverlayUnavailable,
+        app->UIRedOverlayAvailable, app->UIBlueOverlayAvailable, app->UIRedOverlayUnavailable, app->UIBlueOverlayUnavailable, app->controlsTexture
     };
 
     int count = sizeof(allTextures) / sizeof(SDL_Texture*);

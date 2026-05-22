@@ -81,6 +81,7 @@ typedef struct AppState
     SDL_FRect techText;
     TechTree techTreeP1;
     TechTree techTreeP2;
+    bool showTechTree;
 
     //temporary texture loading
     //Map
@@ -382,6 +383,11 @@ typedef struct AppState
     SDL_FRect turnCount;
     SDL_FRect pauseTxt;
     SDL_FRect techTreeButton;
+
+    //options
+    SDL_FRect optText;
+    SDL_FRect controlsRect;
+    SDL_Texture *controlsTexture;
     
     //camera stuff
     Camera camera;
@@ -410,4 +416,8 @@ void winCondition(AppState *app);
 void resetGame(AppState *app);
 void startGame(AppState *app);
 void increaseTroopLimit(AppState *app, int extraSlots);
+void snapToKing(AppState *app);
+
+
+
 #endif

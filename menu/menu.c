@@ -575,3 +575,59 @@ SDL_Texture *getPieceTexture(AppState *app, pieceType type, UIState state)
             return NULL;
     }
 }
+
+void drawOptions(AppState *app){
+
+    app->optText.x = (float)((WINDOW_WIDTH)/2.0f) - 50.0f;
+    app->optText.y = 150.0f;
+    app->optText.w = 100.0f;
+    app->optText.h = 50.0f;    
+
+
+    float imgW, imgH;
+
+    SDL_GetTextureSize(app->controlsTexture, &imgW, &imgH);
+
+    float maxWidth = 1200.0f;
+    float maxHeight = 800.0f;
+
+    float scale = imgW / imgH;
+    
+    app->controlsRect.w = maxWidth;
+    app->controlsRect.h = maxWidth / scale;
+
+    
+    app->controlsRect.x = (float)(WINDOW_WIDTH - app->controlsRect.w) / 2.0f;
+    app->controlsRect.y = (float)(WINDOW_HEIGHT - app->controlsRect.h) / 2.0f;
+
+    drawText(app, app->font, "OPTIONS", app->optText);
+    SDL_RenderTexture(app->renderer, app->controlsTexture, NULL, &app->controlsRect);
+}
+
+
+void drawTextWrapped(AppState *app, TTF_Font *font, const char *text, SDL_FRect container, int wrapLengthPixels)
+{
+    SDL_Color white = {255, 255, 255, 255};
+
+    // 1. Render text with SDL3_ttf wrapping logic enabled
+    SDL_Surface *surface = TTF_RenderText_Blended_Wrapped(font, text, 0, white, wrapLengthPixels);
+    if (!surface) return;
+
+    SDL_Texture *texture = SDL_CreateTextureFromSurface(app->renderer, surface);
+    SDL_DestroySurface(surface);
+    if (!texture) return;
+
+    float textW, textH;
+    SDL_GetTextureSize(texture, &textW, &textH);
+
+    // 2. Position text box at top-left inside container with margins (instead of full centering)
+    SDL_FRect textRect = {
+        container.x,
+        container.y,
+        textW,
+        textH
+    };
+
+    SDL_RenderTexture(app->renderer, texture, NULL, &textRect);
+    SDL_DestroyTexture(texture);
+}

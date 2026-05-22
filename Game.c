@@ -90,6 +90,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     app->P2.p2Gold = 10;
     app->errorTimer = 0.0f;
     app->inGame = false;
+    app->showTechTree = false;
     // TECH TREE INIT
     initTechTree(&app->techTreeP1);
     initTechTree(&app->techTreeP2);
@@ -259,71 +260,50 @@ SDL_AppResult SDL_AppIterate(void *appstate)
         break;
     }
     //done to have overlay instead of specific state
-    case STATE_PLAYING:
-    case TECH_TREE:
-    {  
+case STATE_PLAYING:
+    {
         app->inGame = true;
-        updateGame(app);
+        updateGame(app); // Run core gameplay
+        break;
+    }
 
-        if(app->gameState == TECH_TREE){
-            SDL_SetRenderDrawBlendMode(app->renderer, SDL_BLENDMODE_BLEND);
-            SDL_SetRenderDrawColor(app->renderer, 0, 0, 0, 150); 
-            SDL_FRect screen = {0, 0, WINDOW_WIDTH, WINDOW_HEIGHT};
-            SDL_RenderFillRect(app->renderer, &screen);
+    case TECH_TREE:
+    {
+        app->inGame = true;
+        
+        // 1. Keep rendering map/UI elements in the background
+        updateGame(app); 
 
-            techTreeOverlay(app);
+        // 2. Draw screen-dimming overlay barrier
+        SDL_SetRenderDrawBlendMode(app->renderer, SDL_BLENDMODE_BLEND);
+        SDL_SetRenderDrawColor(app->renderer, 0, 0, 0, 150); 
+        SDL_FRect screen = {0, 0, WINDOW_WIDTH, WINDOW_HEIGHT};
+        SDL_RenderFillRect(app->renderer, &screen);
 
-            if(app->input.keyPressed[SDL_SCANCODE_T]){
-                app->gameState = STATE_PLAYING; 
-            }
+        // 3. Let techTreeOverlay handle drawing AND button clicks cleanly
+        techTreeOverlay(app);
 
-        // Use the pointer to the current player's tree
-        TechTree *tree = (app->currentPlayer == 1) ? &app->techTreeP1 : &app->techTreeP2;
-        int *gold = (app->currentPlayer == 1) ? &app->P1.p1Gold : &app->P2.p2Gold;
-
-        // Handle the error timer for "Not enough gold"
+        // 4. Track gold feedback timers
         if (app->errorTimer > 0.0f) {
             app->errorTimer -= app->dt;
-        }
-
-        // Manual click handling for the first 3 upgrades (example)
-        if (app->input.mouseLeftPressed) {
-            SDL_FPoint mouse = {app->input.mouseX, app->input.mouseY};
-            
-            for (int i = 0; i < MAX_UPGRADES; i++) {
-                // Calculate a rectangle for each upgrade similar to printTechTree
-                SDL_FRect btnRect = { 780, 170 + i * 70, 700, 50 };
-                
-                if (SDL_PointInRectFloat(&mouse, &btnRect)) {
-                    if(unlockUpgrade(tree, i, gold)){
-                        if (i == 10){
-                            increaseTroopLimit(app, 5);
-                            app->maxPlayerPieces+=5;
-                        }
-                        
-                    }
-                }
-            }
-        }
-
-        // Display error message if timer is active
-        if (app->errorTimer > 0.0f) {
             SDL_FRect errPos = { 400, 800, 400, 255 };
             drawText(app, app->font, "Not enough gold!", errPos);
         }
 
+        // 5. ISOLATED WINDOW EXITS: Prevents key bleeding back to state machine
         if (app->input.keyPressed[SDL_SCANCODE_ESCAPE]) {
             app->gameState = STATE_PLAYING;
         }
-            }
-
-
-        break;   
+        // if (app->input.keyReleased[SDL_SCANCODE_T]) {
+        //     app->gameState = STATE_PLAYING;
+        // }
+        break;
     }
-
 
     case STATE_OPTIONS:
     {
+
+        drawOptions(app);
         if (app->input.keyPressed[SDL_SCANCODE_ESCAPE] && app->inGame == true ){
             app->gameState = STATE_PAUSED;
         }
@@ -466,32 +446,48 @@ void UpdateCamera(AppState *app){
 
 void updateGame(AppState *app){
     
+    // 1. UPDATE CORE SYSTEMS & RENDERING WORLD BACKGROUND FIRST
     UpdateCamera(app);
     renderMap(app->renderer, app);
 
-    // =========================
-    // PIECE TYPE SELECTION
-    // =========================
-    SDL_FPoint mousePos = {app->input.mouseX, app->input.mouseY};
-    if (app->input.mouseLeftPressed) {
-        
-    
-        // Ensure these are mutually exclusive
-        if (SDL_PointInRectFloat(&mousePos, &app->pawnButton)) {app->selectedPieceType = PAWN;}
-        else if (SDL_PointInRectFloat(&mousePos, &app->knightButton)) {app->selectedPieceType = KNIGHT;} 
-        else if (SDL_PointInRectFloat(&mousePos, &app->bishopButton)) {app->selectedPieceType = BISHOP;} 
-        else if (SDL_PointInRectFloat(&mousePos, &app->rookButton)) {app->selectedPieceType = ROOK;} 
-        else if (SDL_PointInRectFloat(&mousePos, &app->queenButton)) {app->selectedPieceType = QUEEN;}
-        else if (SDL_PointInRectFloat(&mousePos, &app->envoyButton)) {app->selectedPieceType = ENVOY;}
-        else if (SDL_PointInRectFloat(&mousePos, &app->lancerButton)) {app->selectedPieceType = LANCER;}
-        else if (SDL_PointInRectFloat(&mousePos, &app->mageButton)) {app->selectedPieceType = MAGE;}
-        else if (SDL_PointInRectFloat(&mousePos, &app->catapultButton)) {app->selectedPieceType = CATAPULT;}
+    // 2. DRAW GAME BOARD LAYERS IN BACKGROUND
+    drawTerritory(app); // Render the 3x3 town colors
+    renderPiece(app);    // Render active units on top of territory
+
+    if (app->selectedPiece != NULL) {
+        PossibleMovesShow(app, app->selectedPiece); // Show valid movement spots
     }
+
+    // =========================================================
+    // 3. CONDITIONAL INTERACTION BLOCK (Gated by Tech Tree)
+    // =========================================================
+    SDL_FPoint mousePos = {app->input.mouseX, app->input.mouseY};
+
+    if (!app->showTechTree) 
+    {
+        // Only run unit spawning and board mechanics if the overlay is hidden!
+        
+        // Piece Selection Shortcuts/Hotkeys
+        if (app->input.mouseLeftPressed) {
+            if (SDL_PointInRectFloat(&mousePos, &app->pawnButton)) {app->selectedPieceType = PAWN;}
+            else if (SDL_PointInRectFloat(&mousePos, &app->knightButton)) {app->selectedPieceType = KNIGHT;} 
+            else if (SDL_PointInRectFloat(&mousePos, &app->bishopButton)) {app->selectedPieceType = BISHOP;} 
+            else if (SDL_PointInRectFloat(&mousePos, &app->rookButton)) {app->selectedPieceType = ROOK;} 
+            else if (SDL_PointInRectFloat(&mousePos, &app->queenButton)) {app->selectedPieceType = QUEEN;}
+            else if (SDL_PointInRectFloat(&mousePos, &app->envoyButton)) {app->selectedPieceType = ENVOY;}
+            else if (SDL_PointInRectFloat(&mousePos, &app->lancerButton)) {app->selectedPieceType = LANCER;}
+            else if (SDL_PointInRectFloat(&mousePos, &app->mageButton)) {app->selectedPieceType = MAGE;}
+            else if (SDL_PointInRectFloat(&mousePos, &app->catapultButton)) {app->selectedPieceType = CATAPULT;}
+        }
         if (app->input.keyDown[SDL_SCANCODE_1]) app->selectedPieceType = PAWN;
         if (app->input.keyDown[SDL_SCANCODE_2]) app->selectedPieceType = KNIGHT;
         if (app->input.keyDown[SDL_SCANCODE_3]) app->selectedPieceType = BISHOP;
         if (app->input.keyDown[SDL_SCANCODE_4]) app->selectedPieceType = ROOK;
         if (app->input.keyDown[SDL_SCANCODE_5]) app->selectedPieceType = QUEEN;
+        if (app->input.keyDown[SDL_SCANCODE_6]) app->selectedPieceType = ENVOY;
+        if (app->input.keyDown[SDL_SCANCODE_7]) app->selectedPieceType = LANCER;
+        if (app->input.keyDown[SDL_SCANCODE_8]) app->selectedPieceType = MAGE;
+        if (app->input.keyDown[SDL_SCANCODE_9]) app->selectedPieceType = CATAPULT;
     // =========================
     // SPAWN + RENDER
     // =========================
@@ -507,206 +503,143 @@ void updateGame(AppState *app){
         }
         
 
-    }
 
-    if (app->input.keyPressed[SDL_SCANCODE_C])
-    {
-        app->cheats = !app->cheats;
-        //SDL_Log("Cheats: %dx , %dy", app->cheatText.x, app->cheatText.y);  
-    }
+        spawnPiece(app); // Spawning and moving code handles board calculations
 
-    if (app->cheats){
-        drawCheats(app);
-        infiniteMoney(app);
-        //increaseTroopLimit(app, 20);
-        if (app->input.keyPressed[SDL_SCANCODE_J])
-        {
-            presetMatch(app);
-            app->maxPlayerPieces = 15;
-        }
-        
-    } 
-    
-    
-    // =========================
-    // MOUSE → GRID CONVERSION
-    // =========================
-    int mouseCol = (int)((app->input.mouseX / app->camera.zoom + app->camera.x) / TILE_SIZE);
-    int mouseRow = (int)((app->input.mouseY / app->camera.zoom + app->camera.y) / TILE_SIZE);
+        // --- Core Piece Selection & Movement State Machine ---
+        int mouseCol = (int)((app->input.mouseX / app->camera.zoom + app->camera.x) / TILE_SIZE);
+        int mouseRow = (int)((app->input.mouseY / app->camera.zoom + app->camera.y) / TILE_SIZE);
+        bool wasPieceSelected = (app->selectedPiece != NULL);
 
-    bool wasPieceSelected = (app->selectedPiece != NULL);
-
-    // =========================
-    // SELECT PIECE
-    // =========================
-    for (int i = 0; i < app->maxPieceCapacity; i++)
-    {
-        Piece *p = &app->pieces[i];
-
-        if (p->active && p->col == mouseCol && p->row == mouseRow)
-        {
-            if (app->input.mouseLeftPressed && app->selectedPiece == NULL && p->owner == app->currentPlayer && !p->moved)
-            {
-                app->selectedPiece = p;
-                GenerateMoves(app, p);
-            }
-        }
-    }
-
-// =========================
-// MOVE PIECE
-// =========================
-if (app->cheats && app->selectedPiece && app->input.mouseLeftPressed && wasPieceSelected)
-{
-    app->selectedPiece->col = mouseCol;
-    app->selectedPiece->row = mouseRow;
-    app->selectedPiece->pieceX = mouseCol * TILE_SIZE;
-    app->selectedPiece->pieceY = mouseRow * TILE_SIZE;
-
-    app->selectedPiece = NULL;
-}
-else if (app->selectedPiece && app->input.mouseLeftPressed && wasPieceSelected)
-{
-    bool actionTaken = false;
-
-    // =========================
-    // 1. NORMAL MOVEMENT
-    // =========================
-    for (int i = 0; i < app->possibleMoveCount; i++)
-    {
-        SDL_Point m = app->possibleMoves[i];
-
-        // must click valid move tile
-        if (m.x != mouseCol || m.y != mouseRow)
-            continue;
-
-        // walkable check
-        if (!isTileWalkable(mouseRow, mouseCol))
-            continue;
-
-        Piece *target = GetPieceAt(app, mouseRow, mouseCol);
-
-        // friendly piece = blocked
-        if (target && target->owner == app->selectedPiece->owner)
-            continue;
-
-        // =========================
-        // CAPTURES
-        // =========================
-        if (target && target->owner != app->selectedPiece->owner)
-        {
-            if (app->selectedPiece->type == LANCER)
-            {
-                LancerAttack(app, app->selectedPiece, mouseRow, mouseCol);
-            }
-            else
-            {
-                CapturePiece(app, mouseRow, mouseCol);
+        for (int i = 0; i < app->maxPieceCapacity; i++) {
+            Piece *p = &app->pieces[i];
+            if (p->active && p->col == mouseCol && p->row == mouseRow) {
+                if (app->input.mouseLeftPressed && app->selectedPiece == NULL && p->owner == app->currentPlayer && !p->moved) {
+                    app->selectedPiece = p;
+                    GenerateMoves(app, p);
+                }
             }
         }
 
-        // =========================
-        // MOVE PIECE
-        // =========================
-        app->selectedPiece->col = mouseCol;
-        app->selectedPiece->row = mouseRow;
-        app->selectedPiece->pieceX = mouseCol * TILE_SIZE;
-        app->selectedPiece->pieceY = mouseRow * TILE_SIZE;
+        if (app->cheats && app->selectedPiece && app->input.mouseLeftPressed && wasPieceSelected) {
+            app->selectedPiece->col = mouseCol;
+            app->selectedPiece->row = mouseRow;
+            app->selectedPiece->pieceX = mouseCol * TILE_SIZE;
+            app->selectedPiece->pieceY = mouseRow * TILE_SIZE;
+            app->selectedPiece = NULL;
+        }
+        else if (app->selectedPiece && app->input.mouseLeftPressed && wasPieceSelected) {
+            bool actionTaken = false;
+            for (int i = 0; i < app->possibleMoveCount; i++) {
+                SDL_Point m = app->possibleMoves[i];
+                if (m.x != mouseCol || m.y != mouseRow) continue;
+                if (!isTileWalkable(mouseRow, mouseCol)) continue;
 
-        app->selectedPiece->moved = true;
+                Piece *target = GetPieceAt(app, mouseRow, mouseCol);
+                if (target && target->owner == app->selectedPiece->owner) continue;
 
-        actionTaken = true;
-        break;
-    }
+                if (target && target->owner != app->selectedPiece->owner) {
+                    if (app->selectedPiece->type == LANCER) LancerAttack(app, app->selectedPiece, mouseRow, mouseCol);
+                    else CapturePiece(app, mouseRow, mouseCol);
+                }
 
-    // =========================
-    // 2. RANGED ATTACKS
-    // =========================
-    if (!actionTaken)
-    {
-        for (int i = 0; i < app->possibleAttackCount; i++)
-        {
-            SDL_Point a = app->possibleAttacks[i];
-
-            // must click valid attack tile
-            if (a.x != mouseCol || a.y != mouseRow)
-                continue;
-
-            Piece *target = GetPieceAt(app, mouseRow, mouseCol);
-
-            // attack requires enemy
-            if (!target || target->owner == app->selectedPiece->owner)
-                continue;
-
-            // =========================
-            // MAGE
-            // =========================
-            if (app->selectedPiece->type == MAGE)
-            {
-                CapturePiece(app, mouseRow, mouseCol);
+                app->selectedPiece->col = mouseCol;
+                app->selectedPiece->row = mouseRow;
+                app->selectedPiece->pieceX = mouseCol * TILE_SIZE;
+                app->selectedPiece->pieceY = mouseRow * TILE_SIZE;
+                app->selectedPiece->moved = true;
+                actionTaken = true;
+                break;
             }
 
-            // =========================
-            // CATAPULT
-            // =========================
-            else if (app->selectedPiece->type == CATAPULT)
-            {
-                printf("CALLED");
-                CatapultAttack(app, mouseRow, mouseCol);
+            if (!actionTaken) {
+                for (int i = 0; i < app->possibleAttackCount; i++) {
+                    SDL_Point a = app->possibleAttacks[i];
+                    if (a.x != mouseCol || a.y != mouseRow) continue;
+
+                    Piece *target = GetPieceAt(app, mouseRow, mouseCol);
+                    if (!target || target->owner == app->selectedPiece->owner) continue;
+
+                    if (app->selectedPiece->type == MAGE) CapturePiece(app, mouseRow, mouseCol);
+                    else if (app->selectedPiece->type == CATAPULT) CatapultAttack(app, mouseRow, mouseCol);
+
+                    app->selectedPiece->moved = true;
+                    actionTaken = true;
+                    break;
+                }
             }
 
-            app->selectedPiece->moved = true;
+            if (actionTaken || (mouseCol == app->selectedPiece->col && mouseRow == app->selectedPiece->row)) {
+                app->selectedPiece = NULL;
+                app->possibleMoveCount = 0;
+                app->possibleAttackCount = 0;
+            }
+        }
 
-            actionTaken = true;
-            break;
+        // Handle Cheats Overlay Toggle
+        if (app->input.keyPressed[SDL_SCANCODE_C]) app->cheats = !app->cheats;
+        if (app->cheats) {
+            drawCheats(app);
+            infiniteMoney(app);
+            if (app->input.keyPressed[SDL_SCANCODE_J]) {
+                presetMatch(app);
+                app->maxPlayerPieces = 15;
+            }
+        }
+
+        // Standard Pause Check
+        if (app->input.keyPressed[SDL_SCANCODE_ESCAPE] && app->gameState == STATE_PLAYING) {
+            app->gameState = STATE_PAUSED;
         }
     }
 
-    // =========================
-    // CLEAR SELECTION
-    // =========================
-    if (actionTaken || 
-       (mouseCol == app->selectedPiece->col &&
-        mouseRow == app->selectedPiece->row))
-    {
-        app->selectedPiece = NULL;
-        app->possibleMoveCount = 0;
-        app->possibleAttackCount = 0;
-    }
-}
-
-    // =========================
-    // DRAW PIECES
-    // =========================
-    drawTerritory(app);
-    renderPiece(app);
-
-    // =========================
-    // DRAW POSSIBLE MOVES
-    // =========================
-
-    if (app->selectedPiece != NULL) {
-    PossibleMovesShow(app, app->selectedPiece);
-    }
-
-    // =========================
-    // UI
-    // =========================
+    // =========================================================
+    // 4. DRAW SYSTEM UI & HEADS-UP INTERFACES ON TOP OF WORLD
+    // =========================================================
     turnUI(app);
     playerRectangles(app);
-    gameUI(app);
-    if (app->input.mouseLeftPressed)
-    {
-        SDL_FPoint mousePos = {app->input.mouseX, app->input.mouseY};
-        if (SDL_PointInRectFloat(&mousePos, &app->endTurnButton))
-        {
+    gameUI(app); // Draws standard action bar HUD panel
+
+    if (!app->showTechTree && app->input.mouseLeftPressed) {
+        if (SDL_PointInRectFloat(&mousePos, &app->endTurnButton)) {
             endTurn(app);
         }
     }
-    
 
-    if (app->input.keyPressed[SDL_SCANCODE_ESCAPE]) app->gameState = STATE_PAUSED;
-    winCondition(app);
+    // =========================================================
+    // 5. DRAW FOREMOST FOREGROUND OVERLAY (Tech Tree Interface)
+    // =========================================================
+    if (app->input.keyPressed[SDL_SCANCODE_T] || 
+       (app->input.mouseLeftPressed && SDL_PointInRectFloat(&mousePos, &app->techTreeButton))) 
+    {
+        app->showTechTree = !app->showTechTree; // Flip boolean state flag
+    }
+
+    if (app->showTechTree) 
+    {
+        if (app->input.keyPressed[SDL_SCANCODE_ESCAPE]) {
+            app->showTechTree = false; // Gracefully shut down interface screen window
+        }
+
+        // Blend dimming screen barrier filter
+        SDL_SetRenderDrawBlendMode(app->renderer, SDL_BLENDMODE_BLEND);
+        SDL_SetRenderDrawColor(app->renderer, 0, 0, 0, 150); 
+        SDL_FRect screen = {0, 0, WINDOW_WIDTH, WINDOW_HEIGHT};
+        SDL_RenderFillRect(app->renderer, &screen);
+
+        // Draw structural asset maps and handle interactive coordinate inputs
+        techTreeOverlay(app); 
+
+        // Error message popup alerts
+        if (app->errorTimer > 0.0f) {
+            app->errorTimer -= app->dt;
+            SDL_FRect errPos = { 400, 800, 400, 255 };
+            drawText(app, app->font, "Not enough gold!", errPos);
+        }
+    }
+
+    winCondition(app); // Process target objective evaluations
+}
 }
 
 void endTurn(AppState *app) {
@@ -728,6 +661,8 @@ void endTurn(AppState *app) {
         app->currentPlayer = 1;
         app->turnCounter++;
     }
+
+    snapToKing(app);
 
     // 3. Give gold to the NEW active player (start of turn income)
     if (app->currentPlayer == 1) {
@@ -792,12 +727,14 @@ void resetGame(AppState *app) {
     app->P2.pieceCount = 0;
 
     app->cheats = false;
-
+    app->showTechTree = false;
   
     initTechTree(&app->techTreeP1);
     initTechTree(&app->techTreeP2);
     initTowns(app);
-    startGame(app); 
+    startGame(app);
+
+    snapToKing(app);
 }
 
 void startGame(AppState *app){
@@ -856,4 +793,36 @@ void increaseTroopLimit(AppState *app, int extraSlots){
         }
 
     }
+}
+
+void snapToKing(AppState *app){
+    float kingX = 0.0f;
+    float kingY = 0.0f;
+    bool found = false;
+
+    for (int i = 0; i < app->maxPieceCapacity; i++) {
+        if (app->pieces[i].active && 
+            app->pieces[i].type == KING && 
+            app->pieces[i].owner == app->currentPlayer) 
+        {
+            // Center calculation: get the middle point of the tile
+            kingX = app->pieces[i].pieceX + (TILE_SIZE / 2.0f);
+            kingY = app->pieces[i].pieceY + (TILE_SIZE / 2.0f);
+            found = true;
+            break;
+        }
+    }
+
+    if (found) {
+        camera2d_follow_target(
+            &app->camera,
+            kingX,
+            kingY,
+            (float)WINDOW_WIDTH,
+            (float)WINDOW_HEIGHT,
+            app->worldSize.x,
+            app->worldSize.y
+        );
+    }
+
 }
