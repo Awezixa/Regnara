@@ -660,7 +660,6 @@ void drawOptions(AppState *app){
     app->optText.w = 100.0f;
     app->optText.h = 50.0f;    
 
-
     float imgW, imgH;
 
     SDL_GetTextureSize(app->controlsTexture, &imgW, &imgH);
@@ -679,6 +678,8 @@ void drawOptions(AppState *app){
 
     drawText(app, app->font, "OPTIONS", app->optText);
     SDL_RenderTexture(app->renderer, app->controlsTexture, NULL, &app->controlsRect);
+
+    volumeControls(app);
 }
 
 
@@ -707,4 +708,51 @@ void drawTextWrapped(AppState *app, TTF_Font *font, const char *text, SDL_FRect 
 
     SDL_RenderTexture(app->renderer, texture, NULL, &textRect);
     SDL_DestroyTexture(texture);
+}
+
+void volumeControls(AppState *app){
+    SDL_FPoint mousePos = {app->input.mouseX, app->input.mouseY};
+    float midX = (float)WINDOW_WIDTH / 2.0f;
+
+    // 1. Define bounds for a Minus Button (-) and a Plus Button (+)
+    SDL_FRect minusBtn = { midX - 180.0f, 750.0f, 80.0f, 50.0f };
+    SDL_FRect plusBtn  = { midX + 100.0f,  750.0f, 80.0f, 50.0f };
+
+    // 2. Render background button boxes using your existing templates
+    SDL_RenderTexture(app->renderer, app->buttonHovered, NULL, &minusBtn);
+    SDL_RenderTexture(app->renderer, app->buttonHovered, NULL, &plusBtn);
+
+    // 3. Draw text indicators on the buttons
+    drawText(app, app->font, "-", minusBtn);
+    drawText(app, app->font, "+", plusBtn);
+
+    // 4. Handle Left-Click Interactions to step volume up or down by 10% increments
+    if (app->input.mouseLeftPressed)
+    {
+        if (SDL_PointInRectFloat(&mousePos, &minusBtn))
+        {
+            app->masterVolume -= 0.1f;
+            if (app->masterVolume < 0.0f) app->masterVolume = 0.0f; // Clamp lower bound
+            
+            // Instantly apply volume reduction to active playing streams
+            if (app->menuMusic.stream) SDL_SetAudioStreamGain(app->menuMusic.stream, app->masterVolume);
+            if (app->techTreeMusic.stream) SDL_SetAudioStreamGain(app->techTreeMusic.stream, app->masterVolume);
+        }
+        
+        if (SDL_PointInRectFloat(&mousePos, &plusBtn))
+        {
+            app->masterVolume += 0.1f;
+            if (app->masterVolume > 1.0f) app->masterVolume = 1.0f; // Clamp upper bound
+            
+            // Instantly apply volume increase to active playing streams
+            if (app->menuMusic.stream) SDL_SetAudioStreamGain(app->menuMusic.stream, app->masterVolume);
+            if (app->techTreeMusic.stream) SDL_SetAudioStreamGain(app->techTreeMusic.stream, app->masterVolume);
+        }
+    }
+
+    // 5. Draw a readout text box to display current volume percentage
+    char volStr[32];
+    snprintf(volStr, sizeof(volStr), "VOLUME: %d%%", (int)(app->masterVolume * 100.0f));
+    SDL_FRect displayRect = { midX - 60.0f, 750.0f, 120.0f, 50.0f };
+    drawText(app, app->font, volStr, displayRect);
 }

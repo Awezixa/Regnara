@@ -42,7 +42,7 @@ void turnUI(AppState *app);
 void playButton(AppState *app);
 void drawPauseMenu(AppState *app);
 void unitIconUI(AppState *app);
-void townAmountTextUI(AppState *app, int owner, SDL_FRect container);
+//void townAmountTextUI(AppState *app, int owner, SDL_FRect container);
 void drawEndScreen(AppState *app);
 void mainMenuButton(AppState *app);
 void optionsButton(AppState *app);
@@ -52,6 +52,7 @@ void playerRectangles(AppState *app);
 void drawSinglePlayerStatus(AppState *app, SDL_FRect panel, const char* title, int playerNum);
 void drawOptions(AppState *app);
 void drawTextWrapped(AppState *app, TTF_Font *font, const char *text, SDL_FRect container, int wrapLengthPixels);
+void volumeControls(AppState *app);
 //Tiago
 UIState getPieceUIState(AppState *app, pieceType type);
 pieceType getUpgradeType(pieceType type);

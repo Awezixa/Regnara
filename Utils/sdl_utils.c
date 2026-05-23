@@ -60,47 +60,80 @@ bool init_sound(const char *fname, Sound *sound)
     SDL_AudioSpec spec;
     char *wav_path = NULL;
 
-    /* Load the .wav files from wherever the app is being run from. */
     printf("Loading sound from file: %s%s\n", SDL_GetBasePath(), fname);
-    SDL_asprintf(&wav_path, "%s%s", SDL_GetBasePath(), fname); /* allocate a string of the full file path */
+    SDL_asprintf(&wav_path, "%s%s", SDL_GetBasePath(), fname);
     if (!SDL_LoadWAV(wav_path, &spec, &sound->wav_data, &sound->wav_data_len))
     {
         SDL_Log("Couldn't load .wav file: %s", SDL_GetError());
         return false;
     }
 
-    /* Create an audio stream. Set the source format to the wav's format (what
-       we'll input), leave the dest format NULL here (it'll change to what the
-       device wants once we bind it). */
+    // ========================================================================
+    // CALCULATION: Calculate precise playback runtime using track parameters
+    // ========================================================================
+    int bytesPerSample = SDL_AUDIO_BITSIZE(spec.format) / 8;
+    
+    sound->duration = (float)sound->wav_data_len / (spec.channels * bytesPerSample * spec.freq);
+    sound->playbackTimer = 0.0f; // Track is initialized fresh
+
     sound->stream = SDL_CreateAudioStream(&spec, NULL);
     if (!sound->stream)
     {
         SDL_Log("Couldn't create audio stream: %s", SDL_GetError());
     }
     else if (!SDL_BindAudioStream(audio_device, sound->stream))
-    { /* once bound, it'll start playing when there is data available! */
+    { 
         SDL_Log("Failed to bind '%s' stream to device: %s", fname, SDL_GetError());
     }
     else
     {
-        retval = true; /* success! */
+        // NO MORE BACKGROUND CALLBACK DECLARATIONS NEEDED
+        retval = true;
     }
 
-    SDL_free(wav_path); /* done with this string. */
+    SDL_free(wav_path);
     return retval;
 }
 
 void playSound(Sound *sound)
 {
+    if (!sound->stream) return;
+
+    sound->playbackTimer = sound->duration;
+
     SDL_ClearAudioStream(sound->stream);
-    if (SDL_GetAudioStreamQueued(sound->stream) < ((int)sound->wav_data_len))
-        SDL_PutAudioStreamData(sound->stream, sound->wav_data, (int)sound->wav_data_len);
+    SDL_PutAudioStreamData(sound->stream, sound->wav_data, (int)sound->wav_data_len);
+    
+    // FETCH AND APPLY ACTIVE VOLUME AUTOMATICALLY BEFORE FLUSHING
+    // (Note: To access app->masterVolume, ensure playSound reads the state variable or pulls a local application instance)
+    SDL_FlushAudioStream(sound->stream);
 }
 
 void stopSound(Sound *sound)
 {
+    if (!sound->stream) return;
+    
     SDL_ClearAudioStream(sound->stream);
+    sound->playbackTimer = 0.0f; // Reset execution counter to zero
 }
+
+// Callback function that automatically refills the stream when it needs data
+static void SDLCALL LoopAudioCallback(void *userdata, SDL_AudioStream *stream, int additional_amount, int total_amount)
+{
+    Sound *sound = (Sound *)userdata;
+    (void)stream;
+    (void)additional_amount;
+    (void)total_amount;
+
+    // If the hardware needs more audio data, loop our WAV chunk back into the stream
+    if (SDL_GetAudioStreamQueued(sound->stream) < (int)sound->wav_data_len)
+    {
+        SDL_PutAudioStreamData(sound->stream, sound->wav_data, (int)sound->wav_data_len);
+    }
+}
+
+
+
 
 SDL_Texture *sdl_load_texture(SDL_Renderer *renderer, const char *file_path)
 {

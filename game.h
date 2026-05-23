@@ -398,6 +398,11 @@ typedef struct AppState
     Camera camera;
     Vec2 worldSize;
 
+    //Audio
+    Sound menuMusic;
+    Sound techTreeMusic;
+    float masterVolume;
+
     float camX;
     float camY;
     float pivotX;

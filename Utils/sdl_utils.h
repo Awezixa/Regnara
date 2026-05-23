@@ -16,17 +16,23 @@ SDL_Renderer *sdl_initialize_renderer(SDL_Window *window);
 // =======================================================
 // SOUND
 // =======================================================
+
 typedef struct Sound
 {
     Uint8 *wav_data;
     Uint32 wav_data_len;
     SDL_AudioStream *stream;
+    
+    // NEW SIMPLIFIED TRACKERS
+    float duration;      // The total length of the audio track in seconds
+    float playbackTimer; // Time remaining for the current loop iteration
 } Sound;
 
 int sdl_initialize_audio();
 bool init_sound(const char *fname, Sound *sound);
 void playSound(Sound *sound);
 void stopSound(Sound *sound);
+static void SDLCALL LoopAudioCallback(void *userdata, SDL_AudioStream *stream, int additional_amount, int total_amount);
 
 // =======================================================
 // TEXTURE

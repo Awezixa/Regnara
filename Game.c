@@ -17,7 +17,6 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     (void)argv; // unused
 
     AppState *app = (AppState *)SDL_calloc(1, sizeof(AppState));
-    
     if (!app)
     {
         SDL_Log("Out of memory.");
@@ -25,7 +24,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     }
     *appstate = app;
 
-    if (!SDL_Init(SDL_INIT_VIDEO))
+    if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO))
     {
         SDL_Log("SDL_Init failed: %s", SDL_GetError());
         return SDL_APP_FAILURE;
@@ -55,9 +54,22 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
         return SDL_APP_FAILURE;
     }
 
+    //Audio initialization(s)
+    if (sdl_initialize_audio() == SDL_APP_FAILURE)
+    {
+        SDL_Log("Audio system failed to initialize. Continuing without sound.");
+    }
+    else
+    {
+        init_sound("Assets/audio/regnaraMenuMusic.wav", &app->menuMusic);
+        init_sound("Assets/audio/techTreeMusic.wav", &app->techTreeMusic);
+       
+    }
+
     if (!LoadAllGameTextures(app)) {
         return SDL_APP_FAILURE; 
     }
+
 
     //other game initializations
     app->gameState = STATE_MENU;
@@ -93,6 +105,9 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     app->errorTimer = 0.0f;
     app->inGame = false;
     app->showTechTree = false;
+    
+    app->masterVolume = 0.7f;
+
     // TECH TREE INIT
     initTechTree(&app->techTreeP1);
     initTechTree(&app->techTreeP2);
@@ -101,6 +116,17 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 
     app->lastTicksMS = SDL_GetTicks();
     app->dt = 0.0f;
+
+    // HARD RESET: Lock the tech tree music tracking values on startup
+    stopSound(&app->techTreeMusic);
+
+    // PLAY: Wake up the main menu theme cleanly
+    if (app->menuMusic.stream)
+    {
+        playSound(&app->menuMusic);
+    }
+    
+
     return SDL_APP_CONTINUE;
 }
 
@@ -230,6 +256,21 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     app->lastTicksMS = nowMS;
     app->dt = (float)elapsedMS / 1000.0f;
 
+if (app->gameState == STATE_MENU && app->menuMusic.stream)
+    {
+        app->menuMusic.playbackTimer -= app->dt;
+        if (app->menuMusic.playbackTimer <= 0.0f) {
+            playSound(&app->menuMusic); // Rewinds and loops theme naturally
+        }
+    }
+    else if (app->gameState == TECH_TREE && app->techTreeMusic.stream)
+    {
+        app->techTreeMusic.playbackTimer -= app->dt;
+        if (app->techTreeMusic.playbackTimer <= 0.0f) {
+            playSound(&app->techTreeMusic); // Rewinds and loops tech theme naturally
+        }
+    }
+
     SDL_SetRenderDrawColor(app->renderer, 0, 0, 0, 255);
     SDL_RenderClear(app->renderer);
 
@@ -247,9 +288,10 @@ SDL_AppResult SDL_AppIterate(void *appstate)
             SDL_FPoint mousePos = {app->input.mouseX, app->input.mouseY};
             
             if (SDL_PointInRectFloat(&mousePos, &app->playbutton)){
+                stopSound(&app->menuMusic); // Resets timer to 0
                 resetGame(app);
                 app->gameState = STATE_PLAYING;
-            }                
+            }          
 
             if (SDL_PointInRectFloat(&mousePos, &app->quitbutton)){
                 return SDL_APP_SUCCESS;
@@ -265,41 +307,51 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 case STATE_PLAYING:
     {
         app->inGame = true;
-        updateGame(app); // Run core gameplay
+        updateGame(app); // Run core gameplay normally
         break;
     }
 
     case TECH_TREE:
     {
+
         app->inGame = true;
         
-        // 1. Keep rendering map/UI elements in the background
-        updateGame(app); 
+        // 2. STATIC BACKGROUND LAYER RENDERING
+        // We call these baseline functions manually to freeze inputs while keeping the map visible underneath!
+        UpdateCamera(app);
+        renderMap(app->renderer, app);
+        drawTerritory(app);
+        renderPiece(app);
+        if (app->selectedPiece != NULL) {
+            PossibleMovesShow(app, app->selectedPiece);
+        }
+        turnUI(app);
+        playerRectangles(app);
+        gameUI(app);
 
-        // 2. Draw screen-dimming overlay barrier
+        // 3. DRAW TECH TREE WINDOW BARRIER OVERLAY ON TOP
         SDL_SetRenderDrawBlendMode(app->renderer, SDL_BLENDMODE_BLEND);
-        SDL_SetRenderDrawColor(app->renderer, 0, 0, 0, 150); 
+        SDL_SetRenderDrawColor(app->renderer, 0, 0, 0, 150);
         SDL_FRect screen = {0, 0, WINDOW_WIDTH, WINDOW_HEIGHT};
         SDL_RenderFillRect(app->renderer, &screen);
 
-        // 3. Let techTreeOverlay handle drawing AND button clicks cleanly
         techTreeOverlay(app);
 
-        // 4. Track gold feedback timers
+        // Handle purchasing gold feedback error alerts safely
         if (app->errorTimer > 0.0f) {
             app->errorTimer -= app->dt;
             SDL_FRect errPos = { 400, 800, 400, 255 };
             drawText(app, app->font, "Not enough gold!", errPos);
         }
 
-        // 5. ISOLATED WINDOW EXITS: Prevents key bleeding back to state machine
-        if (app->input.keyPressed[SDL_SCANCODE_ESCAPE]) {
-            app->gameState = STATE_PLAYING;
+        // 4. CLEAN EXITS: Gracefully stop the track and shift states back to active gameplay
+        if (app->input.keyPressed[SDL_SCANCODE_ESCAPE] || app->input.keyPressed[SDL_SCANCODE_T]) 
+        {
+            stopSound(&app->techTreeMusic); // Turn off the track, sets counter to 0
+            app->gameState = STATE_PLAYING; // Return to standard map view
         }
-        // if (app->input.keyReleased[SDL_SCANCODE_T]) {
-        //     app->gameState = STATE_PLAYING;
-        // }
-        break;
+
+        break;   
     }
 
     case STATE_OPTIONS:
@@ -337,6 +389,11 @@ case STATE_PLAYING:
             }
             if (SDL_PointInRectFloat(&mousePos, &app->mainmenubutton)){
                 //add confirmation quit screen
+                stopSound(&app->techTreeMusic);
+                
+                // Restart and re-loop the title screen menu music
+                playSound(&app->menuMusic);
+                
                 app->gameState = STATE_MENU;
             }
 
@@ -374,8 +431,15 @@ void SDL_AppQuit(void *appstate, SDL_AppResult result)
     //clean up
     (void)result;
     AppState *app = (AppState *)appstate;
-    if (!app)
-        return;
+    if (!app) return;
+
+
+    if (app->menuMusic.stream) {
+        stopSound(&app->menuMusic);
+        SDL_DestroyAudioStream(app->menuMusic.stream);
+        SDL_free(app->menuMusic.wav_data);
+    }
+
     if(app->pieces)free(app->pieces);
     //add function to destroy all textures
     CleanupAllTextures(app);
@@ -388,6 +452,28 @@ void SDL_AppQuit(void *appstate, SDL_AppResult result)
     SDL_Quit();
     SDL_free(app);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// =========================
+// OTHER FUNCTIONS
+// =========================
+
+
 
 void UpdateCamera(AppState *app){
     InputState *in = &app->input;
@@ -588,42 +674,26 @@ void updateGame(AppState *app) {
     playerRectangles(app);
     gameUI(app); // Draws standard action bar HUD panel
 
-    if (!app->showTechTree && app->input.mouseLeftPressed) {
+    if (app->input.mouseLeftPressed) {
         if (SDL_PointInRectFloat(&mousePos, &app->endTurnButton)) {
             endTurn(app);
         }
     }
 
     // =========================================================
-    // 5. DRAW FOREMOST FOREGROUND OVERLAY (Tech Tree Interface)
+    // 5. TECH TREE TRANSITION TRIGGER (State Machine Switch Only)
     // =========================================================
     if (app->input.keyPressed[SDL_SCANCODE_T] || 
        (app->input.mouseLeftPressed && SDL_PointInRectFloat(&mousePos, &app->techTreeButton))) 
     {
-        app->showTechTree = !app->showTechTree; // Toggle logic flag safely
-    }
-
-    if (app->showTechTree) 
-    {
-        if (app->input.keyPressed[SDL_SCANCODE_ESCAPE]) {
-            app->showTechTree = false; // Gracefully shut down interface panel
-        }
-
-        // Blend dimming screen barrier filter
-        SDL_SetRenderDrawBlendMode(app->renderer, SDL_BLENDMODE_BLEND);
-        SDL_SetRenderDrawColor(app->renderer, 0, 0, 0, 150);
-        SDL_FRect screen = {0, 0, WINDOW_WIDTH, WINDOW_HEIGHT};
-        SDL_RenderFillRect(app->renderer, &screen);
-
-        // Draw structural asset maps and handle interactive coordinate inputs
-        techTreeOverlay(app);
-
-        // Error message popup alerts
-        if (app->errorTimer > 0.0f) {
-            app->errorTimer -= app->dt;
-            SDL_FRect errPos = { 400, 800, 400, 255 };
-            drawText(app, app->font, "Not enough gold!", errPos);
-        }
+        // Hard-stop anything playing in the background match view
+        stopSound(&app->menuMusic);
+        
+        // Start playing the tech theme exactly once on this trigger frame
+        playSound(&app->techTreeMusic);
+        
+        // Switch execution state layers safely
+        app->gameState = TECH_TREE; 
     }
 
     winCondition(app); // Process target objective evaluations
@@ -710,6 +780,7 @@ void resetGame(AppState *app) {
 
     app->P2.p2Gold = 10;
     app->P2.towns = 0;
+
     app->P2.pieceCount = 0;
 
     app->cheats = false;
