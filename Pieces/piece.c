@@ -103,56 +103,151 @@ void renderPiece(AppState *app)
 
             SDL_Texture *tex = NULL;
             // to swap between textures for 2 players
-            if (app->pieces[i].owner == 1)
+        if (app->pieces[i].owner == 1)
+        {
+            switch (app->pieces[i].type)
             {
-                switch (app->pieces[i].type)
-                {
-                    case PAWN:tex = app->bluePawnTexture;break;
-                    case KNIGHT:tex = app->blueKnightTexture;break;
-                    case BISHOP:tex = app->blueBishopTexture;break;
-                    case ROOK:tex = app->blueRookTexture;break;
-                    case QUEEN:tex = app->blueQueenTexture;break;
-                    case KING:tex = app->blueKingTexture;break;
-                    case ENVOY:tex = app->blueEnvoyTexture;break;
-                    case LANCER: tex = app->blueLancerTexture; break;
-                    case MAGE: tex = app->blueMageTexture; break;
-                    case CATAPULT: tex = app->blueCatapultTexture; break;
-                    default: tex = app->bluePawnTexture; break;
-                }
-            }
-            else
-            {
-                switch (app->pieces[i].type)
-                {
-                    case PAWN:tex = app->redPawnTexture;break;
-                    case KNIGHT:tex = app->redKnightTexture;break;
-                    case BISHOP:tex = app->redBishopTexture;break;
-                    case ROOK:tex = app->redRookTexture;break;
-                    case QUEEN:tex = app->redQueenTexture;break;
-                    case KING:tex = app->redKingTexture;break;
-                    case ENVOY:tex = app->redEnvoyTexture;break;
-                    case LANCER: tex = app->redLancerTexture; break;
-                    case MAGE: tex = app->redMageTexture; break;
-                    case CATAPULT: tex = app->redCatapultTexture; break;
-                    default: tex = app->redPawnTexture;break;
-                }
-            }
+                case PAWN:
+                    tex = app->pieces[i].moved
+                        ? app->bluePawnUsedTexture
+                        : app->bluePawnTexture;
+                    break;
 
-            if (tex)
-            {
+                case KNIGHT:
+                    tex = app->pieces[i].moved
+                        ? app->blueKnightUsedTexture
+                        : app->blueKnightTexture;
+                    break;
 
-                if (app->pieces[i].moved == true)
-                {
-                    SDL_SetTextureAlphaMod(tex, 110);
-                }
-                else{
-                    SDL_SetTextureAlphaMod(tex, 255);
-                }
-                
-                SDL_RenderTexture(app->renderer, tex, NULL, &p);
+                case BISHOP:
+                    tex = app->pieces[i].moved
+                        ? app->blueBishopUsedTexture
+                        : app->blueBishopTexture;
+                    break;
+
+                case ROOK:
+                    tex = app->pieces[i].moved
+                        ? app->blueRookUsedTexture
+                        : app->blueRookTexture;
+                    break;
+
+                case QUEEN:
+                    tex = app->pieces[i].moved
+                        ? app->blueQueenUsedTexture
+                        : app->blueQueenTexture;
+                    break;
+
+                case KING:
+                    tex = app->pieces[i].moved
+                        ? app->blueKingUsedTexture
+                        : app->blueKingTexture;
+                    break;
+
+                case ENVOY:
+                    tex = app->pieces[i].moved
+                        ? app->blueEnvoyUsedTexture
+                        : app->blueEnvoyTexture;
+                    break;
+
+                case LANCER:
+                    tex = app->pieces[i].moved
+                        ? app->blueLancerUsedTexture
+                        : app->blueLancerTexture;
+                    break;
+
+                case MAGE:
+                    tex = app->pieces[i].moved
+                        ? app->blueMageUsedTexture
+                        : app->blueMageTexture;
+                    break;
+
+                case CATAPULT:
+                    tex = app->pieces[i].moved
+                        ? app->blueCatapultUsedTexture
+                        : app->blueCatapultTexture;
+                    break;
+
+                default:
+                    tex = app->bluePawnTexture;
+                    break;
             }
         }
+        else
+        {
+            switch (app->pieces[i].type)
+            {
+                case PAWN:
+                    tex = app->pieces[i].moved
+                        ? app->redPawnUsedTexture
+                        : app->redPawnTexture;
+                    break;
+
+                case KNIGHT:
+                    tex = app->pieces[i].moved
+                        ? app->redKnightUsedTexture
+                        : app->redKnightTexture;
+                    break;
+
+                case BISHOP:
+                    tex = app->pieces[i].moved
+                        ? app->redBishopUsedTexture
+                        : app->redBishopTexture;
+                    break;
+
+                case ROOK:
+                    tex = app->pieces[i].moved
+                        ? app->redRookUsedTexture
+                        : app->redRookTexture;
+                    break;
+
+                case QUEEN:
+                    tex = app->pieces[i].moved
+                        ? app->redQueenUsedTexture
+                        : app->redQueenTexture;
+                    break;
+
+                case KING:
+                    tex = app->pieces[i].moved
+                        ? app->redKingUsedTexture
+                        : app->redKingTexture;
+                    break;
+
+                case ENVOY:
+                    tex = app->pieces[i].moved
+                        ? app->redEnvoyUsedTexture
+                        : app->redEnvoyTexture;
+                    break;
+
+                case LANCER:
+                    tex = app->pieces[i].moved
+                        ? app->redLancerUsedTexture
+                        : app->redLancerTexture;
+                    break;
+
+                case MAGE:
+                    tex = app->pieces[i].moved
+                        ? app->redMageUsedTexture
+                        : app->redMageTexture;
+                    break;
+
+                case CATAPULT:
+                    tex = app->pieces[i].moved
+                        ? app->redCatapultUsedTexture
+                        : app->redCatapultTexture;
+                    break;
+
+                default:
+                    tex = app->redPawnTexture;
+                    break;
+            }
+        }
+
+        if (tex)
+        {
+            SDL_RenderTexture(app->renderer, tex, NULL, &p);
+        }
     }
+}
 }
 
 bool isTileWalkable(int row, int col)

@@ -275,7 +275,7 @@ void unitIconUI(AppState *app)
             : &app->techTreeP2;
 
         float upgradePlatformX =
-            startX + (unitCount * spacing) + spacing;
+            startX - spacing-20;
 
         SDL_FRect platformButton = {
             upgradePlatformX,
@@ -349,7 +349,7 @@ void unitIconUI(AppState *app)
         if (upgradeType != KING)
         {
         SDL_FRect upgradeButton = {
-            startX + ((unitCount - 1) * spacing) + spacing,
+            startX + ((unitCount - 1) * spacing) + spacing + 20,
             WINDOW_HEIGHT - 160.0f,
             sizex,
             sizey
