@@ -414,6 +414,8 @@ bool LoadAllGameTextures(AppState *app) {
         {&app->UIBlueUpgPlatLocked,  "Assets/cards/blueCards/locked/upgPlat.png"},
         {&app->UIRedUpgPlatLocked,  "Assets/cards/redCards/locked/upgPlat.png"},
         {&app->UIRedUpgPlatAvailable,  "Assets/cards/redCards/available/upgPlat.png"},
+        {&app->UIRedUpgPlatUnavailable,  "Assets/cards/redCards/unavailable/upgPlat.png"},
+        {&app->UIBlueUpgPlatUnavailable,  "Assets/cards/blueCards/unavailable/upgPlat.png"},
         {&app->controlsTexture,  "Assets/UI/regnaraControls.png"}
     };
 
@@ -494,7 +496,9 @@ void CleanupAllTextures(AppState *app) {
         app->techTreeRedPawnBought, app->techTreeRedKnightBought, app->techTreeRedBishopBought, app->techTreeRedRookBought,
         app->techTreeRedQueenBought, app->techTreeRedEnvoyBought, app->techTreeRedLancerBought, app->techTreeRedMageBought,
         app->techTreeRedCatapultBought, app->techTreeRedGoldBought, app->techTreeRedPiecesBought, app->techTreeRedPlatformBought,
-        app->UIRedOverlayAvailable, app->UIBlueOverlayAvailable, app->UIRedOverlayUnavailable, app->UIBlueOverlayUnavailable, app->controlsTexture
+        app->UIRedOverlayAvailable, app->UIBlueOverlayAvailable, app->UIRedOverlayUnavailable, app->UIBlueOverlayUnavailable, app->controlsTexture,
+        app->UIBlueUpgPlatAvailable,app->UIBlueUpgPlatLocked,app->UIBlueUpgPlatUnavailable,
+        app->UIRedUpgPlatAvailable,app->UIRedUpgPlatLocked,app->UIRedUpgPlatUnavailable
     };
 
     int count = sizeof(allTextures) / sizeof(SDL_Texture*);

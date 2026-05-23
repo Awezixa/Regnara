@@ -265,7 +265,9 @@ void unitIconUI(AppState *app)
     // 3. UPGRADE PLATFORM BUTTON (7)
     // ----------------------------
 
-    if (app->selectedPiece && isSelectedPieceOnUpgradeTile(app))
+    if (app->selectedPiece &&
+    app->selectedPiece->type != KING &&
+    isSelectedPieceOnUpgradeTile(app))
     {
         TechTree *tree =
             (app->currentPlayer == 1)
@@ -282,19 +284,41 @@ void unitIconUI(AppState *app)
             sizey
         };
 
-        UIState state =
-            isUpgradePlatformUnlocked(tree)
-            ? UI_AVAILABLE
-            : UI_LOCKED;
+        UIState state;
 
-        SDL_Texture *tex =
-            (app->currentPlayer == 1)
-                ? (state == UI_AVAILABLE
-                    ? app->UIBlueUpgPlatAvailable
-                    : app->UIBlueUpgPlatLocked)
-                : (state == UI_AVAILABLE
-                    ? app->UIRedUpgPlatAvailable
-                    : app->UIRedUpgPlatLocked);
+        if (!isUpgradePlatformUnlocked(tree))
+        {
+            state = UI_LOCKED;
+        }
+        else if (app->selectedPiece->abilityUsed)
+        {
+            state = UI_UNAVAILABLE;
+        }
+        else
+        {
+            state = UI_AVAILABLE;
+        }
+
+        SDL_Texture *tex = NULL;
+
+        if (app->currentPlayer == 1)
+        {
+            if (state == UI_AVAILABLE)
+                tex = app->UIBlueUpgPlatAvailable;
+            else if (state == UI_UNAVAILABLE)
+                tex = app->UIBlueUpgPlatUnavailable;
+            else
+                tex = app->UIBlueUpgPlatLocked;
+        }
+        else
+        {
+            if (state == UI_AVAILABLE)
+                tex = app->UIRedUpgPlatAvailable;
+            else if (state == UI_UNAVAILABLE)
+                tex = app->UIRedUpgPlatUnavailable;
+            else
+                tex = app->UIRedUpgPlatLocked;
+        }
 
         SDL_RenderTexture(app->renderer, tex, NULL, &platformButton);
 
@@ -307,7 +331,7 @@ void unitIconUI(AppState *app)
             {
                 if (state == UI_AVAILABLE)
                 {
-                    printf("Upgrade Platform clicked!\n");
+                    useUpgradePlatform(app, app->selectedPiece);
                 }
             }
         }

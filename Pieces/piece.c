@@ -420,3 +420,112 @@ pieceType getUpgradeType(pieceType type)
         default:
     }
 }
+
+
+
+
+pieceType rollUpgradePlatformPiece(AppState *app)
+{
+    TechTree *tree =
+        (app->currentPlayer == 1)
+        ? &app->techTreeP1
+        : &app->techTreeP2;
+
+    int roll = rand() % 100;
+
+    switch(tree->upgradePlatformLevel)
+    {
+        case 1:
+
+            // Pawn 50%
+            if (roll < 50) return PAWN;
+
+            // Knight 25%
+            if (roll < 75) return KNIGHT;
+
+            // Bishop 13%
+            if (roll < 88) return BISHOP;
+
+            // Envoy 12%
+            return ENVOY;
+
+        case 2:
+
+            // Pawn 35%
+            if (roll < 35) return PAWN;
+
+            // Knight 25%
+            if (roll < 60) return KNIGHT;
+
+            // Bishop 15%
+            if (roll < 75) return BISHOP;
+
+            // Envoy 10%
+            if (roll < 85) return ENVOY;
+
+            // Lancer 7%
+            if (roll < 92) return LANCER;
+
+            // Mage 5%
+            if (roll < 97) return MAGE;
+
+            // Rook 3%
+            return ROOK;
+
+        case 3:
+
+            // Pawn 20%
+            if (roll < 20) return PAWN;
+
+            // Knight 17%
+            if (roll < 37) return KNIGHT;
+
+            // Bishop 12%
+            if (roll < 49) return BISHOP;
+
+            // Rook 15%
+            if (roll < 64) return ROOK;
+
+            // Envoy 8%
+            if (roll < 72) return ENVOY;
+
+            // Lancer 10%
+            if (roll < 82) return LANCER;
+
+            // Mage 8%
+            if (roll < 90) return MAGE;
+
+            // Catapult 7%
+            if (roll < 97) return CATAPULT;
+
+            // Queen 3%
+            return QUEEN;
+    }
+
+    return PAWN;
+}
+
+void useUpgradePlatform(AppState *app, Piece *piece)
+{
+    if (!piece || piece->type == KING || piece->abilityUsed) return;
+    if (!piece->active) return;
+
+    TechTree *tree =
+        (app->currentPlayer == 1)
+        ? &app->techTreeP1
+        : &app->techTreeP2;
+
+    // Need at least level 1
+    if (tree->upgradePlatformLevel <= 0) return;
+
+    pieceType newType =
+        rollUpgradePlatformPiece(app);
+
+    piece->type = newType;
+    piece->abilityUsed = true;
+
+    // Consumes move
+    piece->moved = true;
+
+    printf("Upgrade Platform rolled: %d\n", newType);
+}

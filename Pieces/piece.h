@@ -66,4 +66,7 @@ int countPiecesByType(AppState *app, int player, pieceType type);
 bool pieceUnlocked(AppState *app, pieceType type);
 bool pieceCountReached(AppState *app, pieceType type);
 
+pieceType rollUpgradePlatformPiece(AppState *app);
+void useUpgradePlatform(AppState *app, Piece *piece);
+
 #endif

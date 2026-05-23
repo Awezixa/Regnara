@@ -1,5 +1,7 @@
 #define SDL_MAIN_USE_CALLBACKS 1
 #include <SDL3/SDL_main.h>
+#include <stdlib.h>
+#include <time.h>
 
 //file includes
 #include "game.h"
@@ -633,7 +635,6 @@ void endTurn(AppState *app) {
     for (int i = 0; i < app->maxPieceCapacity; i++)
     {
         app->pieces[i].moved = false;
-        app->pieces[i].abilityUsed = false;
     }
 
     // 1. Process capture for the player who just finished their turn
@@ -723,6 +724,8 @@ void resetGame(AppState *app) {
 }
 
 void startGame(AppState *app){
+
+    srand(time(NULL));
 
     bool p1Spawned = false;
     bool p2Spawned = false;
