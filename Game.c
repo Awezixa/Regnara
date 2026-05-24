@@ -718,6 +718,9 @@ void endTurn(AppState *app) {
         app->turnCounter++;
     }
 
+    app->selectedPiece = NULL;
+    app->selectedPieceType = PAWN;
+
     snapToKing(app);
 
     // 3. Give gold to the NEW active player (start of turn income)

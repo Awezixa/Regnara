@@ -370,6 +370,8 @@ void unitIconUI(AppState *app)
                 {
                     app->selectedPiece->type = upgradeType;
 
+                    app->selectedPiece->moved = true;
+
                     // optional gold cost
                     int cost = pieceCost(upgradeType);
 
@@ -664,8 +666,8 @@ void drawOptions(AppState *app){
 
     SDL_GetTextureSize(app->controlsTexture, &imgW, &imgH);
 
-    float maxWidth = 1200.0f;
-    float maxHeight = 800.0f;
+    float maxWidth = 1920.0f;
+    float maxHeight = 1080.0f;
 
     float scale = imgW / imgH;
     
@@ -673,8 +675,8 @@ void drawOptions(AppState *app){
     app->controlsRect.h = maxWidth / scale;
 
     
-    app->controlsRect.x = (float)(WINDOW_WIDTH - app->controlsRect.w) / 2.0f;
-    app->controlsRect.y = (float)(WINDOW_HEIGHT - app->controlsRect.h) / 2.0f;
+    app->controlsRect.x = 0;
+    app->controlsRect.y = 0;
 
     drawText(app, app->font, "OPTIONS", app->optText);
     SDL_RenderTexture(app->renderer, app->controlsTexture, NULL, &app->controlsRect);

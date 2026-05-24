@@ -618,6 +618,8 @@ void useUpgradePlatform(AppState *app, Piece *piece)
 
     piece->type = newType;
     piece->abilityUsed = true;
+    piece->moved = true;
+    app->selectedPiece = NULL;
 
     // Consumes move
     piece->moved = true;
