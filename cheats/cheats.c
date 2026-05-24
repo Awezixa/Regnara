@@ -29,6 +29,7 @@ void presetMatch(AppState *app) {
     app->P2.pieceCount = 0;
     app->P1.p1Gold = 26;
     app->P2.p2Gold = 57;
+    app->turnCounter = 23;
 
     for(int i = 0; i < app->maxPieceCapacity; i++) app->pieces[i].active = false;
 

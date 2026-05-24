@@ -751,7 +751,14 @@ void volumeControls(AppState *app){
             if (app->techTreeMusic.stream) SDL_SetAudioStreamGain(app->techTreeMusic.stream, app->masterVolume);
         }
     }
-
+    if (app->input.keyPressed[SDL_SCANCODE_M])
+    {
+        app->masterVolume = 0.0f;
+        
+        if (app->menuMusic.stream) SDL_SetAudioStreamGain(app->menuMusic.stream, app->masterVolume);
+        if (app->techTreeMusic.stream) SDL_SetAudioStreamGain(app->techTreeMusic.stream, app->masterVolume);
+    }
+    
     // 5. Draw a readout text box to display current volume percentage
     char volStr[32];
     snprintf(volStr, sizeof(volStr), "VOLUME: %d%%", (int)(app->masterVolume * 100.0f));

@@ -285,46 +285,53 @@ bool pieceSpawnable(AppState *app, int player)
 
     TechTree *tree = (player == 1) ? &app->techTreeP1 : &app->techTreeP2;
     //add unlock checks here for pieces
-    if (app->selectedPieceType == KNIGHT && !tree->upgrades[0].unlocked)//checking if prev node unlocked need update it
+if (app->selectedPieceType == KNIGHT && !tree->upgrades[0].unlocked)
     {
         app->errorTimer = 2.0f;
         return false;
     }
 
-    if (app->selectedPieceType == BISHOP && !tree->upgrades[1].unlocked)//checking if prev node unlocked need update it
+    if (app->selectedPieceType == ENVOY && !tree->upgrades[1].unlocked)
     {
         app->errorTimer = 2.0f;
         return false;
     }
 
-    if (app->selectedPieceType == ROOK && !tree->upgrades[2].unlocked)//checking if prev node unlocked need update it
-    {
-        app->errorTimer = 2.0f;
-        return false;
-    }
-    if (app->selectedPieceType == QUEEN && !tree->upgrades[3].unlocked)//checking if prev node unlocked need update it
-    {
-        app->errorTimer = 2.0f;
-        return false;
-    }
-     if (app->selectedPieceType == ENVOY && !tree->upgrades[5].unlocked)//checking if prev node unlocked need update it
-    {
-        app->errorTimer = 2.0f;
-        return false;
-    }
-    if (app->selectedPieceType == MAGE && !tree->upgrades[6].unlocked)//checking if prev node unlocked need update it
-    {
-        app->errorTimer = 2.0f;
-        return false;
-    }
-     if (app->selectedPieceType == CATAPULT && !tree->upgrades[7].unlocked)//checking if prev node unlocked need update it
+    if (app->selectedPieceType == ROOK && !tree->upgrades[4].unlocked)
     {
         app->errorTimer = 2.0f;
         return false;
     }
 
+    if (app->selectedPieceType == BISHOP && !tree->upgrades[5].unlocked)
+    {
+        app->errorTimer = 2.0f;
+        return false;
+    }
 
+    if (app->selectedPieceType == LANCER && !tree->upgrades[6].unlocked)
+    {
+        app->errorTimer = 2.0f;
+        return false;
+    }
 
+    if (app->selectedPieceType == MAGE && !tree->upgrades[7].unlocked)
+    {
+        app->errorTimer = 2.0f;
+        return false;
+    }
+
+    if (app->selectedPieceType == CATAPULT && !tree->upgrades[8].unlocked)
+    {
+        app->errorTimer = 2.0f;
+        return false;
+    }
+
+    if (app->selectedPieceType == QUEEN && !tree->upgrades[9].unlocked)
+    {
+        app->errorTimer = 2.0f;
+        return false;
+    }
 
     if (app->selectedPieceType == KING)return false;
 
