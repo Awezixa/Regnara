@@ -296,9 +296,13 @@ if (app->gameState == STATE_MENU && app->menuMusic.stream)
             if (SDL_PointInRectFloat(&mousePos, &app->quitbutton)){
                 return SDL_APP_SUCCESS;
             }
+
+            if (SDL_PointInRectFloat(&mousePos, &app->optionsbutton)){
+                app->gameState = STATE_OPTIONS;
+            }
         }
 
-        if (app->input.keyPressed[SDL_SCANCODE_SPACE])
+        if (app->input.keyPressed[SDL_SCANCODE_SPACE]||app->input.keyPressed[SDL_SCANCODE_KP_ENTER])
             app->gameState = STATE_PLAYING;
 
         break;

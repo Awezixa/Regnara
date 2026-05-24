@@ -11,6 +11,7 @@ void drawMainMenu(AppState *app)
     SDL_RenderTexture(app->renderer, app->logoTexture, NULL, &dst);
 
     playButton(app); // play button
+    optionsButton(app);
     quitButton(app);
 }
 
@@ -37,8 +38,8 @@ void quitButton(AppState *app)
 
     app->quitbutton.w = wB;
     app->quitbutton.h = hB;
-    app->quitbutton.x = (float)(WINDOW_WIDTH / 2);
-    app->quitbutton.y = 500.0f;
+    app->quitbutton.x = (float)(WINDOW_WIDTH / 2) - (app->quitbutton.w/2);
+    app->quitbutton.y = 600.0f;
 
     SDL_RenderTexture(app->renderer, app->buttonHovered, NULL, &app->quitbutton);
     drawText(app, app->font, "QUIT", app->quitbutton);
@@ -120,7 +121,7 @@ void drawPauseMenu(AppState *app)
     // add resume button
     quitPauseButton(app);
     mainMenuButton(app);
-    optionsButton(app);
+    pauseOptionsButton(app);
 }
 
 void gameUI(AppState *app)
@@ -147,7 +148,6 @@ void gameUI(AppState *app)
     SDL_SetRenderDrawColor(app->renderer, 200, 200, 200, 255); // Solid light gray
     SDL_RenderRect(app->renderer, &uiPanel);
     unitIconUI(app);
-    //buildingIconUI(app);
     techTreeButton(app);
     endTurnButton(app);
 }
@@ -407,7 +407,7 @@ void quitPauseButton(AppState *app){
 
     app->quitbutton.w = wB;
     app->quitbutton.h = hB;
-    app->quitbutton.x = (float)(WINDOW_WIDTH / 2) - (app->quitbutton.w/2);
+    app->quitbutton.x = (float)(WINDOW_WIDTH / 2)- (app->quitbutton.w/2);
     app->quitbutton.y = 500.0f;
 
     SDL_RenderTexture(app->renderer, app->buttonHovered, NULL, &app->quitbutton);
@@ -433,7 +433,20 @@ void optionsButton(AppState *app){
 
     app->optionsbutton.w = wB;
     app->optionsbutton.h = hB;
-    app->optionsbutton.x = (float)(WINDOW_WIDTH / 2) - (app->optionsbutton.w/2);
+    app->optionsbutton.x = (float)(WINDOW_WIDTH / 2);
+    app->optionsbutton.y = 500.0f;
+
+    SDL_RenderTexture(app->renderer, app->buttonHovered, NULL, &app->optionsbutton);
+    drawText(app, app->font, "OPTIONS", app->optionsbutton);
+}
+
+void pauseOptionsButton(AppState *app){
+float wB, hB;
+    SDL_GetTextureSize(app->buttonHovered, &wB, &hB);
+
+    app->optionsbutton.w = wB;
+    app->optionsbutton.h = hB;
+    app->optionsbutton.x = (float)(WINDOW_WIDTH / 2)- (app->quitbutton.w/2);
     app->optionsbutton.y = 400.0f;
 
     SDL_RenderTexture(app->renderer, app->buttonHovered, NULL, &app->optionsbutton);

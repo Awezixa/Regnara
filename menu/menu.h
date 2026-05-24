@@ -53,6 +53,7 @@ void drawSinglePlayerStatus(AppState *app, SDL_FRect panel, const char* title, i
 void drawOptions(AppState *app);
 void drawTextWrapped(AppState *app, TTF_Font *font, const char *text, SDL_FRect container, int wrapLengthPixels);
 void volumeControls(AppState *app);
+void pauseOptionsButton(AppState *app);
 //Tiago
 UIState getPieceUIState(AppState *app, pieceType type);
 pieceType getUpgradeType(pieceType type);
