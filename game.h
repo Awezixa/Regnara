@@ -377,7 +377,7 @@ typedef struct AppState
 
     //menu & UI textures
     SDL_Texture *buttonOn;
-    SDL_Texture *buttonHovered;
+    SDL_Texture *buttonOff;
     SDL_Texture *goldTexture;
     SDL_Texture *techTreeBackground;
     SDL_FRect playbutton;

@@ -215,7 +215,7 @@ bool LoadAllGameTextures(AppState *app) {
         // UI & Logo
         {&app->logoTexture, "Assets/images/regnaraLogo.png"},
         {&app->buttonOn, "Assets/UI/menus/buttonOn.png"},
-        {&app->buttonHovered, "Assets/UI/menus/buttonOff.png"},
+        {&app->buttonOff, "Assets/UI/menus/buttonOff.png"},
         {&app->blueInfoBox, "Assets/UI/inRound/goldBlue.png"},
         {&app->redInfoBox, "Assets/UI/inRound/goldRed.png"},
         {&app->techTreeBackground, "Assets/techTree/techTreeBackground.png"},
@@ -477,7 +477,7 @@ void CleanupAllTextures(AppState *app) {
         app->shoreBottomTexture, app->shoreTopLeftTexture, app->shoreBottomLeftTexture, 
         app->shoreTopRightTexture, app->shoreBottomRightTexture, app->shoreCornerTopLeftTexture, 
         app->shoreCornerBottomLeftTexture, app->shoreCornerTopRightTexture, app->shoreCornerBottomRightTexture,
-        app->logoTexture, app->buttonOn, app->buttonHovered, 
+        app->logoTexture, app->buttonOn, app->buttonOff, 
         app->blueInfoBox, app->blueInfoBox,
         app->bluePawnTexture, app->blueKnightTexture, app->blueBishopTexture, 
         app->blueRookTexture, app->blueQueenTexture, app->blueKingTexture,

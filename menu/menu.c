@@ -11,38 +11,17 @@ void drawMainMenu(AppState *app)
     SDL_RenderTexture(app->renderer, app->logoTexture, NULL, &dst);
 
     playButton(app); // play button
-    optionsButton(app);
     quitButton(app);
 }
 
-// Xavier
-void playButton(AppState *app)
-{
-    float wB, hB;
-    SDL_GetTextureSize(app->buttonOn, &wB, &hB);
+void playButton(AppState *app){
 
-    app->playbutton.w = wB;
-    app->playbutton.h = hB;
-    app->playbutton.x = (float)(WINDOW_WIDTH / 2) - app->playbutton.w - 50;
-    app->playbutton.y = 500.0f;
-
-    SDL_RenderTexture(app->renderer, app->buttonOn, NULL, &app->playbutton);
-    drawText(app, app->font, "PLAY", app->playbutton);
+    drawButton(app, &app->playbutton, "PLAY", (float)(WINDOW_WIDTH / 2) - app->playbutton.w - 50, 500.0f);
 }
 
-// Xavier
-void quitButton(AppState *app)
-{
-    float wB, hB;
-    SDL_GetTextureSize(app->buttonHovered, &wB, &hB);
+void quitButton(AppState *app){
 
-    app->quitbutton.w = wB;
-    app->quitbutton.h = hB;
-    app->quitbutton.x = (float)(WINDOW_WIDTH / 2) - (app->quitbutton.w/2);
-    app->quitbutton.y = 600.0f;
-
-    SDL_RenderTexture(app->renderer, app->buttonHovered, NULL, &app->quitbutton);
-    drawText(app, app->font, "QUIT", app->quitbutton);
+    drawButton(app, &app->quitbutton, "QUIT", (float)(WINDOW_WIDTH / 2), 500.0f);
 }
 
 // Xavier
@@ -76,21 +55,107 @@ void drawText(AppState *app, TTF_Font *font, const char *text, SDL_FRect contain
     SDL_DestroyTexture(texture);
 }
 
-// Xavier
+void drawButton(AppState *app,
+                  SDL_FRect *buttonRect,
+                  const char *text,
+                  float x,
+                  float y)
+{
+    SDL_FPoint mousePoint = {
+        app->input.mouseX,
+        app->input.mouseY
+    };
+
+    // Set position first
+    buttonRect->x = x;
+    buttonRect->y = y;
+
+    // Detect hover
+    bool hovered =
+        SDL_PointInRectFloat(&mousePoint, buttonRect);
+
+    // Pick texture
+    SDL_Texture *buttonTex =
+        hovered ? app->buttonOn : app->buttonOff;
+
+    // Get texture size
+    float w, h;
+    SDL_GetTextureSize(buttonTex, &w, &h);
+
+    buttonRect->w = w;
+    buttonRect->h = h;
+
+    // Re-check hover now that size exists
+    hovered =
+        SDL_PointInRectFloat(&mousePoint, buttonRect);
+
+    // Re-pick texture
+    buttonTex =
+        hovered ? app->buttonOn : app->buttonOff;
+
+    // Draw button
+    SDL_RenderTexture(app->renderer,
+                      buttonTex,
+                      NULL,
+                      buttonRect);
+
+    // Text color
+    SDL_Color textColor;
+
+    if (hovered)
+    {
+        textColor = (SDL_Color){0, 0, 0, 255};
+    }
+    else
+    {
+        textColor = (SDL_Color){255, 255, 255, 255};
+    }
+
+    // Create text surface
+    SDL_Surface *surface =
+        TTF_RenderText_Blended(app->font,
+                               text,
+                               0,
+                               textColor);
+
+    if (!surface)
+        return;
+
+    // Create text texture
+    SDL_Texture *textTexture =
+        SDL_CreateTextureFromSurface(app->renderer,
+                                     surface);
+
+    SDL_DestroySurface(surface);
+
+    if (!textTexture)
+        return;
+
+    // Center text
+    float textW, textH;
+    SDL_GetTextureSize(textTexture, &textW, &textH);
+
+    SDL_FRect textRect = {
+        buttonRect->x + (buttonRect->w - textW) / 2.0f,
+        buttonRect->y + (buttonRect->h - textH) / 2.0f,
+        textW,
+        textH
+    };
+
+    // Draw text
+    SDL_RenderTexture(app->renderer,
+                      textTexture,
+                      NULL,
+                      &textRect);
+
+    SDL_DestroyTexture(textTexture);
+}
+
 void endTurnButton(AppState *app)
 {
-    float wB, hB;
-    SDL_GetTextureSize(app->buttonOn, &wB, &hB);
-
     float scale = 1.0f;
 
-    app->endTurnButton.w = wB * scale;
-    app->endTurnButton.h = hB * scale;
-    app->endTurnButton.x = WINDOW_WIDTH - app->endTurnButton.w - 20.0f;
-    app->endTurnButton.y = WINDOW_HEIGHT - app->endTurnButton.h - 20.0f;
-
-    SDL_RenderTexture(app->renderer, app->buttonOn, NULL, &app->endTurnButton);
-    drawText(app, app->font, "END TURN", app->endTurnButton);
+    drawButton(app, &app->endTurnButton, "END TURN", WINDOW_WIDTH - app->endTurnButton.w - 20.0f, WINDOW_HEIGHT - app->endTurnButton.h - 20.0f);
 }
 
 void turnUI(AppState *app)
@@ -121,7 +186,7 @@ void drawPauseMenu(AppState *app)
     // add resume button
     quitPauseButton(app);
     mainMenuButton(app);
-    pauseOptionsButton(app);
+    optionsButton(app);
 }
 
 void gameUI(AppState *app)
@@ -148,6 +213,7 @@ void gameUI(AppState *app)
     SDL_SetRenderDrawColor(app->renderer, 200, 200, 200, 255); // Solid light gray
     SDL_RenderRect(app->renderer, &uiPanel);
     unitIconUI(app);
+    //buildingIconUI(app);
     techTreeButton(app);
     endTurnButton(app);
 }
@@ -402,68 +468,23 @@ void drawEndScreen(AppState *app){
 }
 
 void quitPauseButton(AppState *app){
-    float wB, hB;
-    SDL_GetTextureSize(app->buttonHovered, &wB, &hB);
 
-    app->quitbutton.w = wB;
-    app->quitbutton.h = hB;
-    app->quitbutton.x = (float)(WINDOW_WIDTH / 2)- (app->quitbutton.w/2);
-    app->quitbutton.y = 500.0f;
-
-    SDL_RenderTexture(app->renderer, app->buttonHovered, NULL, &app->quitbutton);
-    drawText(app, app->font, "QUIT", app->quitbutton);
+    drawButton(app, &app->quitbutton, "QUIT", (float)(WINDOW_WIDTH / 2) - (app->quitbutton.w/2), 500.0f);
 }
 
 void mainMenuButton(AppState *app){
-    float wB, hB;
-    SDL_GetTextureSize(app->buttonHovered, &wB, &hB);
 
-    app->mainmenubutton.w = wB;
-    app->mainmenubutton.h = hB;
-    app->mainmenubutton.x = (float)(WINDOW_WIDTH / 2) - (app->mainmenubutton.w/2);
-    app->mainmenubutton.y = 300.0f;
-
-    SDL_RenderTexture(app->renderer, app->buttonHovered, NULL, &app->mainmenubutton);
-    drawText(app, app->font, "MAIN MENU", app->mainmenubutton);
+    drawButton(app, &app->mainmenubutton, "MAIN MENU", (float)(WINDOW_WIDTH / 2) - (app->mainmenubutton.w/2), 300.0f);
 }
 
 void optionsButton(AppState *app){
-    float wB, hB;
-    SDL_GetTextureSize(app->buttonHovered, &wB, &hB);
 
-    app->optionsbutton.w = wB;
-    app->optionsbutton.h = hB;
-    app->optionsbutton.x = (float)(WINDOW_WIDTH / 2);
-    app->optionsbutton.y = 500.0f;
-
-    SDL_RenderTexture(app->renderer, app->buttonHovered, NULL, &app->optionsbutton);
-    drawText(app, app->font, "OPTIONS", app->optionsbutton);
-}
-
-void pauseOptionsButton(AppState *app){
-float wB, hB;
-    SDL_GetTextureSize(app->buttonHovered, &wB, &hB);
-
-    app->optionsbutton.w = wB;
-    app->optionsbutton.h = hB;
-    app->optionsbutton.x = (float)(WINDOW_WIDTH / 2)- (app->quitbutton.w/2);
-    app->optionsbutton.y = 400.0f;
-
-    SDL_RenderTexture(app->renderer, app->buttonHovered, NULL, &app->optionsbutton);
-    drawText(app, app->font, "OPTIONS", app->optionsbutton);
+    drawButton(app, &app->optionsbutton, "OPTIONS", (float)(WINDOW_WIDTH / 2) - (app->optionsbutton.w/2), 400.0f);
 }
 
 void techTreeButton(AppState *app){
-    float wB, hB;
-    SDL_GetTextureSize(app->buttonHovered, &wB, &hB);
 
-    app->techTreeButton.w = wB;
-    app->techTreeButton.h = hB;
-    app->techTreeButton.x = 150.0f;
-    app->techTreeButton.y = WINDOW_HEIGHT - app->techTreeButton.h - 20.0f;
-
-    SDL_RenderTexture(app->renderer, app->buttonHovered, NULL, &app->techTreeButton);
-    drawText(app, app->font, "TECH TREE", app->techTreeButton);    
+    drawButton(app, &app->techTreeButton, "TECH TREE", 150.0f, WINDOW_HEIGHT - app->techTreeButton.h - 20.0f);
 }
 
 void playerRectangles(AppState *app) {
@@ -733,11 +754,9 @@ void volumeControls(AppState *app){
     SDL_FRect minusBtn = { midX - 180.0f, 750.0f, 80.0f, 50.0f };
     SDL_FRect plusBtn  = { midX + 100.0f,  750.0f, 80.0f, 50.0f };
 
-    // 2. Render background button boxes using your existing templates
-    SDL_RenderTexture(app->renderer, app->buttonHovered, NULL, &minusBtn);
-    SDL_RenderTexture(app->renderer, app->buttonHovered, NULL, &plusBtn);
+    SDL_RenderTexture(app->renderer, app->buttonOff, NULL, &minusBtn);
+    SDL_RenderTexture(app->renderer, app->buttonOff, NULL, &plusBtn);
 
-    // 3. Draw text indicators on the buttons
     drawText(app, app->font, "-", minusBtn);
     drawText(app, app->font, "+", plusBtn);
 
@@ -764,14 +783,7 @@ void volumeControls(AppState *app){
             if (app->techTreeMusic.stream) SDL_SetAudioStreamGain(app->techTreeMusic.stream, app->masterVolume);
         }
     }
-    if (app->input.keyPressed[SDL_SCANCODE_M])
-    {
-        app->masterVolume = 0.0f;
-        
-        if (app->menuMusic.stream) SDL_SetAudioStreamGain(app->menuMusic.stream, app->masterVolume);
-        if (app->techTreeMusic.stream) SDL_SetAudioStreamGain(app->techTreeMusic.stream, app->masterVolume);
-    }
-    
+
     // 5. Draw a readout text box to display current volume percentage
     char volStr[32];
     snprintf(volStr, sizeof(volStr), "VOLUME: %d%%", (int)(app->masterVolume * 100.0f));
