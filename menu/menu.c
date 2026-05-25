@@ -11,20 +11,27 @@ void drawMainMenu(AppState *app)
     SDL_RenderTexture(app->renderer, app->logoTexture, NULL, &dst);
 
     playButton(app); // play button
+    optionsButton(app);
     quitButton(app);
 }
 
+//main menu buttons
 void playButton(AppState *app){
 
-    drawButton(app, &app->playbutton, "PLAY", (float)(WINDOW_WIDTH / 2) - app->playbutton.w - 50, 500.0f);
+    drawButton(app, &app->playbutton, "PLAY", (float)(WINDOW_WIDTH / 2) - (app->playbutton.w/2), 500.0f);
 }
 
 void quitButton(AppState *app){
 
-    drawButton(app, &app->quitbutton, "QUIT", (float)(WINDOW_WIDTH / 2), 500.0f);
+    drawButton(app, &app->quitbutton, "QUIT", (float)(WINDOW_WIDTH / 2) - (app->playbutton.w/2), 700.0f);
 }
 
-// Xavier
+void pauseOptionsButton(AppState *app){
+    drawButton(app, &app->optionsbutton, "OPTIONS", (float)(WINDOW_WIDTH / 2) - (app->optionsbutton.w/2), 400.0f);
+}
+
+//other ui Helpers
+
 void drawText(AppState *app, TTF_Font *font, const char *text, SDL_FRect container)
 {
     SDL_Color black = {255, 255, 255, 255}; // can change colour if needed
@@ -55,12 +62,7 @@ void drawText(AppState *app, TTF_Font *font, const char *text, SDL_FRect contain
     SDL_DestroyTexture(texture);
 }
 
-void drawButton(AppState *app,
-                  SDL_FRect *buttonRect,
-                  const char *text,
-                  float x,
-                  float y)
-{
+void drawButton(AppState *app, SDL_FRect *buttonRect, const char *text, float x, float y){
     SDL_FPoint mousePoint = {
         app->input.mouseX,
         app->input.mouseY
@@ -185,7 +187,7 @@ void drawPauseMenu(AppState *app)
     // add resume button
     quitPauseButton(app);
     mainMenuButton(app);
-    optionsButton(app);
+    pauseOptionsButton(app);
 }
 
 void gameUI(AppState *app)
@@ -452,21 +454,8 @@ void unitIconUI(AppState *app)
     }
 }
 
-void drawEndScreen(AppState *app){
-    char winner[62];
-    snprintf(winner, sizeof(winner), "PLAYER %d VICTORY!!!", app->winner);
-    SDL_FRect textPos = {
-        900.0f,                 // X padding from left
-        (WINDOW_HEIGHT / 2) - 100, // Y position inside panel
-        120.0f,                 // Width
-        120.0f                  // Height
-    };
 
-    endMainMenuButton(app);
-    endQuitButton(app);
-    drawText(app, app->font, winner, textPos);
-}
-
+// pause UI
 void quitPauseButton(AppState *app){
 
     drawButton(app, &app->quitbutton, "QUIT", (float)(WINDOW_WIDTH / 2) - (app->quitbutton.w/2), 500.0f);
@@ -479,9 +468,89 @@ void mainMenuButton(AppState *app){
 
 void optionsButton(AppState *app){
 
-    drawButton(app, &app->optionsbutton, "OPTIONS", (float)(WINDOW_WIDTH / 2) - (app->optionsbutton.w/2), 400.0f);
+    drawButton(app, &app->optionsbutton, "OPTIONS", (float)(WINDOW_WIDTH / 2) - (app->optionsbutton.w/2), 600.0f);
 }
 
+void drawOptions(AppState *app){
+
+    app->optText.x = (float)((WINDOW_WIDTH)/2.0f) - 50.0f;
+    app->optText.y = 150.0f;
+    app->optText.w = 100.0f;
+    app->optText.h = 50.0f;    
+
+    float imgW, imgH;
+
+    SDL_GetTextureSize(app->controlsTexture, &imgW, &imgH);
+
+    float maxWidth = 1920.0f;
+    float maxHeight = 1080.0f;
+
+    float scale = imgW / imgH;
+    
+    app->controlsRect.w = maxWidth;
+    app->controlsRect.h = maxWidth / scale;
+
+    
+    app->controlsRect.x = 0;
+    app->controlsRect.y = 0;
+
+    drawText(app, app->font, "OPTIONS", app->optText);
+    SDL_RenderTexture(app->renderer, app->controlsTexture, NULL, &app->controlsRect);
+
+    volumeControls(app);
+}
+
+// Inside menu.c — Updated for left-alignment below the title area
+void volumeControls(AppState *app){
+    SDL_FPoint mousePos = {app->input.mouseX, app->input.mouseY};
+
+    // ========================================================================
+    // FIXED: Shifted coordinates left (X = 100-250) and upwards (Y = 230)
+    // ========================================================================
+    float leftMargin = 100.0f;
+    float rowY = 230.0f; // Positioned safely underneath the 150.0f Options Title
+
+    SDL_FRect plusBtn  = { leftMargin,          rowY, 80.0f, 50.0f }; // [+] Button
+    SDL_FRect minusBtn = { leftMargin + 90.0f,   rowY, 80.0f, 50.0f }; // [-] Button next to it
+
+    SDL_RenderTexture(app->renderer, app->buttonOff, NULL, &minusBtn);
+    SDL_RenderTexture(app->renderer, app->buttonOff, NULL, &plusBtn);
+
+    drawText(app, app->font, "-", minusBtn);
+    drawText(app, app->font, "+", plusBtn);
+
+    // Handle Left-Click Interactions to step volume up or down by 10% increments
+    if (app->input.mouseLeftPressed)
+    {
+        if (SDL_PointInRectFloat(&mousePos, &minusBtn))
+        {
+            app->masterVolume -= 0.1f;
+            if (app->masterVolume < 0.0f) app->masterVolume = 0.0f;
+            
+            if (app->menuMusic.stream) SDL_SetAudioStreamGain(app->menuMusic.stream, app->masterVolume);
+            if (app->techTreeMusic.stream) SDL_SetAudioStreamGain(app->techTreeMusic.stream, app->masterVolume);
+        }
+        
+        if (SDL_PointInRectFloat(&mousePos, &plusBtn))
+        {
+            app->masterVolume += 0.1f;
+            if (app->masterVolume > 1.0f) app->masterVolume = 1.0f;
+            
+            if (app->menuMusic.stream) SDL_SetAudioStreamGain(app->menuMusic.stream, app->masterVolume);
+            if (app->techTreeMusic.stream) SDL_SetAudioStreamGain(app->techTreeMusic.stream, app->masterVolume);
+        }
+    }
+
+    // Draw the volume percentage text readout box cleanly to the right of both buttons
+    char volStr[32];
+    snprintf(volStr, sizeof(volStr), "VOLUME: %d%%", (int)(app->masterVolume * 100.0f));
+    
+    // Placed at X = 290 to sit on the same horizontal row beside the controls
+    SDL_FRect displayRect = { leftMargin + 190.0f, rowY, 180.0f, 50.0f };
+    drawText(app, app->font, volStr, displayRect);
+}
+
+//player ui 
 void techTreeButton(AppState *app){
 
     drawButton(app, &app->techTreeButton, "TECH TREE", 150.0f, WINDOW_HEIGHT - app->techTreeButton.h - 20.0f);
@@ -689,36 +758,6 @@ SDL_Texture *getPieceTexture(AppState *app, pieceType type, UIState state)
     }
 }
 
-void drawOptions(AppState *app){
-
-    app->optText.x = (float)((WINDOW_WIDTH)/2.0f) - 50.0f;
-    app->optText.y = 150.0f;
-    app->optText.w = 100.0f;
-    app->optText.h = 50.0f;    
-
-    float imgW, imgH;
-
-    SDL_GetTextureSize(app->controlsTexture, &imgW, &imgH);
-
-    float maxWidth = 1920.0f;
-    float maxHeight = 1080.0f;
-
-    float scale = imgW / imgH;
-    
-    app->controlsRect.w = maxWidth;
-    app->controlsRect.h = maxWidth / scale;
-
-    
-    app->controlsRect.x = 0;
-    app->controlsRect.y = 0;
-
-    drawText(app, app->font, "OPTIONS", app->optText);
-    SDL_RenderTexture(app->renderer, app->controlsTexture, NULL, &app->controlsRect);
-
-    volumeControls(app);
-}
-
-
 void drawTextWrapped(AppState *app, TTF_Font *font, const char *text, SDL_FRect container, int wrapLengthPixels)
 {
     SDL_Color white = {255, 255, 255, 255};
@@ -746,57 +785,28 @@ void drawTextWrapped(AppState *app, TTF_Font *font, const char *text, SDL_FRect 
     SDL_DestroyTexture(texture);
 }
 
-void volumeControls(AppState *app){
-    SDL_FPoint mousePos = {app->input.mouseX, app->input.mouseY};
-    float midX = (float)WINDOW_WIDTH / 2.0f;
 
-    // 1. Define bounds for a Minus Button (-) and a Plus Button (+)
-    SDL_FRect minusBtn = { midX - 180.0f, 750.0f, 80.0f, 50.0f };
-    SDL_FRect plusBtn  = { midX + 100.0f,  750.0f, 80.0f, 50.0f };
 
-    SDL_RenderTexture(app->renderer, app->buttonOff, NULL, &minusBtn);
-    SDL_RenderTexture(app->renderer, app->buttonOff, NULL, &plusBtn);
+//end screen UI
+void drawEndScreen(AppState *app){
+    char winner[62];
+    snprintf(winner, sizeof(winner), "PLAYER %d VICTORY!!!", app->winner);
+    SDL_FRect textPos = {
+        900.0f,                 // X padding from left
+        (WINDOW_HEIGHT / 2) - 100, // Y position inside panel
+        120.0f,                 // Width
+        120.0f                  // Height
+    };
 
-    drawText(app, app->font, "-", minusBtn);
-    drawText(app, app->font, "+", plusBtn);
-
-    // 4. Handle Left-Click Interactions to step volume up or down by 10% increments
-    if (app->input.mouseLeftPressed)
-    {
-        if (SDL_PointInRectFloat(&mousePos, &minusBtn))
-        {
-            app->masterVolume -= 0.1f;
-            if (app->masterVolume < 0.0f) app->masterVolume = 0.0f; // Clamp lower bound
-            
-            // Instantly apply volume reduction to active playing streams
-            if (app->menuMusic.stream) SDL_SetAudioStreamGain(app->menuMusic.stream, app->masterVolume);
-            if (app->techTreeMusic.stream) SDL_SetAudioStreamGain(app->techTreeMusic.stream, app->masterVolume);
-        }
-        
-        if (SDL_PointInRectFloat(&mousePos, &plusBtn))
-        {
-            app->masterVolume += 0.1f;
-            if (app->masterVolume > 1.0f) app->masterVolume = 1.0f; // Clamp upper bound
-            
-            // Instantly apply volume increase to active playing streams
-            if (app->menuMusic.stream) SDL_SetAudioStreamGain(app->menuMusic.stream, app->masterVolume);
-            if (app->techTreeMusic.stream) SDL_SetAudioStreamGain(app->techTreeMusic.stream, app->masterVolume);
-        }
-    }
-
-    // 5. Draw a readout text box to display current volume percentage
-    char volStr[32];
-    snprintf(volStr, sizeof(volStr), "VOLUME: %d%%", (int)(app->masterVolume * 100.0f));
-    SDL_FRect displayRect = { midX - 60.0f, 750.0f, 120.0f, 50.0f };
-    drawText(app, app->font, volStr, displayRect);
+    endMainMenuButton(app);
+    endQuitButton(app);
+    drawText(app, app->font, winner, textPos);
 }
-
-
-
 
 void endMainMenuButton(AppState *app){
     drawButton(app, &app->mainmenubutton, "MAIN MENU", (float)(WINDOW_WIDTH / 2) - (app->mainmenubutton.w/2), 550.0f);
 }
+
 void endQuitButton(AppState *app){
     drawButton(app, &app->quitbutton, "QUIT", (float)(WINDOW_WIDTH / 2) - (app->quitbutton.w/2), 650.0f);
 }

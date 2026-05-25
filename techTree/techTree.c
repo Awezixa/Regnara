@@ -7,10 +7,6 @@
 
 Piece Upgrades
 
-
-Building upgrades
-- increased gold income
-
 Generic/ random upgrades
 - 25% to gain half captured piece value
 
@@ -583,7 +579,7 @@ void descBox(AppState *app, Upgrade *u) {
     {
         snprintf(buttonText,
                 sizeof(buttonText),
-                "UNLOCK - %d GOLD",
+                "UNLOCK - %d G",
                 u->cost);
     }
 
