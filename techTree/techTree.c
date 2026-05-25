@@ -179,70 +179,113 @@ bool unlockUpgrade(TechTree *tree, int index, int *gold)
 
 void techTreeOverlay(AppState *app)
 {
-    SDL_FRect bgPos = { 100.0f, (WINDOW_HEIGHT - 800) / 2.0f, 1200, 800 };
-    SDL_RenderTexture(app->renderer, app->techTreeBackground, NULL, &bgPos);
-
-    // 1. Identify which tree to display
-    TechTree *tree = (app->currentPlayer == 1) ? &app->techTreeP1 : &app->techTreeP2;
-    int *gold = (app->currentPlayer == 1) ? &app->P1.p1Gold : &app->P2.p2Gold;
-
-
-    SDL_FRect titleRect = {900, 50, 400, 60};
-    drawText(app, app->fontLarge, "TECH TREE", titleRect);
-
-    //button positions
-    static const SDL_FRect buttonPositions[MAX_UPGRADES] = {
-        { 470, 640, 140, 45 },  //  0 Knight (Center row, 2nd card)
-        { 315, 870, 140, 45 },  //  1 Envoy (Bottom row, 1st card)
-        { 300, 480, 160, 45 },  //  2 Town Income (Middle-Left)
-        { 315, 300,  140, 45 },  //  3 UPG PLAT I (Top row, 1st card)
-        { 840, 520, 140, 45 }, //  4 Rook (Far right, top of split)
-        { 650, 645, 140, 45 },  //  5 Bishop (Center row, 3rd card)
-        { 470, 870, 140, 45 },  //  6 Lancer (Bottom row, 2nd card)
-        { 650, 870, 140, 45 },  //  7 Mage (Bottom row, 3rd card)
-        { 840, 870, 140, 45 }, //  8 Catapult (Bottom row, 4th card)
-        { 1065, 690, 140, 45 }, //  9 Queen (Final card)
-        { 480, 480, 150, 45 }, // 10 Spawn Extra (Far right label)
-        { 552, 300,  140, 45 },  // 11 UPG PLAT II (Top row, 2nd card)
-        { 790, 300,  140, 45 }, // 12 UPG PLAT III (Top row, 3rd card)
+    SDL_FRect bgPos = {
+        100.0f,
+        (WINDOW_HEIGHT - 800) / 2.0f,
+        1300,
+        731
     };
 
-    Upgrade *hoveredUpgrade = NULL; // Tracks which element the cursor is hovering over
-    SDL_FPoint mouse = {app->input.mouseX, app->input.mouseY};
-    
-    for (int i = 0; i < MAX_UPGRADES; i++) {
-        // Skip indices that don't have a name yet
-        if (strlen(tree->upgrades[i].name) == 0) continue;
+    SDL_RenderTexture(app->renderer,
+                      app->techTreeBackground,
+                      NULL,
+                      &bgPos);
 
-        SDL_FRect btnRect = buttonPositions[i];
-        SDL_FRect textRect = btnRect;
-        textRect.y += 5; // Slight nudge to center text vertically in the button
+    TechTree *tree =
+        (app->currentPlayer == 1)
+        ? &app->techTreeP1
+        : &app->techTreeP2;
 
-        if (SDL_PointInRectFloat(&mouse, &btnRect)) {
-            hoveredUpgrade = &tree->upgrades[i];
+    int *gold =
+        (app->currentPlayer == 1)
+        ? &app->P1.p1Gold
+        : &app->P2.p2Gold;
+
+    SDL_FRect titleRect = {
+        900,
+        50,
+        400,
+        60
+    };
+
+    drawText(app,
+             app->fontLarge,
+             "TECH TREE",
+             titleRect);
+
+    /*
+        THESE are now the REAL node/icon positions.
+        Adjust these until they perfectly line up
+        with the circles/icons on your background.
+    */
+    static const SDL_FRect nodePositions[MAX_UPGRADES] =
+    {
+        { 422 +100.0f, 351 + ((WINDOW_HEIGHT - 800) / 2.0f), 87, 109 },   // Knight
+        { 275 +100.0f, 554 + ((WINDOW_HEIGHT - 800) / 2.0f), 87, 109 },   // Envoy
+        { 275 +100.0f, 209 + ((WINDOW_HEIGHT - 800) / 2.0f), 87, 109 },   // Town Income
+        { 275 +100.0f, 30 + ((WINDOW_HEIGHT - 800) / 2.0f), 87, 109 },   // Platform I
+        { 827 +100.0f, 242 + ((WINDOW_HEIGHT - 800) / 2.0f), 87, 109 },   // Rook
+        { 628 +100.0f, 351 + ((WINDOW_HEIGHT - 800) / 2.0f), 87, 109 },   // Bishop
+        { 422 +100.0f, 554 + ((WINDOW_HEIGHT - 800) / 2.0f), 87, 109 },   // Lancer
+        { 628 +100.0f, 554 + ((WINDOW_HEIGHT - 800) / 2.0f), 87, 109 },   // Mage
+        { 827 +100.0f, 554 + ((WINDOW_HEIGHT - 800) / 2.0f), 87, 109 },   // Catapult
+        { 1078 +100.0f, 399 + ((WINDOW_HEIGHT - 800) / 2.0f), 87, 109 },  // Queen
+        { 422 +100.0f, 209 + ((WINDOW_HEIGHT - 800) / 2.0f), 87, 109 },   // Unit Cap
+        { 523 +100.0f, 30 + ((WINDOW_HEIGHT - 800) / 2.0f), 87, 109 },   // Platform II
+        { 777 +100.0f, 30 + ((WINDOW_HEIGHT - 800) / 2.0f), 87, 109 }    // Platform III
+    };
+
+    SDL_FPoint mouse = {
+        app->input.mouseX,
+        app->input.mouseY
+    };
+
+    /*
+        Persistent selected node
+    */
+    static int selectedUpgrade = -1;
+
+    for (int i = 0; i < MAX_UPGRADES; i++)
+    {
+        if (strlen(tree->upgrades[i].name) == 0)
+            continue;
+
+        SDL_FRect nodeRect = nodePositions[i];
+
+        TechNodeState state =
+            getTechState(tree, i, *gold);
+
+        SDL_Texture *tex =
+            getTechTexture(app, i, state);
+
+        if (tex)
+        {
+            SDL_RenderTexture(app->renderer,
+                              tex,
+                              NULL,
+                              &nodeRect);
         }
 
-        // Draw visual state
-        if (tree->upgrades[i].unlocked) {
-            SDL_SetRenderDrawColor(app->renderer, 40, 180, 40, 200); // Semi-transparent green
-        } else {
-            SDL_SetRenderDrawColor(app->renderer, 80, 80, 80, 180);  // Semi-transparent grey
-        }
-        
-        SDL_RenderFillRect(app->renderer, &btnRect);
-        drawText(app, app->font, tree->upgrades[i].name, textRect);
-
-
-        // Handle Clicking
-        if (app->input.mouseLeftPressed) {
-            SDL_FPoint mouse = {app->input.mouseX, app->input.mouseY};
-            if (SDL_PointInRectFloat(&mouse, &btnRect)) {
-                unlockUpgrade(tree, i, gold);
+        /*
+            Clicking a node selects it
+        */
+        if (app->input.mouseLeftPressed)
+        {
+            if (SDL_PointInRectFloat(&mouse,
+                                     &nodeRect))
+            {
+                selectedUpgrade = i;
             }
         }
     }
-    if (hoveredUpgrade != NULL) {
-        descBox(app, hoveredUpgrade);
+
+    /*
+        Draw selected node description
+    */
+    if (selectedUpgrade != -1)
+    {
+        descBox(app,
+                &tree->upgrades[selectedUpgrade]);
     }
 }
 
@@ -252,6 +295,207 @@ bool isUpgradeUnlocked(TechTree *tree, int index)
     if (index < 0 || index >= MAX_UPGRADES) return false;
 
     return tree->upgrades[index].unlocked;
+}
+
+TechNodeState getTechState(TechTree *tree, int index, int currentGold)
+{
+    Upgrade *u = &tree->upgrades[index];
+
+    if (u->unlocked)
+        return TECH_BOUGHT;
+
+    // Requirement check
+    if (u->required1 != -1 &&
+        !tree->upgrades[u->required1].unlocked)
+        return TECH_LOCKED;
+
+    if (u->required2 != -1 &&
+        !tree->upgrades[u->required2].unlocked)
+        return TECH_LOCKED;
+
+    // Gold check
+    if (currentGold < u->cost)
+        return TECH_LOCKED;
+
+    return TECH_BUYABLE;
+}
+
+SDL_Texture *getTechTexture(AppState *app, int index, TechNodeState state)
+{
+    int p1 = (app->currentPlayer == 1);
+
+    switch(index)
+    {
+        // 0 - Knight
+        case 0:
+            if (p1)
+            {
+                if (state == TECH_BOUGHT) return app->techTreeBlueKnightBought;
+                if (state == TECH_BUYABLE) return app->techTreeBlueKnightBuyable;
+                return app->techTreeBlueKnightLocked;
+            }
+            else
+            {
+                if (state == TECH_BOUGHT) return app->techTreeRedKnightBought;
+                if (state == TECH_BUYABLE) return app->techTreeRedKnightBuyable;
+                return app->techTreeRedKnightLocked;
+            }
+
+        // 1 - Envoy
+        case 1:
+            if (p1)
+            {
+                if (state == TECH_BOUGHT) return app->techTreeBlueEnvoyBought;
+                if (state == TECH_BUYABLE) return app->techTreeBlueEnvoyBuyable;
+                return app->techTreeBlueEnvoyLocked;
+            }
+            else
+            {
+                if (state == TECH_BOUGHT) return app->techTreeRedEnvoyBought;
+                if (state == TECH_BUYABLE) return app->techTreeRedEnvoyBuyable;
+                return app->techTreeRedEnvoyLocked;
+            }
+
+        // 2 - Town Income
+        case 2:
+            if (p1)
+            {
+                if (state == TECH_BOUGHT) return app->techTreeBlueGoldBought;
+                if (state == TECH_BUYABLE) return app->techTreeBlueGoldBuyable;
+                return app->techTreeBlueGoldLocked;
+            }
+            else
+            {
+                if (state == TECH_BOUGHT) return app->techTreeRedGoldBought;
+                if (state == TECH_BUYABLE) return app->techTreeRedGoldBuyable;
+                return app->techTreeRedGoldLocked;
+            }
+
+        // 3 - Upgrade Platform I
+        case 3:
+        case 11:
+        case 12:
+            if (p1)
+            {
+                if (state == TECH_BOUGHT) return app->techTreeBluePlatformBought;
+                if (state == TECH_BUYABLE) return app->techTreeBluePlatformBuyable;
+                return app->techTreeBluePlatformLocked;
+            }
+            else
+            {
+                if (state == TECH_BOUGHT) return app->techTreeRedPlatformBought;
+                if (state == TECH_BUYABLE) return app->techTreeRedPlatformBuyable;
+                return app->techTreeRedPlatformLocked;
+            }
+
+        // 4 - Rook
+        case 4:
+            if (p1)
+            {
+                if (state == TECH_BOUGHT) return app->techTreeBlueRookBought;
+                if (state == TECH_BUYABLE) return app->techTreeBlueRookBuyable;
+                return app->techTreeBlueRookLocked;
+            }
+            else
+            {
+                if (state == TECH_BOUGHT) return app->techTreeRedRookBought;
+                if (state == TECH_BUYABLE) return app->techTreeRedRookBuyable;
+                return app->techTreeRedRookLocked;
+            }
+
+        // 5 - Bishop
+        case 5:
+            if (p1)
+            {
+                if (state == TECH_BOUGHT) return app->techTreeBlueBishopBought;
+                if (state == TECH_BUYABLE) return app->techTreeBlueBishopBuyable;
+                return app->techTreeBlueBishopLocked;
+            }
+            else
+            {
+                if (state == TECH_BOUGHT) return app->techTreeRedBishopBought;
+                if (state == TECH_BUYABLE) return app->techTreeRedBishopBuyable;
+                return app->techTreeRedBishopLocked;
+            }
+
+        // 6 - Lancer
+        case 6:
+            if (p1)
+            {
+                if (state == TECH_BOUGHT) return app->techTreeBlueLancerBought;
+                if (state == TECH_BUYABLE) return app->techTreeBlueLancerBuyable;
+                return app->techTreeBlueLancerLocked;
+            }
+            else
+            {
+                if (state == TECH_BOUGHT) return app->techTreeRedLancerBought;
+                if (state == TECH_BUYABLE) return app->techTreeRedLancerBuyable;
+                return app->techTreeRedLancerLocked;
+            }
+
+        // 7 - Mage
+        case 7:
+            if (p1)
+            {
+                if (state == TECH_BOUGHT) return app->techTreeBlueMageBought;
+                if (state == TECH_BUYABLE) return app->techTreeBlueMageBuyable;
+                return app->techTreeBlueMageLocked;
+            }
+            else
+            {
+                if (state == TECH_BOUGHT) return app->techTreeRedMageBought;
+                if (state == TECH_BUYABLE) return app->techTreeRedMageBuyable;
+                return app->techTreeRedMageLocked;
+            }
+
+        // 8 - Catapult
+        case 8:
+            if (p1)
+            {
+                if (state == TECH_BOUGHT) return app->techTreeBlueCatapultBought;
+                if (state == TECH_BUYABLE) return app->techTreeBlueCatapultBuyable;
+                return app->techTreeBlueCatapultLocked;
+            }
+            else
+            {
+                if (state == TECH_BOUGHT) return app->techTreeRedCatapultBought;
+                if (state == TECH_BUYABLE) return app->techTreeRedCatapultBuyable;
+                return app->techTreeRedCatapultLocked;
+            }
+
+        // 9 - Queen
+        case 9:
+            if (p1)
+            {
+                if (state == TECH_BOUGHT) return app->techTreeBlueQueenBought;
+                if (state == TECH_BUYABLE) return app->techTreeBlueQueenBuyable;
+                return app->techTreeBlueQueenLocked;
+            }
+            else
+            {
+                if (state == TECH_BOUGHT) return app->techTreeRedQueenBought;
+                if (state == TECH_BUYABLE) return app->techTreeRedQueenBuyable;
+                return app->techTreeRedQueenLocked;
+            }
+
+        // 10 - Unit Cap Increase
+        case 10:
+            if (p1)
+            {
+                if (state == TECH_BOUGHT) return app->techTreeBluePiecesBought;
+                if (state == TECH_BUYABLE) return app->techTreeBluePiecesBuyable;
+                return app->techTreeBluePiecesLocked;
+            }
+            else
+            {
+                if (state == TECH_BOUGHT) return app->techTreeRedPiecesBought;
+                if (state == TECH_BUYABLE) return app->techTreeRedPiecesBuyable;
+                return app->techTreeRedPiecesLocked;
+            }
+
+        default:
+            return NULL;
+    }
 }
 
 
@@ -291,15 +535,84 @@ void descBox(AppState *app, Upgrade *u) {
     SDL_FRect textGives = { panel.x + 20, panel.y + 360, maxTextWidth, 60 };
     drawTextWrapped(app, app->font, u->givesText, textGives, (int)maxTextWidth);
 
-    // 5. Draw Cost Action Status Footer
-    SDL_FRect costRect = { panel.x + 20, panel.y + 520, maxTextWidth, 40 };
-    char actionStr[64];
-    if (u->unlocked) {
-        snprintf(actionStr, sizeof(actionStr), "UPGRADE ACQUIRED");
-    } else {
-        snprintf(actionStr, sizeof(actionStr), "COST: %d GOLD", u->cost);
+    TechTree *tree =
+        (app->currentPlayer == 1)
+        ? &app->techTreeP1
+        : &app->techTreeP2;
+
+    int *gold =
+        (app->currentPlayer == 1)
+        ? &app->P1.p1Gold
+        : &app->P2.p2Gold;
+
+    SDL_FRect unlockButton = {
+        panel.x + 80,
+        panel.y + 500,
+        240,
+        70
+    };
+
+    TechNodeState state =
+        getTechState(tree,
+                    (int)(u - tree->upgrades),
+                    *gold);
+
+    SDL_Texture *buttonTex;
+
+    if (state == TECH_BOUGHT)
+        buttonTex = app->buttonOff;
+    else if (state == TECH_BUYABLE)
+        buttonTex = app->buttonOn;
+    else
+        buttonTex = app->buttonOff;
+
+    SDL_RenderTexture(app->renderer,
+                    buttonTex,
+                    NULL,
+                    &unlockButton);
+
+    char buttonText[64];
+
+    if (state == TECH_BOUGHT)
+    {
+        snprintf(buttonText,
+                sizeof(buttonText),
+                "UNLOCKED");
     }
-    drawText(app, app->font, actionStr, costRect);
+    else
+    {
+        snprintf(buttonText,
+                sizeof(buttonText),
+                "UNLOCK - %d GOLD",
+                u->cost);
+    }
+
+    drawText(app,
+            app->font,
+            buttonText,
+            unlockButton);
+
+    if (app->input.mouseLeftPressed)
+    {
+        SDL_FPoint mouse = {
+            app->input.mouseX,
+            app->input.mouseY
+        };
+
+        if (SDL_PointInRectFloat(&mouse,
+                                &unlockButton))
+        {
+            if (state == TECH_BUYABLE)
+            {
+                int index =
+                    (int)(u - tree->upgrades);
+
+                unlockUpgrade(tree,
+                            index,
+                            gold);
+            }
+        }
+    }
 
 }
 
