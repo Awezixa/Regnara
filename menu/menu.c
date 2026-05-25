@@ -265,9 +265,7 @@ void unitIconUI(AppState *app)
     float sizex = 96.0f;
     float sizey = 144.0f;
 
-    // ----------------------------
-    // 1. POSITION + DRAW UNIT ICONS
-    // ----------------------------
+
     for (int i = 0; i < unitCount; i++)
     {
         units[i].button->x = startX + (i * spacing);
@@ -314,9 +312,7 @@ void unitIconUI(AppState *app)
 
     }
 
-    // ----------------------------
-    // 2. CLICK SELECTION
-    // ----------------------------
+
     if (app->input.mouseLeftPressed)
     {
         for (int i = 0; i < unitCount; i++)
@@ -328,9 +324,6 @@ void unitIconUI(AppState *app)
         }
     }
 
-    // ----------------------------
-    // 3. UPGRADE PLATFORM BUTTON (7)
-    // ----------------------------
 
     if (app->selectedPiece &&
     app->selectedPiece->type != KING &&
@@ -404,9 +397,6 @@ void unitIconUI(AppState *app)
         }
     }
 
-    // ----------------------------
-    // 4. UPGRADE BUTTON
-    // ----------------------------
 
     if (app->selectedPiece != NULL)
     {
@@ -430,13 +420,11 @@ void unitIconUI(AppState *app)
 
         SDL_RenderTexture(app->renderer, tex, NULL, &upgradeButton);
 
-        if (app->input.mouseLeftPressed &&
-            SDL_PointInRectFloat(&mousePoint, &upgradeButton))
+        if (app->input.mouseLeftPressed && SDL_PointInRectFloat(&mousePoint, &upgradeButton))
             {
                 if (state == UI_AVAILABLE)
                 {
                     app->selectedPiece->type = upgradeType;
-
                     app->selectedPiece->moved = true;
 
                     // optional gold cost
@@ -447,10 +435,14 @@ void unitIconUI(AppState *app)
                     else
                         app->P2.p2Gold -= cost;
 
+                    app->lastInteractedPiece = app->selectedPiece;
+
+                    // FIXED: Reset selection values to prevent overlapping check loops
+                    app->selectedPieceType = KING; 
                     app->selectedPiece = NULL;
                 }
             }
-    }
+        }
     }
 }
 
@@ -504,14 +496,12 @@ void drawOptions(AppState *app){
 void volumeControls(AppState *app){
     SDL_FPoint mousePos = {app->input.mouseX, app->input.mouseY};
 
-    // ========================================================================
-    // FIXED: Shifted coordinates left (X = 100-250) and upwards (Y = 230)
-    // ========================================================================
+
     float leftMargin = 100.0f;
     float rowY = 230.0f; // Positioned safely underneath the 150.0f Options Title
 
-    SDL_FRect plusBtn  = { leftMargin,          rowY, 80.0f, 50.0f }; // [+] Button
-    SDL_FRect minusBtn = { leftMargin + 90.0f,   rowY, 80.0f, 50.0f }; // [-] Button next to it
+    SDL_FRect plusBtn  = { leftMargin + 90.0f, rowY, 80.0f, 50.0f }; // [+] Button
+    SDL_FRect minusBtn = { leftMargin,   rowY, 80.0f, 50.0f }; // [-] Button next to it
 
     SDL_RenderTexture(app->renderer, app->buttonOff, NULL, &minusBtn);
     SDL_RenderTexture(app->renderer, app->buttonOff, NULL, &plusBtn);

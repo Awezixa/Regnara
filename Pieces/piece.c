@@ -5,43 +5,80 @@ void spawnPiece(AppState *app)
 {
     if (app->selectedPiece != NULL){return;}
     
-    // 1. Check for click and use the dynamic capacity instead of MAX_PIECES
+    // Check for click and check baseline storage arrays
     if (app->input.mouseLeftPressed && app->pieceCount < app->maxPieceCapacity)
     {
-        if (pieceSpawnable(app, app->currentPlayer))
-        {
-            int cost = pieceCost(app->selectedPieceType);
-            int *playerGold = (app->currentPlayer == 1) ? &app->P1.p1Gold : &app->P2.p2Gold;
 
-            if (*playerGold < cost)
-            {
-               //add some indicator here
-               app->errorTimer = 1.5f;//UI feedback for not enough gold
+        if (app->input.mouseY >= WINDOW_HEIGHT - 150.0f) {
+            return;
+        }
+
+        if (app->selectedPiece != NULL) 
+        {
+            // Re-calculate the layout parameters used in menu.c dynamically
+            int unitCount = 5; 
+            float spacing = 120.0f;
+            float startX = (WINDOW_WIDTH / 2.0f) - (((unitCount - 1) * spacing) / 2.0f);
+            float sizex = 96.0f;
+            float sizey = 144.0f;
+
+            SDL_FRect upgradeBtnBound = {
+                startX + ((unitCount - 1) * spacing) + spacing + 20,
+                WINDOW_HEIGHT - 160.0f,
+                sizex,
+                sizey
+            };
+
+            SDL_FPoint mousePt = { app->input.mouseX, app->input.mouseY };
+
+            // If hovering over the upgrade box, drop out silently so menu.c can handle it!
+            if (SDL_PointInRectFloat(&mousePt, &upgradeBtnBound)) {
                 return;
             }
+        }
 
-            // 2. Convert screen position to world/grid coordinates
-            float worldX = (app->input.mouseX / app->camera.zoom) + app->camera.x;
-            float worldY = (app->input.mouseY / app->camera.zoom) + app->camera.y;
 
-            int col = (int)(worldX / TILE_SIZE);
-            int row = (int)(worldY / TILE_SIZE);
+        // Convert raw screen pixel vectors into absolute world grid coordinates safely
+        float worldX = (app->input.mouseX / app->camera.zoom) + app->camera.x;
+        float worldY = (app->input.mouseY / app->camera.zoom) + app->camera.y;
 
-            // 3. Cheat and Territory checks
-            if(!app->cheats && !inTerritory(app, row, col)){ return; }
+        int col = (int)(worldX / TILE_SIZE);
+        int row = (int)(worldY / TILE_SIZE);
 
-            // 4. Bounds Check
-            if (row >= 0 && row < MAP_ROWS && col >= 0 && col < MAP_COLS)
+        // 2. HARD GRID INSPECTION: Only evaluate sounds if clicking INSIDE the actual map grid space!
+        if (row >= 0 && row < MAP_ROWS && col >= 0 && col < MAP_COLS)
+        {
+            // Now that we are verified on the map, run lock validations
+            if (pieceSpawnable(app, app->currentPlayer))
             {
+                int cost = pieceCost(app->selectedPieceType);
+                int *playerGold = (app->currentPlayer == 1) ? &app->P1.p1Gold : &app->P2.p2Gold;
+
+                // Failure condition A: Player cannot afford the unit card
+                if (*playerGold < cost)
+                {
+                    app->errorTimer = 1.5f;
+                    playSound(&app->wrongSound);
+                    return;
+                }
+
+                // Failure condition B: Not playing with cheats, and clicked outside base territory
+                if(!app->cheats && !inTerritory(app, row, col))
+                { 
+                    playSound(&app->wrongSound);
+                    return; 
+                }
+
                 char tile = map_data[row][col];
 
-                // 5. Tile Type Validation
-                if (tile == GRASS_TILE || tile == BRIDGE_TOP_TILE || tile == BRIDGE_BOTTOM_TILE || tile == UPGRADE_TILE || tile == SPAWN_POINT || tile == TOWN_TILE)
+                // Validate tile layer terrain accessibility types
+                if (tile == GRASS_TILE || tile == BRIDGE_TOP_TILE || tile == BRIDGE_BOTTOM_TILE || 
+                    tile == UPGRADE_TILE || tile == SPAWN_POINT || tile == TOWN_TILE)
                 {
                     float targetX = (float)(col * TILE_SIZE);
                     float targetY = (float)(row * TILE_SIZE);
 
-                    // 6. Occupancy Check using the dynamic capacity
+                    // Occupancy Check loop
                     bool occupied = false;
                     for (int j = 0; j < app->maxPieceCapacity; j++)
                     {
@@ -54,39 +91,52 @@ void spawnPiece(AppState *app)
                         }
                     }
 
-                    if (!occupied)
+                    if (occupied)
                     {
-                        // 7. Find an empty slot in the dynamic array[cite: 10, 14]
-                        for (int i = 0; i < app->maxPieceCapacity; i++)
+                        playSound(&app->wrongSound);
+                        return;
+                    }
+
+                    for (int i = 0; i < app->maxPieceCapacity; i++)
+                    {
+                        if (!app->pieces[i].active)
                         {
-                            if (!app->pieces[i].active)
-                            {
-                                app->pieces[i].pieceX = targetX;
-                                app->pieces[i].pieceY = targetY;
-                                app->pieces[i].col = col;
-                                app->pieces[i].row = row;
-                                app->pieces[i].active = true;
+                            app->pieces[i].pieceX = targetX;
+                            app->pieces[i].pieceY = targetY;
+                            app->pieces[i].col = col;
+                            app->pieces[i].row = row;
+                            app->pieces[i].active = true;
 
-                                app->pieces[i].type = app->selectedPieceType;
-                                app->pieces[i].owner = app->currentPlayer;
+                            app->pieces[i].type = app->selectedPieceType;
+                            app->pieces[i].owner = app->currentPlayer;
 
-                                // 8. Deduct Gold and Update counts[cite: 14]
-                                *playerGold -= cost;
-                                app->pieceCount++;
+                            *playerGold -= cost;
+                            app->pieceCount++;
 
-                                //app->selectedPieceType = NULL;
-                                if (app->currentPlayer == 1) app->P1.pieceCount++;
-                                else app->P2.pieceCount++;
+                            if (app->currentPlayer == 1) app->P1.pieceCount++;
+                            else app->P2.pieceCount++;
 
-                                break; // Exit after spawning one piece[cite: 14]
-                            }
+                            app->lastInteractedPiece = &app->pieces[i];
+
+                            app->selectedPieceType = KING; // King cannot be spawned manually, resets card selector
+
+                            break;
                         }
                     }
                 }
+                else 
+                {
+                    playSound(&app->wrongSound);
+                }
             }
+        }
+        else 
+        {
+            playSound(&app->wrongSound);
         }
     }
 }
+
 
 void renderPiece(AppState *app)
 {
@@ -108,63 +158,43 @@ void renderPiece(AppState *app)
             switch (app->pieces[i].type)
             {
                 case PAWN:
-                    tex = app->pieces[i].moved
-                        ? app->bluePawnUsedTexture
-                        : app->bluePawnTexture;
+                    tex = app->pieces[i].moved ? app->bluePawnUsedTexture : app->bluePawnTexture;
                     break;
 
                 case KNIGHT:
-                    tex = app->pieces[i].moved
-                        ? app->blueKnightUsedTexture
-                        : app->blueKnightTexture;
+                    tex = app->pieces[i].moved ? app->blueKnightUsedTexture : app->blueKnightTexture;
                     break;
 
                 case BISHOP:
-                    tex = app->pieces[i].moved
-                        ? app->blueBishopUsedTexture
-                        : app->blueBishopTexture;
+                    tex = app->pieces[i].moved ? app->blueBishopUsedTexture : app->blueBishopTexture;
                     break;
 
                 case ROOK:
-                    tex = app->pieces[i].moved
-                        ? app->blueRookUsedTexture
-                        : app->blueRookTexture;
+                    tex = app->pieces[i].moved ? app->blueRookUsedTexture : app->blueRookTexture;
                     break;
 
                 case QUEEN:
-                    tex = app->pieces[i].moved
-                        ? app->blueQueenUsedTexture
-                        : app->blueQueenTexture;
+                    tex = app->pieces[i].moved ? app->blueQueenUsedTexture : app->blueQueenTexture;
                     break;
 
                 case KING:
-                    tex = app->pieces[i].moved
-                        ? app->blueKingUsedTexture
-                        : app->blueKingTexture;
+                    tex = app->pieces[i].moved ? app->blueKingUsedTexture : app->blueKingTexture;
                     break;
 
                 case ENVOY:
-                    tex = app->pieces[i].moved
-                        ? app->blueEnvoyUsedTexture
-                        : app->blueEnvoyTexture;
+                    tex = app->pieces[i].moved ? app->blueEnvoyUsedTexture : app->blueEnvoyTexture;
                     break;
 
                 case LANCER:
-                    tex = app->pieces[i].moved
-                        ? app->blueLancerUsedTexture
-                        : app->blueLancerTexture;
+                    tex = app->pieces[i].moved ? app->blueLancerUsedTexture : app->blueLancerTexture;
                     break;
 
                 case MAGE:
-                    tex = app->pieces[i].moved
-                        ? app->blueMageUsedTexture
-                        : app->blueMageTexture;
+                    tex = app->pieces[i].moved ? app->blueMageUsedTexture : app->blueMageTexture;
                     break;
 
                 case CATAPULT:
-                    tex = app->pieces[i].moved
-                        ? app->blueCatapultUsedTexture
-                        : app->blueCatapultTexture;
+                    tex = app->pieces[i].moved ? app->blueCatapultUsedTexture : app->blueCatapultTexture;
                     break;
 
                 default:

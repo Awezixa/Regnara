@@ -22,11 +22,19 @@ typedef struct Sound
     Uint8 *wav_data;
     Uint32 wav_data_len;
     SDL_AudioStream *stream;
+    float duration;     
+    float playbackTimer;
     
-    // NEW SIMPLIFIED TRACKERS
-    float duration;      // The total length of the audio track in seconds
-    float playbackTimer; // Time remaining for the current loop iteration
 } Sound;
+
+typedef struct {
+    Sound *soundTarget;  
+    const char *path;    
+} SoundRegistry;
+
+
+bool LoadAllGameAudio(AppState *app);
+void CleanupAllAudio(AppState *app);
 
 int sdl_initialize_audio();
 bool init_sound(const char *fname, Sound *sound);
