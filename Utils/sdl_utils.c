@@ -213,7 +213,7 @@ bool LoadAllGameTextures(AppState *app) {
         {&app->shoreCornerBottomRightTexture, "Assets/tiles/shore/shoreCornerBottomRight.png"},
 
         // UI & Logo
-        {&app->logoTexture, "Assets/images/regnaraLogo.png"},
+        {&app->logoTexture, "Assets/misc/regnaraLogo.png"},
         {&app->buttonOn, "Assets/UI/menus/buttonOn.png"},
         {&app->buttonOff, "Assets/UI/menus/buttonOff.png"},
         {&app->blueInfoBox, "Assets/UI/inRound/goldBlue.png"},
@@ -267,10 +267,10 @@ bool LoadAllGameTextures(AppState *app) {
         {&app->redCatapultUsedTexture,  "Assets/pieces/redUsed/catapult.png"},
 
         // Moves
-        {&app->movePossible, "Assets/images/moves/possible.png"},
-        {&app->moveCapture, "Assets/images/moves/impossible.png"},
-        {&app->moveRanged,  "Assets/images/moves/ranged.png"},
-        {&app->moveLancer,  "Assets/images/moves/lancer.png"},
+        {&app->movePossible, "Assets/misc/moves/possible.png"},
+        {&app->moveCapture, "Assets/misc/moves/impossible.png"},
+        {&app->moveRanged,  "Assets/misc/moves/ranged.png"},
+        {&app->moveLancer,  "Assets/misc/moves/lancer.png"},
 
         //techTreeBlueLocked
 

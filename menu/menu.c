@@ -182,7 +182,6 @@ void drawPauseMenu(AppState *app)
     app->pauseTxt.y = 200.0f;
 
     drawText(app, app->font, pauseUI, app->pauseTxt);
-    // add options button
     // add resume button
     quitPauseButton(app);
     mainMenuButton(app);
@@ -462,8 +461,9 @@ void drawEndScreen(AppState *app){
         120.0f,                 // Width
         120.0f                  // Height
     };
-    mainMenuButton(app);
-    quitButton(app);
+
+    endMainMenuButton(app);
+    endQuitButton(app);
     drawText(app, app->font, winner, textPos);
 }
 
@@ -789,4 +789,14 @@ void volumeControls(AppState *app){
     snprintf(volStr, sizeof(volStr), "VOLUME: %d%%", (int)(app->masterVolume * 100.0f));
     SDL_FRect displayRect = { midX - 60.0f, 750.0f, 120.0f, 50.0f };
     drawText(app, app->font, volStr, displayRect);
+}
+
+
+
+
+void endMainMenuButton(AppState *app){
+    drawButton(app, &app->mainmenubutton, "MAIN MENU", (float)(WINDOW_WIDTH / 2) - (app->mainmenubutton.w/2), 550.0f);
+}
+void endQuitButton(AppState *app){
+    drawButton(app, &app->quitbutton, "QUIT", (float)(WINDOW_WIDTH / 2) - (app->quitbutton.w/2), 650.0f);
 }

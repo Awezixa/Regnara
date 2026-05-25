@@ -33,9 +33,9 @@ void initTechTree(TechTree *tree)
     tree->upgrades[1].cost = 5;
     tree->upgrades[1].required1 = -1;
     tree->upgrades[1].required2 = -1;
-    strcpy(tree->upgrades[0].description, "The King's right hand man in conquering the land");
-    strcpy(tree->upgrades[0].unlocksText, "- Lancer Upgrade\n- Mage Upgrade\n- Catapult Upgrade\n- Queen unlock");
-    strcpy(tree->upgrades[0].givesText, "Unlocks Envoy upgrad option and can claim towns in 3 turns");
+    strcpy(tree->upgrades[1].description, "The King's right hand man in conquering the land");
+    strcpy(tree->upgrades[1].unlocksText, "- Lancer Upgrade\n- Mage Upgrade\n- Catapult Upgrade\n- Queen unlock");
+    strcpy(tree->upgrades[1].givesText, "Unlocks Envoy upgrad option and can claim towns in 3 turns");
 
     // Index 2: Extra Money (Needs Pawn - Start)
     strcpy(tree->upgrades[2].name, "Town Income");
@@ -522,17 +522,17 @@ void descBox(AppState *app, Upgrade *u) {
     drawTextWrapped(app, app->font, u->description, descRect, (int)maxTextWidth);
 
     // 3. Draw Requirements / Unlocks Category
-    SDL_FRect labelUnlocks = { panel.x + 20, panel.y + 220, maxTextWidth, 30 };
+    SDL_FRect labelUnlocks = { panel.x + 20, panel.y + 190, maxTextWidth, 30 };
     drawText(app, app->font, "Unlocks:", labelUnlocks);
     
-    SDL_FRect textUnlocks = { panel.x + 20, panel.y + 250, maxTextWidth, 60 };
+    SDL_FRect textUnlocks = { panel.x + 20, panel.y + 220, maxTextWidth, 60 };
     drawTextWrapped(app, app->font, u->unlocksText, textUnlocks, (int)maxTextWidth);
 
     // 4. Draw Yields / Benefits Category
     SDL_FRect labelGives = { panel.x + 20, panel.y + 330, maxTextWidth, 30 };
     drawText(app, app->font, "Gives:", labelGives);
     
-    SDL_FRect textGives = { panel.x + 20, panel.y + 360, maxTextWidth, 60 };
+    SDL_FRect textGives = { panel.x + 20, panel.y + 370, maxTextWidth, 60 };
     drawTextWrapped(app, app->font, u->givesText, textGives, (int)maxTextWidth);
 
     TechTree *tree =

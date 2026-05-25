@@ -411,8 +411,12 @@ case STATE_PLAYING:
         drawEndScreen(app);
         SDL_FPoint mousePos = {app->input.mouseX, app->input.mouseY};
         if (app->input.mouseLeftPressed){
-            if (app->input.keyPressed[SDL_SCANCODE_RETURN]||(SDL_PointInRectFloat(&mousePos, &app->mainmenubutton))) app->gameState = STATE_MENU;
-            if(SDL_PointInRectFloat(&mousePos, &app->mainmenubutton))return SDL_APP_SUCCESS;
+            if (app->input.keyPressed[SDL_SCANCODE_RETURN]||(SDL_PointInRectFloat(&mousePos, &app->mainmenubutton))){
+                    app->gameState = STATE_MENU;
+                }
+            if(SDL_PointInRectFloat(&mousePos, &app->quitbutton)){
+                return SDL_APP_SUCCESS;
+            }
         }
         
         break;

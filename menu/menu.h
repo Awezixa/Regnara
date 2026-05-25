@@ -54,6 +54,8 @@ void drawOptions(AppState *app);
 void drawTextWrapped(AppState *app, TTF_Font *font, const char *text, SDL_FRect container, int wrapLengthPixels);
 void volumeControls(AppState *app);
 void pauseOptionsButton(AppState *app);
+void endMainMenuButton(AppState *app);
+void endQuitButton(AppState *app);
 //Tiago
 UIState getPieceUIState(AppState *app, pieceType type);
 pieceType getUpgradeType(pieceType type);
