@@ -126,6 +126,7 @@ typedef struct AppState
     int pieceCount;
     pieceType selectedPieceType;
     Piece *selectedPiece;
+    Piece *lastInteractedPiece;
     
     //blue piece textures
     SDL_Texture *bluePawnTexture;
@@ -407,6 +408,9 @@ typedef struct AppState
     //Audio
     Sound menuMusic;
     Sound techTreeMusic;
+    Sound ambience;
+    Sound captureSound;
+    Sound wrongSound;
     float masterVolume;
 
     float camX;

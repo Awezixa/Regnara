@@ -62,8 +62,9 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     }
     else
     {
-        init_sound("Assets/audio/regnaraMenuMusic.wav", &app->menuMusic);
-        init_sound("Assets/audio/techTreeMusic.wav", &app->techTreeMusic);
+        if(!LoadAllGameAudio(app)){
+            return SDL_APP_FAILURE;
+        }
        
     }
 
@@ -271,6 +272,13 @@ if (app->gameState == STATE_MENU && app->menuMusic.stream)
             playSound(&app->techTreeMusic); // Rewinds and loops tech theme naturally
         }
     }
+    else if (app->gameState == STATE_PLAYING && app->ambience.stream)
+    {
+        app->ambience.playbackTimer -= app->dt;
+        if (app->ambience.playbackTimer <= 0.0f) {
+            playSound(&app->ambience);
+        }
+    }
 
     SDL_SetRenderDrawColor(app->renderer, 0, 0, 0, 255);
     SDL_RenderClear(app->renderer);
@@ -291,6 +299,8 @@ if (app->gameState == STATE_MENU && app->menuMusic.stream)
             if (SDL_PointInRectFloat(&mousePos, &app->playbutton)){
                 stopSound(&app->menuMusic); // Resets timer to 0
                 resetGame(app);
+
+                playSound(&app->ambience);
                 app->gameState = STATE_PLAYING;
             }          
 
@@ -312,6 +322,8 @@ if (app->gameState == STATE_MENU && app->menuMusic.stream)
 case STATE_PLAYING:
     {
         app->inGame = true;
+
+
         updateGame(app); // Run core gameplay normally
         break;
     }
@@ -363,6 +375,28 @@ case STATE_PLAYING:
     {
 
         drawOptions(app);
+        if (app->input.keyPressed[SDL_SCANCODE_M])
+        {
+            static bool isMuted = false;
+            static float previousVolume = 0.7f; // Back up volume before muting
+
+            isMuted = !isMuted;
+
+            if (isMuted)
+            {
+                previousVolume = app->masterVolume; // Remember their current setting
+                app->masterVolume = 0.0f;           // Drop master tracking to absolute zero
+            }
+            else
+            {
+                app->masterVolume = previousVolume; // Restore to their pre-muted choice
+                if (app->masterVolume == 0.0f) app->masterVolume = 0.7f; // Fail-safe fallback
+            }
+
+            if (app->menuMusic.stream) SDL_SetAudioStreamGain(app->menuMusic.stream, app->masterVolume);
+            if (app->techTreeMusic.stream) SDL_SetAudioStreamGain(app->techTreeMusic.stream, app->masterVolume);
+            if (app->ambience.stream) SDL_SetAudioStreamGain(app->ambience.stream, app->masterVolume);
+        }
         if (app->input.keyPressed[SDL_SCANCODE_ESCAPE] && app->inGame == true ){
             app->gameState = STATE_PAUSED;
         }
@@ -395,6 +429,7 @@ case STATE_PLAYING:
             if (SDL_PointInRectFloat(&mousePos, &app->mainmenubutton)){
                 //add confirmation quit screen
                 stopSound(&app->techTreeMusic);
+                stopSound(&app->ambience);
                 
                 // Restart and re-loop the title screen menu music
                 playSound(&app->menuMusic);
@@ -442,12 +477,7 @@ void SDL_AppQuit(void *appstate, SDL_AppResult result)
     AppState *app = (AppState *)appstate;
     if (!app) return;
 
-
-    if (app->menuMusic.stream) {
-        stopSound(&app->menuMusic);
-        SDL_DestroyAudioStream(app->menuMusic.stream);
-        SDL_free(app->menuMusic.wav_data);
-    }
+    CleanupAllAudio(app);
 
     if(app->pieces)free(app->pieces);
     //add function to destroy all textures
@@ -629,6 +659,8 @@ void updateGame(AppState *app) {
                 if (target && target->owner == app->selectedPiece->owner) continue;
 
                 if (target && target->owner != app->selectedPiece->owner) {
+
+                    playSound(&app->captureSound);
                     if (app->selectedPiece->type == LANCER) LancerAttack(app, app->selectedPiece, mouseRow, mouseCol);
                     else CapturePiece(app, mouseRow, mouseCol);
                 }
@@ -639,6 +671,8 @@ void updateGame(AppState *app) {
                 app->selectedPiece->pieceY = mouseRow * TILE_SIZE;
                 app->selectedPiece->moved = true;
                 actionTaken = true;
+
+                app->lastInteractedPiece = app->selectedPiece; 
                 break;
             }
 
@@ -649,12 +683,17 @@ void updateGame(AppState *app) {
 
                     Piece *target = GetPieceAt(app, mouseRow, mouseCol);
                     if (!target || target->owner == app->selectedPiece->owner) continue;
-
+                        playSound(&app->captureSound);
                     if (app->selectedPiece->type == MAGE) CapturePiece(app, mouseRow, mouseCol);
                     else if (app->selectedPiece->type == CATAPULT) CatapultAttack(app, mouseRow, mouseCol);
 
                     app->selectedPiece->moved = true;
                     actionTaken = true;
+
+                    // ====================================================
+                    // TRACK INTERACTION: Capture the attacking piece address!
+                    // ====================================================
+                    app->lastInteractedPiece = app->selectedPiece; 
                     break;
                 }
             }
@@ -664,6 +703,13 @@ void updateGame(AppState *app) {
                 app->possibleMoveCount = 0;
                 app->possibleAttackCount = 0;
             }
+            // else {
+            //     // playSound(&app->wrongSound);
+                
+            //     // app->selectedPiece = NULL;
+            //     // app->possibleMoveCount = 0;
+            //     // app->possibleAttackCount = 0;
+            // }
         }
 
         // Handle Cheats Overlay Toggle
@@ -761,11 +807,12 @@ void winCondition(AppState *app){
 
     if (app->P1.towns == app->tTowns && app->tTowns > 0)
     {
+        stopSound(&app->ambience);
         app->winner = 1;
-        app->gameState = STATE_END;
-        
+        app->gameState = STATE_END;   
     }
     else if(app->P2.towns == app->tTowns && app->tTowns > 0){
+        stopSound(&app->ambience);
         app->winner = 2;
         app->gameState = STATE_END;
     }
@@ -789,6 +836,7 @@ void resetGame(AppState *app) {
     app->pieceCount = 0;
     app->selectedPiece = NULL;
     app->possibleMoveCount = 0;
+    app->lastInteractedPiece = NULL;
     
     
     app->currentPlayer = 1;
@@ -877,34 +925,45 @@ void increaseTroopLimit(AppState *app, int extraSlots){
     }
 }
 
-void snapToKing(AppState *app){
-    float kingX = 0.0f;
-    float kingY = 0.0f;
+void snapToKing(AppState *app) {
+    float targetX = 0.0f;
+    float targetY = 0.0f;
     bool found = false;
 
-    for (int i = 0; i < app->maxPieceCapacity; i++) {
-        if (app->pieces[i].active && 
-            app->pieces[i].type == KING && 
-            app->pieces[i].owner == app->currentPlayer) 
-        {
-            // Center calculation: get the middle point of the tile
-            kingX = app->pieces[i].pieceX + (TILE_SIZE / 2.0f);
-            kingY = app->pieces[i].pieceY + (TILE_SIZE / 2.0f);
-            found = true;
-            break;
+    // 1. Check if an interaction occurred and the unit belongs to the active player
+    if (app->lastInteractedPiece != NULL && 
+        app->lastInteractedPiece->active && 
+        app->lastInteractedPiece->owner == app->currentPlayer) 
+    {
+        targetX = app->lastInteractedPiece->pieceX + (TILE_SIZE / 2.0f);
+        targetY = app->lastInteractedPiece->pieceY + (TILE_SIZE / 2.0f);
+        found = true;
+    }
+    else 
+    {
+        // 2. FALLBACK: Find the King if no recent actions have occurred yet
+        for (int i = 0; i < app->maxPieceCapacity; i++) {
+            if (app->pieces[i].active && 
+                app->pieces[i].type == KING && 
+                app->pieces[i].owner == app->currentPlayer) 
+            {
+                targetX = app->pieces[i].pieceX + (TILE_SIZE / 2.0f);
+                targetY = app->pieces[i].pieceY + (TILE_SIZE / 2.0f);
+                found = true;
+                break;
+            }
         }
     }
 
     if (found) {
         camera2d_follow_target(
             &app->camera,
-            kingX,
-            kingY,
+            targetX,
+            targetY,
             (float)WINDOW_WIDTH,
             (float)WINDOW_HEIGHT,
             app->worldSize.x,
             app->worldSize.y
         );
     }
-
 }

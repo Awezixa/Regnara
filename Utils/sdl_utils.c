@@ -179,6 +179,8 @@ SDL_Texture* LoadTexture(SDL_Renderer *renderer, const char *path) {
     return texture;
 }
 
+//Bulk functions
+
 bool LoadAllGameTextures(AppState *app) {
     // 1. Define a struct to map your pointers to file paths
     typedef struct {
@@ -545,5 +547,56 @@ void CleanupAllTextures(AppState *app) {
     int count = sizeof(allTextures) / sizeof(SDL_Texture*);
     for (int i = 0; i < count; i++) {
         if (allTextures[i]) SDL_DestroyTexture(allTextures[i]);
+    }
+}
+
+bool LoadAllGameAudio(AppState *app)
+{
+    // 1. Define your centralized audio asset file register mapping
+    SoundRegistry registry[] = {
+        {&app->menuMusic,     "Assets/audio/regnaraMenuMusic.wav"},
+        {&app->techTreeMusic, "Assets/audio/techTreeMusic.wav"},
+        {&app->ambience,      "Assets/audio/ambience.wav"},
+        {&app->wrongSound,      "Assets/audio/wrong.wav"},
+        {&app->captureSound,      "Assets/audio/capture.wav"}
+        // {&app->clickSFX,   "Assets/audio/click.wav"}
+    };
+
+    int totalSounds = sizeof(registry) / sizeof(SoundRegistry);
+
+    for (int i = 0; i < totalSounds; i++) 
+    {
+        if (!init_sound(registry[i].path, registry[i].soundTarget)) 
+        {
+            SDL_Log("CRITICAL AUDIO ERROR: Failed to load track: %s", registry[i].path);
+            return false; // Safely abort startup sequence if a sound file is corrupted
+        }
+    }
+
+    return true; // All tracks built successfully
+}
+
+void CleanupAllAudio(AppState *app)
+{
+    Sound* allSounds[] = {
+        &app->menuMusic,
+        &app->techTreeMusic,
+        &app->ambience,
+        &app->wrongSound,
+        &app->captureSound
+        // Keep this strictly aligned with your loading registry array pointers
+    };
+
+    int count = sizeof(allSounds) / sizeof(Sound*);
+    
+    for (int i = 0; i < count; i++) 
+    {
+        if (allSounds[i]->stream) 
+        {
+            stopSound(allSounds[i]); // Turn off active playback streams cleanly
+            SDL_DestroyAudioStream(allSounds[i]->stream); // Free stream channel hardware
+            SDL_free(allSounds[i]->wav_data); // Free loaded sound file allocations
+            allSounds[i]->stream = NULL;
+        }
     }
 }
