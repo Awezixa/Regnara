@@ -374,6 +374,7 @@ typedef struct AppState
     SDL_Texture *moveCapture;
     SDL_Texture *moveRanged;
     SDL_Texture *moveLancer;
+    SDL_Texture *moveTown;
     
     bool piecePlaced;
     float pieceX, pieceY;
