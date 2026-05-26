@@ -164,7 +164,7 @@ void endTurnButton(AppState *app)
 {
     float scale = 1.0f;
 
-    drawButton(app, &app->endTurnButton, "END TURN", WINDOW_WIDTH - app->endTurnButton.w - 20.0f, WINDOW_HEIGHT - app->endTurnButton.h - 20.0f);
+    drawButton(app, &app->endTurnButton, "END TURN", WINDOW_WIDTH - app->endTurnButton.w - 50.0f, WINDOW_HEIGHT - app->endTurnButton.h - 20.0f);
 }
 
 void turnUI(AppState *app)
@@ -172,7 +172,7 @@ void turnUI(AppState *app)
     char turnStr[100];
     snprintf(turnStr, sizeof(turnStr), "| Player %d || Turn %d |", app->currentPlayer, app->turnCounter);
 
-    app->turnCount.x = (float)(WINDOW_WIDTH / 2) - 50.0f;
+    app->turnCount.x = (float)(WINDOW_WIDTH / 2) - 113;
     app->turnCount.y = 20.0f;
     app->turnCount.h = 60.0f;
     app->turnCount.w = 200.0f;
@@ -267,7 +267,7 @@ void unitIconUI(AppState *app)
     int unitCount = sizeof(units) / sizeof(units[0]);
 
     float spacing = 120.0f;
-    float startX = (WINDOW_WIDTH / 2.0f) - (((unitCount - 1) * spacing) / 2.0f);
+    float startX = (WINDOW_WIDTH / 2.0f) - (((unitCount - 1) * spacing) / 2.0f) - 48;
 
     float sizex = 96.0f;
     float sizey = 144.0f;
@@ -588,7 +588,7 @@ void volumeControls(AppState *app){
 //player ui 
 void techTreeButton(AppState *app){
 
-    drawButton(app, &app->techTreeButton, "TECH TREE", 150.0f, WINDOW_HEIGHT - app->techTreeButton.h - 20.0f);
+    drawButton(app, &app->techTreeButton, "TECH TREE", 50.0f, WINDOW_HEIGHT - app->techTreeButton.h - 20.0f);
 }
 
 void playerRectangles(AppState *app) {
