@@ -197,6 +197,8 @@ bool LoadAllGameTextures(AppState *app) {
         {&app->treeRightTexture, "Assets/tiles/treesRight.png"},
         {&app->townTexture, "Assets/tiles/town.png"},
         {&app->upgradePlatformTexture, "Assets/tiles/upgradePlat.png"},
+        {&app->bridgeBottomOverlayTexture, "Assets/tiles/bridgeBottomOverlay.png"},
+        {&app->townOverlayTexture, "Assets/tiles/townOverlay.png"},
 
         // Shores
         {&app->shoreLeftTexture, "Assets/tiles/shore/shoreLeft.png"},
@@ -218,7 +220,11 @@ bool LoadAllGameTextures(AppState *app) {
         {&app->buttonOff, "Assets/UI/menus/buttonOff.png"},
         {&app->blueInfoBox, "Assets/UI/inRound/goldBlue.png"},
         {&app->redInfoBox, "Assets/UI/inRound/goldRed.png"},
-        {&app->techTreeBackground, "Assets/techTree/techTreeBackground.png"},
+        {&app->techTreeBackgroundBlue, "Assets/techTree/techTreeBackgroundBlue.png"},
+        {&app->techTreeBackgroundRed, "Assets/techTree/techTreeBackgroundRed.png"},
+        {&app->mainMenuBackground, "Assets/misc/menuBackground.png"},
+        {&app->winner1, "Assets/misc/winScreens/player1Wins.png"},
+        {&app->winner2, "Assets/misc/winScreens/player2Wins.png"},
 
         // Blue Pieces
         {&app->bluePawnTexture, "Assets/pieces/blue/pawn.png"},
@@ -492,7 +498,7 @@ void CleanupAllTextures(AppState *app) {
         app->redPawnUsedTexture, app->redKnightUsedTexture, app->redBishopUsedTexture, app->redRookUsedTexture,
         app->redQueenUsedTexture, app->redKingUsedTexture, app->redEnvoyUsedTexture, app->redLancerUsedTexture,
         app->redMageUsedTexture, app->redCatapultUsedTexture,
-        app->techTreeBackground,
+        app->techTreeBackgroundBlue, app->techTreeBackgroundRed,
         app->UIBluePawnLocked, app->UIBlueKnightLocked, app->UIBlueBishopLocked, app->UIBlueRookLocked,
         app->UIBlueQueenLocked, app->UIBlueKingLocked, app->UIBlueEnvoyLocked, app->UIBlueLancerLocked,
         app->UIBlueMageLocked, app->UIBlueCatapultLocked,
@@ -531,7 +537,9 @@ void CleanupAllTextures(AppState *app) {
         app->techTreeRedCatapultBought, app->techTreeRedGoldBought, app->techTreeRedPiecesBought, app->techTreeRedPlatformBought,
         app->UIRedOverlayAvailable, app->UIBlueOverlayAvailable, app->UIRedOverlayUnavailable, app->UIBlueOverlayUnavailable, app->controlsTexture,
         app->UIBlueUpgPlatAvailable,app->UIBlueUpgPlatLocked,app->UIBlueUpgPlatUnavailable,
-        app->UIRedUpgPlatAvailable,app->UIRedUpgPlatLocked,app->UIRedUpgPlatUnavailable
+        app->UIRedUpgPlatAvailable,app->UIRedUpgPlatLocked,app->UIRedUpgPlatUnavailable,
+        app->mainMenuBackground, app->winner1, app->winner2,
+        app->townOverlayTexture, app->bridgeBottomOverlayTexture
     };
 
     int count = sizeof(allTextures) / sizeof(SDL_Texture*);

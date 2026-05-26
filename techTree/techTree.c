@@ -182,10 +182,12 @@ void techTreeOverlay(AppState *app)
         731
     };
 
-    SDL_RenderTexture(app->renderer,
-                      app->techTreeBackground,
-                      NULL,
-                      &bgPos);
+    SDL_Texture *background =
+        (app->currentPlayer == 1)
+        ? app->techTreeBackgroundBlue
+        : app->techTreeBackgroundRed;
+
+    SDL_RenderTexture(app->renderer, background, NULL, &bgPos);
 
     TechTree *tree =
         (app->currentPlayer == 1)

@@ -90,6 +90,8 @@ typedef struct AppState
 
     SDL_Texture *bridgeTopTexture;
     SDL_Texture *bridgeBottomTexture;
+    SDL_Texture *bridgeBottomOverlayTexture;
+    SDL_Texture *townOverlayTexture;
     SDL_Texture *townTexture;
     SDL_Texture *upgradePlatformTexture;
 
@@ -379,7 +381,11 @@ typedef struct AppState
     SDL_Texture *buttonOn;
     SDL_Texture *buttonOff;
     SDL_Texture *goldTexture;
-    SDL_Texture *techTreeBackground;
+    SDL_Texture *techTreeBackgroundBlue;
+    SDL_Texture *techTreeBackgroundRed;
+    SDL_Texture *mainMenuBackground;
+    SDL_Texture *winner1;
+    SDL_Texture *winner2;
     SDL_FRect playbutton;
     SDL_FRect quitbutton;
     SDL_FRect optionsbutton;

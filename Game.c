@@ -6,6 +6,7 @@
 //file includes
 #include "game.h"
 #include "Pieces/moves.h"
+#include "Pieces/piece.h"
 #include "techTree/techTree.h"
 static void UpdateCamera(AppState *app);
 //clamp function = restriction of value to specific range
@@ -549,6 +550,8 @@ void updateGame(AppState *app) {
     // 2. DRAW GAME BOARD LAYERS IN BACKGROUND
     drawTerritory(app); // Render the 3x3 town colors
     renderPiece(app);    // Render active units on top of territory
+    renderBridgeBottomOverlays(app->renderer, app);
+    renderTownOverlays(app->renderer, app);
 
     if (app->selectedPiece != NULL) {
         PossibleMovesShow(app, app->selectedPiece); // Show valid movement spots
@@ -586,11 +589,16 @@ void updateGame(AppState *app) {
         if (app->input.keyDown[SDL_SCANCODE_9]) app->selectedPieceType = CATAPULT;
 
         // FIXED: Spawning and board checking runs uniformly outside of old broken triggers
-        spawnPiece(app);
+        SDL_FRect uiBlocker = {0, WINDOW_HEIGHT - 150.0f, WINDOW_WIDTH, 150.0f};
+        bool mouseOverUI = SDL_PointInRectFloat(&mousePos, &uiBlocker);
+        
+        if(!mouseOverUI)
+        {spawnPiece(app);}
 
         // --- Core Piece Selection & Movement State Machine ---
         int mouseCol = (int)((app->input.mouseX / app->camera.zoom + app->camera.x) / TILE_SIZE);
         int mouseRow = (int)((app->input.mouseY / app->camera.zoom + app->camera.y) / TILE_SIZE);
+        bool moveIntoUI = app->input.mouseY >= WINDOW_HEIGHT - 150;
         bool wasPieceSelected = (app->selectedPiece != NULL);
 
         for (int i = 0; i < app->maxPieceCapacity; i++) {
@@ -614,7 +622,7 @@ void updateGame(AppState *app) {
             bool actionTaken = false;
             for (int i = 0; i < app->possibleMoveCount; i++) {
                 SDL_Point m = app->possibleMoves[i];
-                if (m.x != mouseCol || m.y != mouseRow) continue;
+                if (m.x != mouseCol || m.y != mouseRow || moveIntoUI) continue;
                 if (!isTileWalkable(mouseRow, mouseCol)) continue;
 
                 Piece *target = GetPieceAt(app, mouseRow, mouseCol);
@@ -637,7 +645,7 @@ void updateGame(AppState *app) {
             if (!actionTaken) {
                 for (int i = 0; i < app->possibleAttackCount; i++) {
                     SDL_Point a = app->possibleAttacks[i];
-                    if (a.x != mouseCol || a.y != mouseRow) continue;
+                    if (a.x != mouseCol || a.y != mouseRow || moveIntoUI) continue;
 
                     Piece *target = GetPieceAt(app, mouseRow, mouseCol);
                     if (!target || target->owner == app->selectedPiece->owner) continue;
@@ -774,6 +782,8 @@ void resetGame(AppState *app) {
     for (int i = 0; i < app->maxPieceCapacity; i++) {
         app->pieces[i].active = false;
         app->pieces[i].owner = 0;
+        app->pieces[i].moved = false;
+        app->pieces[i].abilityUsed = false;
     }
     
     app->pieceCount = 0;
@@ -824,6 +834,8 @@ void startGame(AppState *app){
                 {
                     app->pieces[slot].active = true;
                     app->pieces[slot].type = KING;
+                    app->pieces[slot].moved = false;
+                    app->pieces[slot].abilityUsed = false;
                     app->pieces[slot].row = r;
                     app->pieces[slot].col = c;
                     app->pieces[slot].pieceX = (float)(c * TILE_SIZE);

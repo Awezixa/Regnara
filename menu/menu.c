@@ -5,9 +5,15 @@
 void drawMainMenu(AppState *app)
 {
     float w, h;
+
+    SDL_GetTextureSize(app->mainMenuBackground, &w, &h);
+
+    SDL_FRect bg = {0, 0, w, h};
+    SDL_RenderTexture(app->renderer, app->mainMenuBackground, NULL, &bg);
+
     SDL_GetTextureSize(app->logoTexture, &w, &h);
 
-    SDL_FRect dst = {(float)((WINDOW_WIDTH / 2) - ((w * 3) / 2)), 100, (w * 3), (h * 3)}; // to make logo readable and centered on screen
+    SDL_FRect dst = {(float)((WINDOW_WIDTH / 2) - ((w) / 2)-20), 10, (w), (h)}; // to make logo readable and centered on screen
     SDL_RenderTexture(app->renderer, app->logoTexture, NULL, &dst);
 
     playButton(app); // play button
@@ -333,7 +339,6 @@ void unitIconUI(AppState *app)
     // ----------------------------
 
     if (app->selectedPiece &&
-    app->selectedPiece->type != KING &&
     isSelectedPieceOnUpgradeTile(app))
     {
         TechTree *tree =
@@ -387,6 +392,7 @@ void unitIconUI(AppState *app)
                 tex = app->UIRedUpgPlatLocked;
         }
 
+        if(app->selectedPiece->type != KING)
         SDL_RenderTexture(app->renderer, tex, NULL, &platformButton);
 
         // click handling (placeholder for now)
@@ -454,6 +460,32 @@ void unitIconUI(AppState *app)
     }
 }
 
+void drawEndScreen(AppState *app){
+    char winner[62];
+
+    float w, h;
+
+    SDL_GetTextureSize(app->mainMenuBackground, &w, &h);
+
+    SDL_FRect bg = {0, 0, w, h};
+
+    if(app->winner == 1)
+        SDL_RenderTexture(app->renderer, app->winner1, NULL, &bg);
+    else
+        SDL_RenderTexture(app->renderer, app->winner2, NULL, &bg);
+
+
+    snprintf(winner, sizeof(winner), "PLAYER %d VICTORY!!!", app->winner);
+    SDL_FRect textPos = {
+        900.0f,                 // X padding from left
+        (WINDOW_HEIGHT / 2) - 100, // Y position inside panel
+        120.0f,                 // Width
+        120.0f                  // Height
+    };
+    endMainMenuButton(app);
+    endQuitButton(app);
+    drawText(app, app->font, winner, textPos);
+}
 
 // pause UI
 void quitPauseButton(AppState *app){
@@ -562,10 +594,10 @@ void playerRectangles(AppState *app) {
     float margin = 20.0f;
 
     // Player 1 (Blue - Left side)
-    SDL_FRect p1GoldRect = { 0, margin, panelW, panelH };
+    SDL_FRect p1GoldRect = { margin, margin, panelW, panelH };
 
     // Player 2 (Red - Right side)
-    SDL_FRect p2GoldRect = { WINDOW_WIDTH - panelW, margin, panelW, panelH };
+    SDL_FRect p2GoldRect = { WINDOW_WIDTH - panelW - margin, margin, panelW, panelH };
 
     // Draw both using the helper
     drawSinglePlayerStatus(app, p1GoldRect, "PLAYER 1", 1);
@@ -604,14 +636,14 @@ void drawSinglePlayerStatus(AppState *app, SDL_FRect panel, const char* title, i
     snprintf(townStr, sizeof(townStr), "%d", towns);
 
     SDL_FRect goldRect = {
-    panel.x + 70.0f,
+    panel.x + 254.0f,
     panel.y + 70.0f,
     120.0f,
     30.0f
     };
 
     SDL_FRect townRect = {
-        panel.x + 254.0f,
+        panel.x + 70.0f,
         panel.y + 70.0f,
         120.0f,
         30.0f
@@ -783,24 +815,6 @@ void drawTextWrapped(AppState *app, TTF_Font *font, const char *text, SDL_FRect 
 
     SDL_RenderTexture(app->renderer, texture, NULL, &textRect);
     SDL_DestroyTexture(texture);
-}
-
-
-
-//end screen UI
-void drawEndScreen(AppState *app){
-    char winner[62];
-    snprintf(winner, sizeof(winner), "PLAYER %d VICTORY!!!", app->winner);
-    SDL_FRect textPos = {
-        900.0f,                 // X padding from left
-        (WINDOW_HEIGHT / 2) - 100, // Y position inside panel
-        120.0f,                 // Width
-        120.0f                  // Height
-    };
-
-    endMainMenuButton(app);
-    endQuitButton(app);
-    drawText(app, app->font, winner, textPos);
 }
 
 void endMainMenuButton(AppState *app){

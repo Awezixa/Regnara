@@ -41,4 +41,6 @@ int townCount(void);
 void initTowns(AppState *app);
 void townCaptured(AppState *app);
 void drawTerritory(AppState *app);
+void renderBridgeBottomOverlays(SDL_Renderer *renderer, AppState *app);
+void renderTownOverlays(SDL_Renderer *renderer, AppState *app);
 #endif

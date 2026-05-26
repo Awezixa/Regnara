@@ -243,3 +243,55 @@ void drawTerritory(AppState *app) {
     }
     // Note: The old spawnCount loop has been removed to allow dynamic ownership colors.
 }
+
+void renderBridgeBottomOverlays(SDL_Renderer *renderer, AppState *app)
+{
+    for (int row = 0; row < MAP_ROWS; row++)
+    {
+        for (int col = 0; col < MAP_COLS; col++)
+        {
+            if (map_data[row][col] != 'b')
+                continue;
+
+            SDL_FRect destRect =
+                camera2d_world_to_screen_rect(
+                    &app->camera,
+                    (float)(col * TILE_SIZE),
+                    (float)(row * TILE_SIZE),
+                    (float)TILE_SIZE,
+                    (float)TILE_SIZE
+                );
+
+            SDL_RenderTexture(renderer,
+                              app->bridgeBottomOverlayTexture,
+                              NULL,
+                              &destRect);
+        }
+    }
+}
+
+void renderTownOverlays(SDL_Renderer *renderer, AppState *app)
+{
+    for (int row = 0; row < MAP_ROWS; row++)
+    {
+        for (int col = 0; col < MAP_COLS; col++)
+        {
+            if (map_data[row][col] != 'C')
+                continue;
+
+            SDL_FRect destRect =
+                camera2d_world_to_screen_rect(
+                    &app->camera,
+                    (float)(col * TILE_SIZE),
+                    (float)(row * TILE_SIZE),
+                    (float)TILE_SIZE,
+                    (float)TILE_SIZE
+                );
+
+            SDL_RenderTexture(renderer,
+                              app->townOverlayTexture,
+                              NULL,
+                              &destRect);
+        }
+    }
+}
