@@ -301,8 +301,8 @@ void unitIconUI(AppState *app)
 
         // highlight selected type
         char pieceCap[64];
-        int pieceCount = (app->currentPlayer == 1) ? app->P1.pieceCount : app->P2.pieceCount;
-
+        int pieceCount = countPiecesByType(app, app->currentPlayer, units[i].baseType);
+        
         snprintf(pieceCap, sizeof(pieceCap), "%d/%d", pieceCount, app->maxPlayerPieces);
         SDL_FRect countTextRect = {
                 units[i].button->x,
