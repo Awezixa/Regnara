@@ -119,10 +119,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     app->lastTicksMS = SDL_GetTicks();
     app->dt = 0.0f;
 
-    // HARD RESET: Lock the tech tree music tracking values on startup
     stopSound(&app->techTreeMusic);
 
-    // PLAY: Wake up the main menu theme cleanly
     if (app->menuMusic.stream)
     {
         playSound(&app->menuMusic);
@@ -258,7 +256,7 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     app->lastTicksMS = nowMS;
     app->dt = (float)elapsedMS / 1000.0f;
 
-if (app->gameState == STATE_MENU && app->menuMusic.stream)
+    if (app->gameState == STATE_MENU && app->menuMusic.stream)
     {
         app->menuMusic.playbackTimer -= app->dt;
         if (app->menuMusic.playbackTimer <= 0.0f) {
@@ -279,6 +277,7 @@ if (app->gameState == STATE_MENU && app->menuMusic.stream)
             playSound(&app->ambience);
         }
     }
+    
 
     SDL_SetRenderDrawColor(app->renderer, 0, 0, 0, 255);
     SDL_RenderClear(app->renderer);
@@ -445,6 +444,7 @@ case STATE_PLAYING:
     case STATE_END:
     {
         drawEndScreen(app);
+        stopSound(&app->ambience);
         SDL_FPoint mousePos = {app->input.mouseX, app->input.mouseY};
         if (app->input.mouseLeftPressed){
             if (app->input.keyPressed[SDL_SCANCODE_RETURN]||(SDL_PointInRectFloat(&mousePos, &app->mainmenubutton))){

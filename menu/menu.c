@@ -24,17 +24,18 @@ void drawMainMenu(AppState *app)
 //main menu buttons
 void playButton(AppState *app){
 
-    drawButton(app, &app->playbutton, "PLAY", (float)(WINDOW_WIDTH / 2) - (app->playbutton.w/2), 500.0f);
+    drawButton(app, &app->playbutton, "PLAY", (float)((WINDOW_WIDTH / 2) -20) - (app->playbutton.w/2), 500.0f);
 }
 
 void quitButton(AppState *app){
 
-    drawButton(app, &app->quitbutton, "QUIT", (float)(WINDOW_WIDTH / 2) - (app->playbutton.w/2), 700.0f);
+    drawButton(app, &app->quitbutton, "QUIT", (float)((WINDOW_WIDTH / 2) -20) - (app->playbutton.w/2), 700.0f);
+}
+void optionsButton(AppState *app){
+
+    drawButton(app, &app->optionsbutton, "OPTIONS", (float)((WINDOW_WIDTH / 2) -20) - (app->optionsbutton.w/2), 600.0f);
 }
 
-void pauseOptionsButton(AppState *app){
-    drawButton(app, &app->optionsbutton, "OPTIONS", (float)(WINDOW_WIDTH / 2) - (app->optionsbutton.w/2), 400.0f);
-}
 
 //other ui Helpers
 
@@ -299,6 +300,18 @@ void unitIconUI(AppState *app)
         SDL_RenderTexture(app->renderer, tex, NULL, units[i].button);
 
         // highlight selected type
+        char pieceCap[64];
+        int pieceCount = (app->currentPlayer == 1) ? app->P1.pieceCount : app->P2.pieceCount;
+
+        snprintf(pieceCap, sizeof(pieceCap), "%d/%d", pieceCount, app->maxPlayerPieces);
+        SDL_FRect countTextRect = {
+                units[i].button->x,
+                units[i].button->y - 30.0f,
+                96.0f,  // Match the exact width of the card box
+                36.0f   // Match the exact height of the overlay ribbon
+            };
+
+
         if (app->selectedPieceType == units[i].baseType && state == UI_AVAILABLE)
         {
             SDL_Texture *overlay =
@@ -314,6 +327,7 @@ void unitIconUI(AppState *app)
             };
 
             SDL_RenderTexture(app->renderer, overlay, NULL, &overlayRect);
+            drawText(app, app->font, pieceCap, countTextRect);
         }
 
     }
@@ -490,9 +504,8 @@ void mainMenuButton(AppState *app){
     drawButton(app, &app->mainmenubutton, "MAIN MENU", (float)(WINDOW_WIDTH / 2) - (app->mainmenubutton.w/2), 300.0f);
 }
 
-void optionsButton(AppState *app){
-
-    drawButton(app, &app->optionsbutton, "OPTIONS", (float)(WINDOW_WIDTH / 2) - (app->optionsbutton.w/2), 600.0f);
+void pauseOptionsButton(AppState *app){
+    drawButton(app, &app->optionsbutton, "OPTIONS", (float)(WINDOW_WIDTH / 2) - (app->optionsbutton.w/2), 400.0f);
 }
 
 void drawOptions(AppState *app){
