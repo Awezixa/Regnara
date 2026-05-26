@@ -220,6 +220,8 @@ bool LoadAllGameTextures(AppState *app) {
         {&app->logoTexture, "Assets/misc/regnaraLogo.png"},
         {&app->buttonOn, "Assets/UI/menus/buttonOn.png"},
         {&app->buttonOff, "Assets/UI/menus/buttonOff.png"},
+        {&app->backButtonOff, "Assets/UI/backButton/Off.png"},
+        {&app->backButtonOn, "Assets/UI/backButton/On.png"},
         {&app->blueInfoBox, "Assets/UI/inRound/goldBlue.png"},
         {&app->redInfoBox, "Assets/UI/inRound/goldRed.png"},
         {&app->techTreeBackgroundBlue, "Assets/techTree/techTreeBackgroundBlue.png"},
@@ -279,7 +281,6 @@ bool LoadAllGameTextures(AppState *app) {
         {&app->moveCapture, "Assets/misc/moves/impossible.png"},
         {&app->moveRanged,  "Assets/misc/moves/ranged.png"},
         {&app->moveLancer,  "Assets/misc/moves/lancer.png"},
-        {&app->moveTown, "Assets/misc/moves/town.png"},
 
         //techTreeBlueLocked
 
@@ -494,7 +495,7 @@ void CleanupAllTextures(AppState *app) {
         app->redPawnTexture, app->redKnightTexture, app->redBishopTexture, 
         app->redRookTexture, app->redQueenTexture, app->redKingTexture,
         app->redEnvoyTexture, app->redLancerTexture, app->redMageTexture, app->redCatapultTexture,
-        app->movePossible, app->moveCapture, app->moveRanged, app->moveLancer, app->moveTown, app->possibleMovesTexture,
+        app->movePossible, app->moveCapture, app->moveRanged, app->moveLancer, app->possibleMovesTexture,
         app->bluePawnUsedTexture, app->blueKnightUsedTexture, app->blueBishopUsedTexture, app->blueRookUsedTexture,
         app->blueQueenUsedTexture, app->blueKingUsedTexture, app->blueEnvoyUsedTexture, app->blueLancerUsedTexture,
         app->blueMageUsedTexture, app->blueCatapultUsedTexture,
@@ -542,7 +543,8 @@ void CleanupAllTextures(AppState *app) {
         app->UIBlueUpgPlatAvailable,app->UIBlueUpgPlatLocked,app->UIBlueUpgPlatUnavailable,
         app->UIRedUpgPlatAvailable,app->UIRedUpgPlatLocked,app->UIRedUpgPlatUnavailable,
         app->mainMenuBackground, app->winner1, app->winner2,
-        app->townOverlayTexture, app->bridgeBottomOverlayTexture
+        app->townOverlayTexture, app->bridgeBottomOverlayTexture,
+        app->backButtonOn, app->backButtonOff
     };
 
     int count = sizeof(allTextures) / sizeof(SDL_Texture*);

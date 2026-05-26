@@ -36,6 +36,16 @@ void optionsButton(AppState *app){
     drawButton(app, &app->optionsbutton, "OPTIONS", (float)((WINDOW_WIDTH / 2) -20) - (app->optionsbutton.w/2), 600.0f);
 }
 
+void optionsBackButton(AppState *app)
+{
+    drawBackButton(app, &app->optionsBackButton, "X", 45, 45);
+}
+
+void techTreeBackButton(AppState *app)
+{
+    drawBackButton(app, &app->techTreeBackButton, "X", 45, 45);
+}
+
 
 //other ui Helpers
 
@@ -159,6 +169,94 @@ void drawButton(AppState *app, SDL_FRect *buttonRect, const char *text, float x,
 
     SDL_DestroyTexture(textTexture);
 }
+
+void drawBackButton(AppState *app, SDL_FRect *buttonRect, const char *text, float x, float y){
+    SDL_FPoint mousePoint = {
+        app->input.mouseX,
+        app->input.mouseY
+    };
+
+    // Set position first
+    buttonRect->x = x;
+    buttonRect->y = y;
+
+    // Detect hover
+    bool hovered =
+        SDL_PointInRectFloat(&mousePoint, buttonRect);
+
+    // Pick texture
+    SDL_Texture *buttonTex =
+        hovered ? app->backButtonOn : app->backButtonOff;
+
+    buttonRect->w = 80;
+    buttonRect->h = 80;
+
+    // Re-check hover now that size exists
+    hovered =
+        SDL_PointInRectFloat(&mousePoint, buttonRect);
+
+    // Re-pick texture
+    buttonTex =
+        hovered ? app->backButtonOn : app->backButtonOff;
+
+    // Draw button
+    SDL_RenderTexture(app->renderer,
+                      buttonTex,
+                      NULL,
+                      buttonRect);
+
+    // Text color
+    SDL_Color textColor;
+
+    if (hovered)
+    {
+        textColor = (SDL_Color){0, 0, 0, 255};
+    }
+    else
+    {
+        textColor = (SDL_Color){255, 255, 255, 255};
+    }
+
+    // Create text surface
+    SDL_Surface *surface =
+        TTF_RenderText_Blended(app->font,
+                               text,
+                               0,
+                               textColor);
+
+    if (!surface)
+        return;
+
+    // Create text texture
+    SDL_Texture *textTexture =
+        SDL_CreateTextureFromSurface(app->renderer,
+                                     surface);
+
+    SDL_DestroySurface(surface);
+
+    if (!textTexture)
+        return;
+
+    // Center text
+    float textW, textH;
+    SDL_GetTextureSize(textTexture, &textW, &textH);
+
+    SDL_FRect textRect = {
+        buttonRect->x + (buttonRect->w - textW) / 2.0f,
+        buttonRect->y + (buttonRect->h - textH) / 2.0f,
+        textW,
+        textH
+    };
+
+    // Draw text
+    SDL_RenderTexture(app->renderer,
+                      textTexture,
+                      NULL,
+                      &textRect);
+
+    SDL_DestroyTexture(textTexture);
+}
+
 
 void endTurnButton(AppState *app)
 {
@@ -530,59 +628,132 @@ void drawOptions(AppState *app){
     
     app->controlsRect.x = 0;
     app->controlsRect.y = 0;
-
-    drawText(app, app->font, "OPTIONS", app->optText);
     SDL_RenderTexture(app->renderer, app->controlsTexture, NULL, &app->controlsRect);
-
     volumeControls(app);
 }
 
-// Inside menu.c — Updated for left-alignment below the title area
-void volumeControls(AppState *app){
+
+bool drawSlider(AppState *app, float x, float y, float w, float h, float *volumeValue, const char *label)
+{
     SDL_FPoint mousePos = {app->input.mouseX, app->input.mouseY};
+    SDL_FRect trackRect = { x, y, w, h };
 
+    // Made to allow easier scrolling of the volume bar
+    SDL_FRect interactBounds = {
+        x - 10.0f,
+        y - 10.0f,
+        w + 20.0f,
+        h + 20.0f
+    };
 
-    float leftMargin = 100.0f;
-    float rowY = 230.0f; // Positioned safely underneath the 150.0f Options Title
+    bool isMouseOverSlider = SDL_PointInRectFloat(&mousePos, &interactBounds);
+    float originalValue = *volumeValue;
 
-    SDL_FRect plusBtn  = { leftMargin + 90.0f, rowY, 80.0f, 50.0f }; // [+] Button
-    SDL_FRect minusBtn = { leftMargin,   rowY, 80.0f, 50.0f }; // [-] Button next to it
-
-    SDL_RenderTexture(app->renderer, app->buttonOff, NULL, &minusBtn);
-    SDL_RenderTexture(app->renderer, app->buttonOff, NULL, &plusBtn);
-
-    drawText(app, app->font, "-", minusBtn);
-    drawText(app, app->font, "+", plusBtn);
-
-    // Handle Left-Click Interactions to step volume up or down by 10% increments
-    if (app->input.mouseLeftPressed)
+    // Handle mouse wheel scrolling
+    if (isMouseOverSlider && app->input.mouseWheelY != 0.0f)
     {
-        if (SDL_PointInRectFloat(&mousePos, &minusBtn))
-        {
-            app->masterVolume -= 0.1f;
-            if (app->masterVolume < 0.0f) app->masterVolume = 0.0f;
-            
-            if (app->menuMusic.stream) SDL_SetAudioStreamGain(app->menuMusic.stream, app->masterVolume);
-            if (app->techTreeMusic.stream) SDL_SetAudioStreamGain(app->techTreeMusic.stream, app->masterVolume);
-        }
-        
-        if (SDL_PointInRectFloat(&mousePos, &plusBtn))
-        {
-            app->masterVolume += 0.1f;
-            if (app->masterVolume > 1.0f) app->masterVolume = 1.0f;
-            
-            if (app->menuMusic.stream) SDL_SetAudioStreamGain(app->menuMusic.stream, app->masterVolume);
-            if (app->techTreeMusic.stream) SDL_SetAudioStreamGain(app->techTreeMusic.stream, app->masterVolume);
-        }
+        *volumeValue += (app->input.mouseWheelY > 0.0f) ? 0.05f : -0.05f;
     }
 
-    // Draw the volume percentage text readout box cleanly to the right of both buttons
+    // Handle left click/drag
+    if (app->input.mouseLeftDown && isMouseOverSlider)
+    {
+        float clickRelativeX = mousePos.x - x;
+        float newVolume = clickRelativeX / w;
+        *volumeValue = newVolume;
+    }
+
+    if (*volumeValue < 0.0f) *volumeValue = 0.0f;
+    if (*volumeValue > 1.0f) *volumeValue = 1.0f;
+
+    if (label)
+    {
+        SDL_FRect labelRect = { x, y - 35.0f, 150.0f, 30.0f };
+        drawText(app, app->font, label, labelRect);
+    }
+
+    // =====================
+    // RENDER VISUAL SLIDER
+    // =====================
+    SDL_SetRenderDrawBlendMode(app->renderer, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(app->renderer, 40, 40, 40, 200);
+    SDL_RenderFillRect(app->renderer, &trackRect);
+
+    float fillW = w * (*volumeValue);
+    if (fillW > 0.0f)
+    {
+        // Brighten up slider if mouse is over volume bar
+        Uint8 trackBright = isMouseOverSlider ? 240 : 190;
+        SDL_SetRenderDrawColor(app->renderer, trackBright, trackBright, trackBright, 255);
+        SDL_FRect fillRect = { x, y, fillW, h };
+        SDL_RenderFillRect(app->renderer, &fillRect);
+    }
+
+    SDL_SetRenderDrawColor(app->renderer, 255, 255, 255, 255);
+    SDL_RenderRect(app->renderer, &trackRect);
+
+    if (fillW > 0.0f && fillW < w)
+    {
+        SDL_SetRenderDrawColor(app->renderer, 255, 255, 255, 255);
+        SDL_RenderLine(app->renderer, x + fillW, y, x + fillW, y + h);
+    }
+
+    // Percentage text
     char volStr[32];
-    snprintf(volStr, sizeof(volStr), "VOLUME: %d%%", (int)(app->masterVolume * 100.0f));
+    snprintf(volStr, sizeof(volStr), "%d%%", (int)SDL_lroundf((*volumeValue) * 100.0f));
     
-    // Placed at X = 290 to sit on the same horizontal row beside the controls
-    SDL_FRect displayRect = { leftMargin + 190.0f, rowY, 180.0f, 50.0f };
+    SDL_FRect displayRect = { x + w + 25.0f, y - 8.0f, 100.0f, 50.0f };
     drawText(app, app->font, volStr, displayRect);
+
+    // Return true if this slider's value has changed during this frame execution
+    return (*volumeValue != originalValue);
+}
+
+void volumeControls(AppState *app)
+{
+    float leftMargin = 100.0f;
+    float startRowY = 400.0f;
+
+    float sliderW = 400.0f;          
+    float sliderH = 35.0f; 
+
+    // Track if either slider value changed this frame
+    bool changed = false;
+
+    // 1. Process Master Slider (Row Y: 300)
+    if (drawSlider(app, leftMargin, startRowY + 5.0f, sliderW, sliderH, &app->masterVolume, "Master Volume"))
+    {
+        changed = true;
+    }
+
+    // 2. Process Music Slider stacked cleanly below it (Row Y: 400)
+    if (drawSlider(app, leftMargin, startRowY + 105.0f, sliderW, sliderH, &app->musicVolume, "Music Volume"))
+    {
+        changed = true;
+    }
+
+    // 3. Dynamically apply values using the mixed math scaling formula
+    if (changed)
+    {
+        // Category Mix Rule: Music streams calculate (Master * Music)
+        float combinedMusicVol = app->masterVolume * app->musicVolume;
+
+        if (app->menuMusic.stream)     
+            SDL_SetAudioStreamGain(app->menuMusic.stream, combinedMusicVol);
+            
+        if (app->techTreeMusic.stream) 
+            SDL_SetAudioStreamGain(app->techTreeMusic.stream, combinedMusicVol);
+
+        // Standard Category Rule: Ambient background audio uses Master directly 
+        if (app->ambience.stream)      
+            SDL_SetAudioStreamGain(app->ambience.stream, app->masterVolume);
+
+        if (app->wrongSound.stream)      
+            SDL_SetAudioStreamGain(app->wrongSound.stream, app->masterVolume);
+
+        if (app->captureSound.stream)      
+            SDL_SetAudioStreamGain(app->captureSound.stream, app->masterVolume);
+    }
 }
 
 //player ui 

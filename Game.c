@@ -108,7 +108,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     app->inGame = false;
     app->showTechTree = false;
     
-    app->masterVolume = 0.7f;
+    app->masterVolume = 1.0f;
+    app->musicVolume = 1.0f;
 
     // TECH TREE INIT
     initTechTree(&app->techTreeP1);
@@ -360,6 +361,18 @@ case STATE_PLAYING:
             drawText(app, app->font, "Not enough gold!", errPos);
         }
 
+        techTreeBackButton(app);
+
+        if (app->input.mouseLeftPressed)
+        {
+            SDL_FPoint mousePos = {app->input.mouseX, app->input.mouseY};
+
+            if (SDL_PointInRectFloat(&mousePos, &app->techTreeBackButton)){
+                stopSound(&app->techTreeMusic);
+                app->gameState = STATE_PLAYING;
+            }
+        }
+
         // 4. CLEAN EXITS: Gracefully stop the track and shift states back to active gameplay
         if (app->input.keyPressed[SDL_SCANCODE_ESCAPE] || app->input.keyPressed[SDL_SCANCODE_T]) 
         {
@@ -391,11 +404,22 @@ case STATE_PLAYING:
                 app->masterVolume = previousVolume; // Restore to their pre-muted choice
                 if (app->masterVolume == 0.0f) app->masterVolume = 0.7f; // Fail-safe fallback
             }
-
-            if (app->menuMusic.stream) SDL_SetAudioStreamGain(app->menuMusic.stream, app->masterVolume);
-            if (app->techTreeMusic.stream) SDL_SetAudioStreamGain(app->techTreeMusic.stream, app->masterVolume);
-            if (app->ambience.stream) SDL_SetAudioStreamGain(app->ambience.stream, app->masterVolume);
         }
+
+        optionsBackButton(app);
+
+        if (app->input.mouseLeftPressed)
+        {
+            SDL_FPoint mousePos = {app->input.mouseX, app->input.mouseY};
+
+            if (SDL_PointInRectFloat(&mousePos, &app->optionsBackButton) && app->inGame == false ){
+                app->gameState = STATE_MENU;
+            }
+            else if (SDL_PointInRectFloat(&mousePos, &app->optionsBackButton) && app->inGame == true ){
+                app->gameState = STATE_PAUSED;
+            }
+        }
+
         if (app->input.keyPressed[SDL_SCANCODE_ESCAPE] && app->inGame == true ){
             app->gameState = STATE_PAUSED;
         }
@@ -698,11 +722,14 @@ void updateGame(AppState *app) {
                 }
             }
 
-            if (actionTaken || (mouseCol == app->selectedPiece->col && mouseRow == app->selectedPiece->row)) {
-                app->selectedPiece = NULL;
-                app->possibleMoveCount = 0;
-                app->possibleAttackCount = 0;
-            }
+            if (actionTaken ||
+            (mouseCol == app->selectedPiece->col &&
+            mouseRow == app->selectedPiece->row))
+        {
+            app->selectedPiece = NULL;
+            app->possibleMoveCount = 0;
+            app->possibleAttackCount = 0;
+        }
             // else {
             //     // playSound(&app->wrongSound);
                 

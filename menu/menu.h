@@ -48,6 +48,8 @@ void mainMenuButton(AppState *app);
 void optionsButton(AppState *app);
 void quitPauseButton(AppState *app);
 void techTreeButton(AppState *app);
+void optionsBackButton(AppState *app);
+void techTreeBackButton(AppState *app);
 void playerRectangles(AppState *app);
 void drawSinglePlayerStatus(AppState *app, SDL_FRect panel, const char* title, int playerNum);
 void drawOptions(AppState *app);
@@ -61,4 +63,5 @@ UIState getPieceUIState(AppState *app, pieceType type);
 pieceType getUpgradeType(pieceType type);
 SDL_Texture *getPieceTexture(AppState *app, pieceType type, UIState state);
 void drawButton(AppState *app, SDL_FRect *buttonRect, const char *text, float x, float y);
+void drawBackButton(AppState *app, SDL_FRect *buttonRect, const char *text, float x, float y);
 #endif 

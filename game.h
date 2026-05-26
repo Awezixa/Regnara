@@ -374,7 +374,6 @@ typedef struct AppState
     SDL_Texture *moveCapture;
     SDL_Texture *moveRanged;
     SDL_Texture *moveLancer;
-    SDL_Texture *moveTown;
     
     bool piecePlaced;
     float pieceX, pieceY;
@@ -382,6 +381,8 @@ typedef struct AppState
     //menu & UI textures
     SDL_Texture *buttonOn;
     SDL_Texture *buttonOff;
+    SDL_Texture *backButtonOn;
+    SDL_Texture *backButtonOff;
     SDL_Texture *goldTexture;
     SDL_Texture *techTreeBackgroundBlue;
     SDL_Texture *techTreeBackgroundRed;
@@ -396,6 +397,10 @@ typedef struct AppState
     SDL_FRect turnCount;
     SDL_FRect pauseTxt;
     SDL_FRect techTreeButton;
+    SDL_FRect optionsBackButton;
+    SDL_FRect techTreeBackButton;
+
+    GameState optionsSourceState;
 
     //options
     SDL_FRect optText;
@@ -413,6 +418,7 @@ typedef struct AppState
     Sound captureSound;
     Sound wrongSound;
     float masterVolume;
+    float musicVolume;
 
     float camX;
     float camY;
@@ -438,7 +444,7 @@ void resetGame(AppState *app);
 void startGame(AppState *app);
 void increaseTroopLimit(AppState *app, int extraSlots);
 void snapToKing(AppState *app);
-
+bool drawSlider(AppState *app, float x, float y, float w, float h, float *volumeValue, const char *label);
 
 
 #endif
