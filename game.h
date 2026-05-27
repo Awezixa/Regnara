@@ -417,6 +417,8 @@ typedef struct AppState
     Sound ambience;
     Sound captureSound;
     Sound wrongSound;
+    Sound moveSound;
+    Sound winMusic;
     float masterVolume;
     float musicVolume;
 

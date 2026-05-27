@@ -249,9 +249,6 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 {
     AppState *app = (AppState *)appstate;
 
-    // =========================
-    // Delta time
-    // =========================
     Uint64 nowMS = SDL_GetTicks();
     Uint64 elapsedMS = nowMS - app->lastTicksMS;
     app->lastTicksMS = nowMS;
@@ -261,14 +258,17 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     {
         app->menuMusic.playbackTimer -= app->dt;
         if (app->menuMusic.playbackTimer <= 0.0f) {
-            playSound(&app->menuMusic); // Rewinds and loops theme naturally
+            playSound(&app->menuMusic); 
+            // Reset timer to the track length so it doesn't spam every frame!
+            app->menuMusic.playbackTimer = app->menuMusic.duration > 0.0f ? app->menuMusic.duration : 10.0f;
         }
     }
     else if (app->gameState == TECH_TREE && app->techTreeMusic.stream)
     {
         app->techTreeMusic.playbackTimer -= app->dt;
         if (app->techTreeMusic.playbackTimer <= 0.0f) {
-            playSound(&app->techTreeMusic); // Rewinds and loops tech theme naturally
+            playSound(&app->techTreeMusic); 
+            app->techTreeMusic.playbackTimer = app->techTreeMusic.duration > 0.0f ? app->techTreeMusic.duration : 10.0f;
         }
     }
     else if (app->gameState == STATE_PLAYING && app->ambience.stream)
@@ -276,6 +276,8 @@ SDL_AppResult SDL_AppIterate(void *appstate)
         app->ambience.playbackTimer -= app->dt;
         if (app->ambience.playbackTimer <= 0.0f) {
             playSound(&app->ambience);
+            // FIX: Reset the timer back to full duration here!
+            app->ambience.playbackTimer = app->ambience.duration > 0.0f ? app->ambience.duration : 10.0f;
         }
     }
     
@@ -290,40 +292,56 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     {
     case STATE_MENU:
     {
-        drawMainMenu(app);
+    drawMainMenu(app);
 
-        if (app->input.mouseLeftPressed)
-        {
-            SDL_FPoint mousePos = {app->input.mouseX, app->input.mouseY};
+    if (app->input.mouseLeftPressed)
+    {
+        SDL_FPoint mousePos = {app->input.mouseX, app->input.mouseY};
+        
+        if (SDL_PointInRectFloat(&mousePos, &app->playbutton)){
+            stopSound(&app->menuMusic); 
+            resetGame(app);
+
+            if (app->ambience.stream) {
+                SDL_ClearAudioStream(app->ambience.stream);
+            }
             
-            if (SDL_PointInRectFloat(&mousePos, &app->playbutton)){
-                stopSound(&app->menuMusic); // Resets timer to 0
-                resetGame(app);
-
-                playSound(&app->ambience);
-                app->gameState = STATE_PLAYING;
-            }          
-
-            if (SDL_PointInRectFloat(&mousePos, &app->quitbutton)){
-                return SDL_APP_SUCCESS;
+            // Fallback check if duration configuration failed
+            if (app->ambience.duration <= 0.0f) {
+                app->ambience.duration = 30.0f; 
             }
 
-            if (SDL_PointInRectFloat(&mousePos, &app->optionsbutton)){
-                app->gameState = STATE_OPTIONS;
-            }
+            // Sync timer first, THEN hit play
+            app->ambience.playbackTimer = app->ambience.duration;
+            playSound(&app->ambience);
+            
+            app->gameState = STATE_PLAYING;
         }
 
-        if (app->input.keyPressed[SDL_SCANCODE_SPACE]||app->input.keyPressed[SDL_SCANCODE_KP_ENTER])
-            app->gameState = STATE_PLAYING;
+        if (SDL_PointInRectFloat(&mousePos, &app->quitbutton)){
+            return SDL_APP_SUCCESS;
+        }
 
-        break;
+        if (SDL_PointInRectFloat(&mousePos, &app->optionsbutton)){
+            app->gameState = STATE_OPTIONS;
+        }
+    }
+
+    if (app->input.keyPressed[SDL_SCANCODE_SPACE] || app->input.keyPressed[SDL_SCANCODE_KP_ENTER]) {
+        stopSound(&app->menuMusic);
+        resetGame(app);
+        
+        app->ambience.playbackTimer = app->ambience.duration > 0.0f ? app->ambience.duration : 30.0f;
+        playSound(&app->ambience);
+        
+        app->gameState = STATE_PLAYING;
+    }
+    break;
     }
     //done to have overlay instead of specific state
-case STATE_PLAYING:
+    case STATE_PLAYING:
     {
         app->inGame = true;
-
-
         updateGame(app); // Run core gameplay normally
         break;
     }
@@ -472,6 +490,7 @@ case STATE_PLAYING:
         SDL_FPoint mousePos = {app->input.mouseX, app->input.mouseY};
         if (app->input.mouseLeftPressed){
             if (app->input.keyPressed[SDL_SCANCODE_RETURN]||(SDL_PointInRectFloat(&mousePos, &app->mainmenubutton))){
+                    stopSound(&app->winMusic);
                     app->gameState = STATE_MENU;
                 }
             if(SDL_PointInRectFloat(&mousePos, &app->quitbutton)){
@@ -714,9 +733,7 @@ void updateGame(AppState *app) {
                     app->selectedPiece->moved = true;
                     actionTaken = true;
 
-                    // ====================================================
-                    // TRACK INTERACTION: Capture the attacking piece address!
-                    // ====================================================
+
                     app->lastInteractedPiece = app->selectedPiece; 
                     break;
                 }
@@ -730,13 +747,6 @@ void updateGame(AppState *app) {
             app->possibleMoveCount = 0;
             app->possibleAttackCount = 0;
         }
-            // else {
-            //     // playSound(&app->wrongSound);
-                
-            //     // app->selectedPiece = NULL;
-            //     // app->possibleMoveCount = 0;
-            //     // app->possibleAttackCount = 0;
-            // }
         }
 
         // Handle Cheats Overlay Toggle
@@ -772,16 +782,15 @@ void updateGame(AppState *app) {
     // =========================================================
     // 5. TECH TREE TRANSITION TRIGGER (State Machine Switch Only)
     // =========================================================
-    if (app->input.keyPressed[SDL_SCANCODE_T] || 
+if (app->input.keyPressed[SDL_SCANCODE_T] || 
        (app->input.mouseLeftPressed && SDL_PointInRectFloat(&mousePos, &app->techTreeButton))) 
     {
-        // Hard-stop anything playing in the background match view
+        stopSound(&app->ambience);
         stopSound(&app->menuMusic);
         
-        // Start playing the tech theme exactly once on this trigger frame
+        app->techTreeMusic.playbackTimer = app->techTreeMusic.duration > 0.0f ? app->techTreeMusic.duration : 30.0f;
         playSound(&app->techTreeMusic);
         
-        // Switch execution state layers safely
         app->gameState = TECH_TREE; 
     }
 
@@ -836,13 +845,16 @@ void winCondition(AppState *app){
     {
         stopSound(&app->ambience);
         app->winner = 1;
-        app->gameState = STATE_END;   
+        app->gameState = STATE_END;  
+        if (app->winMusic.stream) playSound(&app->winMusic); 
     }
     else if(app->P2.towns == app->tTowns && app->tTowns > 0){
         stopSound(&app->ambience);
         app->winner = 2;
         app->gameState = STATE_END;
+        if (app->winMusic.stream) playSound(&app->winMusic);
     }
+    
     //king capturing win condition in piece capturing
 }
 

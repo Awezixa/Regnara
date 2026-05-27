@@ -99,13 +99,13 @@ void playSound(Sound *sound)
 {
     if (!sound->stream) return;
 
-    sound->playbackTimer = sound->duration;
+    // FIX: Only overwrite if duration has a valid real-world value loaded
+    if (sound->duration > 0.0f) {
+        sound->playbackTimer = sound->duration;
+    }
 
     SDL_ClearAudioStream(sound->stream);
     SDL_PutAudioStreamData(sound->stream, sound->wav_data, (int)sound->wav_data_len);
-    
-    // FETCH AND APPLY ACTIVE VOLUME AUTOMATICALLY BEFORE FLUSHING
-    // (Note: To access app->masterVolume, ensure playSound reads the state variable or pulls a local application instance)
     SDL_FlushAudioStream(sound->stream);
 }
 
@@ -561,7 +561,9 @@ bool LoadAllGameAudio(AppState *app)
         {&app->techTreeMusic, "Assets/audio/techTreeMusic.wav"},
         {&app->ambience,      "Assets/audio/ambience.wav"},
         {&app->wrongSound,      "Assets/audio/wrong.wav"},
-        {&app->captureSound,      "Assets/audio/capture.wav"}
+        {&app->captureSound,      "Assets/audio/capture.wav"},
+        {&app->moveSound,      "Assets/audio/move2.wav"},
+        {&app->winMusic,      "Assets/audio/Win.wav"},
         // {&app->clickSFX,   "Assets/audio/click.wav"}
     };
 
