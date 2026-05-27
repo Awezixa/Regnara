@@ -486,14 +486,18 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     case STATE_END:
     {
         drawEndScreen(app);
-        stopSound(&app->ambience);
+        
         SDL_FPoint mousePos = {app->input.mouseX, app->input.mouseY};
-        if (app->input.mouseLeftPressed){
-            if (app->input.keyPressed[SDL_SCANCODE_RETURN]||(SDL_PointInRectFloat(&mousePos, &app->mainmenubutton))){
-                    stopSound(&app->winMusic);
-                    app->gameState = STATE_MENU;
-                }
-            if(SDL_PointInRectFloat(&mousePos, &app->quitbutton)){
+        
+        if (app->input.mouseLeftPressed)
+        {
+            if (app->input.keyPressed[SDL_SCANCODE_RETURN] || (SDL_PointInRectFloat(&mousePos, &app->mainmenubutton)))
+            {
+                stopSound(&app->winSound);
+                app->gameState = STATE_MENU;
+            }
+            if (SDL_PointInRectFloat(&mousePos, &app->quitbutton))
+            {
                 return SDL_APP_SUCCESS;
             }
         }
@@ -708,6 +712,8 @@ void updateGame(AppState *app) {
                     else CapturePiece(app, mouseRow, mouseCol);
                 }
 
+                playSound(&app->moveSound);
+
                 app->selectedPiece->col = mouseCol;
                 app->selectedPiece->row = mouseRow;
                 app->selectedPiece->pieceX = mouseCol * TILE_SIZE;
@@ -734,20 +740,64 @@ void updateGame(AppState *app) {
                     actionTaken = true;
 
 
-                    app->lastInteractedPiece = app->selectedPiece; 
+                    app->lastInteractedPiece = app->selectedPiece;
                     break;
                 }
             }
 
-            if (actionTaken ||
-            (mouseCol == app->selectedPiece->col &&
-            mouseRow == app->selectedPiece->row))
+        if (actionTaken)
         {
             app->selectedPiece = NULL;
             app->possibleMoveCount = 0;
             app->possibleAttackCount = 0;
         }
+        else if (app->input.mouseLeftPressed)
+        {
+            // Stop if player's hovering over UI
+            if(!moveIntoUI)
+            {
+                // ✨ FIX: If clicking the ALREADY selected piece, explicitly deselect it
+                if (mouseCol == app->selectedPiece->col && mouseRow == app->selectedPiece->row)
+                {
+                    app->selectedPiece = NULL;
+                    app->possibleMoveCount = 0;
+                    app->possibleAttackCount = 0;
+                }
+                else 
+                {
+                    bool clickedValidTile = false;
+
+                    // check if tile was a valid movement tile
+                    for (int i = 0; i < app->possibleMoveCount; i++)
+                    {
+                        if (app->possibleMoves[i].x == mouseCol && app->possibleMoves[i].y == mouseRow)
+                        {
+                            clickedValidTile = true;
+                            break;
+                        }
+                    }
+
+                    // check if tile was an attackable tile
+                    for (int i = 0; i < app->possibleAttackCount; i++)
+                    {
+                        if (app->possibleAttacks[i].x == mouseCol && app->possibleAttacks[i].y == mouseRow)
+                        {
+                            clickedValidTile = true;
+                            break;
+                        }
+                    }
+
+                    // If they clicked random empty space or non-valid tiles, drop selection
+                    if (!clickedValidTile)
+                    {
+                        app->selectedPiece = NULL;
+                        app->possibleMoveCount = 0;
+                        app->possibleAttackCount = 0;
+                    }
+                }
+            }
         }
+    }
 
         // Handle Cheats Overlay Toggle
         if (app->input.keyPressed[SDL_SCANCODE_C]) app->cheats = !app->cheats;
@@ -838,24 +888,21 @@ void endTurn(AppState *app) {
     if (app->P2.p2Gold > 100) app->P2.p2Gold = 100;
 }
 
-void winCondition(AppState *app){
-    //need to check who controls all towns
+void winCondition(AppState *app)
+{
+    bool player1Won = (app->P1.towns == app->tTowns && app->tTowns > 0);
+    bool player2Won = (app->P2.towns == app->tTowns && app->tTowns > 0);
 
-    if (app->P1.towns == app->tTowns && app->tTowns > 0)
+    if (player1Won || player2Won)
     {
+        app->winner = player1Won ? 1 : 2;
+
         stopSound(&app->ambience);
-        app->winner = 1;
-        app->gameState = STATE_END;  
-        if (app->winMusic.stream) playSound(&app->winMusic); 
-    }
-    else if(app->P2.towns == app->tTowns && app->tTowns > 0){
-        stopSound(&app->ambience);
-        app->winner = 2;
+
+        playSound(&app->winSound);
+
         app->gameState = STATE_END;
-        if (app->winMusic.stream) playSound(&app->winMusic);
     }
-    
-    //king capturing win condition in piece capturing
 }
 
 void resetGame(AppState *app) {

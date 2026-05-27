@@ -61,6 +61,7 @@ void CapturePiece(AppState *app, int row, int col)
 
             if (other->type == KING) {
                 app->winner = (other->owner == 1) ? 2 : 1;
+                playSound(&app->winSound);
                 app->gameState = STATE_END;
             }
             

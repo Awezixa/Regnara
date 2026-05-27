@@ -329,7 +329,13 @@ UIState getPieceUIState(AppState *app, pieceType type)
     if (!pieceUnlocked(app, type))
         return UI_LOCKED;
 
-    if (pieceCountReached(app, type))
+    if (isPieceAtCap(app, app->currentPlayer, type))
+        return UI_UNAVAILABLE;
+
+    int cost = pieceCost(type);
+    int currentGold = (app->currentPlayer == 1) ? app->P1.p1Gold : app->P2.p2Gold;
+    
+    if (currentGold < cost)
         return UI_UNAVAILABLE;
 
     return UI_AVAILABLE;
@@ -397,35 +403,62 @@ void unitIconUI(AppState *app)
 
         SDL_RenderTexture(app->renderer, tex, NULL, units[i].button);
 
-        // highlight selected type
         char pieceCap[64];
-        int pieceCount = countPiecesByType(app, app->currentPlayer, units[i].baseType);
-        
-        snprintf(pieceCap, sizeof(pieceCap), "%d/%d", pieceCount, app->maxPlayerPieces);
+
+int pieceCount =
+    getFamilyCount  (app,
+                    app->currentPlayer,
+                    units[i].baseType);
+
+int maxPieces =
+    getMaxPiecesForType(app,
+                        app->currentPlayer,
+                        units[i].baseType);
+
+snprintf(pieceCap,
+         sizeof(pieceCap),
+         "%d/%d",
+         pieceCount,
+         maxPieces);
+
         SDL_FRect countTextRect = {
-                units[i].button->x,
-                units[i].button->y - 30.0f,
-                96.0f,  // Match the exact width of the card box
-                36.0f   // Match the exact height of the overlay ribbon
-            };
+    units[i].button->x,
+    units[i].button->y - 30.0f,
+    96.0f,
+    36.0f};
 
 
-        if (app->selectedPieceType == units[i].baseType && state == UI_AVAILABLE)
+        if (app->selectedPieceType == units[i].baseType)
         {
-            SDL_Texture *overlay =
-                (app->currentPlayer == 1)
-                ? app->UIBlueOverlayAvailable
-                : app->UIRedOverlayAvailable;
+            SDL_Texture *overlay = NULL;
 
-            SDL_FRect overlayRect = {
-                units[i].button->x,
-                units[i].button->y - 33.0f,
-                96,
-                36
-            };
+            if (state == UI_AVAILABLE)
+            {
+                overlay =
+                    (app->currentPlayer == 1)
+                    ? app->UIBlueOverlayAvailable
+                    : app->UIRedOverlayAvailable;
+            }
+            else if (state == UI_UNAVAILABLE)
+            {
+                overlay =
+                    (app->currentPlayer == 1)
+                    ? app->UIBlueOverlayUnavailable
+                    : app->UIRedOverlayUnavailable;
+            }
 
-            SDL_RenderTexture(app->renderer, overlay, NULL, &overlayRect);
-            drawText(app, app->font, pieceCap, countTextRect);
+            if (overlay != NULL)
+            {
+                SDL_FRect overlayRect = {
+                    units[i].button->x,
+                    units[i].button->y - 33.0f,
+                    96,
+                    36
+                };
+
+                SDL_RenderTexture(app->renderer, overlay, NULL, &overlayRect);
+                drawText(app, app->font, pieceCap, countTextRect);
+            }
         }
 
     }
@@ -437,7 +470,12 @@ void unitIconUI(AppState *app)
         {
             if (SDL_PointInRectFloat(&mousePoint, units[i].button))
             {
-                app->selectedPieceType = units[i].baseType;
+                UIState state = getPieceUIState(app, units[i].baseType);
+
+                if (state == UI_AVAILABLE)
+                {
+                    app->selectedPieceType = units[i].baseType;
+                }
             }
         }
     }
@@ -563,6 +601,7 @@ void unitIconUI(AppState *app)
         }
     }
 }
+
 
 void drawEndScreen(AppState *app){
     char winner[62];
@@ -753,6 +792,12 @@ void volumeControls(AppState *app)
 
         if (app->captureSound.stream)      
             SDL_SetAudioStreamGain(app->captureSound.stream, app->masterVolume);
+
+        if (app->winSound.stream)      
+            SDL_SetAudioStreamGain(app->winSound.stream, app->masterVolume);
+        
+        if (app->moveSound.stream)      
+            SDL_SetAudioStreamGain(app->moveSound.stream, app->masterVolume);
     }
 }
 
@@ -997,4 +1042,108 @@ void endMainMenuButton(AppState *app){
 
 void endQuitButton(AppState *app){
     drawButton(app, &app->quitbutton, "QUIT", (float)(WINDOW_WIDTH / 2) - (app->quitbutton.w/2), 650.0f);
+}
+
+
+// Add this to menu.c
+bool isMouseOverUI(AppState *app)
+{
+    // Checks if the mouse is in the bottom bar region (height 150px)
+    if (app->input.mouseY >= (WINDOW_HEIGHT - 150.0f))
+    {
+        return true;
+    }
+    
+    // You can add other global UI rectangle checks here if needed, like:
+    // SDL_FPoint mousePt = { app->input.mouseX, app->input.mouseY };
+    // if (SDL_PointInRectFloat(&mousePt, &app->techTreeButton)) return true;
+
+    return false;
+}
+
+int getBasePieceCap(pieceType type)
+{
+    switch (type)
+    {
+        case PAWN:   case ENVOY:    return 8;
+        case KNIGHT: case LANCER:   return 2;
+        case BISHOP: case MAGE:     return 2;
+        case ROOK:   case CATAPULT: return 2;
+        case QUEEN:                 return 1;
+        case KING:                  return 1;
+        default:                    return 0;
+    }
+}
+
+int getMaxPiecesForType(AppState *app, int playerNum, pieceType type)
+{
+    if (type == KING) return 1;
+
+    int base = getBasePieceCap(type);
+    TechTree *tree = (playerNum == 1) ? &app->techTreeP1 : &app->techTreeP2;
+    
+    if (isUpgradeUnlocked(tree, 10)) 
+    {
+        base *= 2;
+    }
+
+    int towns = (playerNum == 1) ? app->P1.towns : app->P2.towns;
+
+    // Only apply extra pieces if they own MORE than their starting capital town
+    if (towns > 1) {
+        int bonusTowns = towns - 1; // Calculate extra expansions
+
+        if (type == QUEEN) {
+            base += (bonusTowns / 2); 
+        }
+        else if (type == PAWN || type == ENVOY) {
+            base += (bonusTowns * 4); // +4 per expansion town
+        }
+        else {
+            base += (bonusTowns * 1); // +1 per expansion town for other pieces
+        }
+    }
+
+    return base;
+}
+
+int countPiecesByType(AppState *app, int player, pieceType type) {
+    int total = 0;
+    // Walk the entire structural array buffer using your native variable
+    for (int i = 0; i < app->maxPieceCapacity; i++) {
+        if (app->pieces[i].active && app->pieces[i].owner == player && app->pieces[i].type == type) {
+            total++;
+        }
+    }
+    return total;
+}
+
+bool isPieceAtCap(AppState *app, int player, pieceType type)
+{
+    int count = 0;
+
+    // Count base + upgraded pieces (same logic you already had)
+    for (int i = 0; i < app->maxPieceCapacity; i++)
+    {
+        if (app->pieces[i].active &&
+            app->pieces[i].owner == player &&
+            app->pieces[i].type == type)
+        {
+            count++;
+        }
+    }
+
+    // Include upgrade equivalents so base slots behave correctly
+    switch (type)
+    {
+        case PAWN:   count += countPiecesByType(app, player, ENVOY);    break;
+        case KNIGHT: count += countPiecesByType(app, player, LANCER);   break;
+        case BISHOP: count += countPiecesByType(app, player, MAGE);     break;
+        case ROOK:   count += countPiecesByType(app, player, CATAPULT); break;
+        default: break;
+    }
+
+    int maxAllowed = getMaxPiecesForType(app, player, type);
+
+    return count >= maxAllowed;
 }

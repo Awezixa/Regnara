@@ -3,140 +3,110 @@
 
 void spawnPiece(AppState *app)
 {
-    if (app->selectedPiece != NULL){return;}
-    
-    // Check for click and check baseline storage arrays
-    if (app->input.mouseLeftPressed && app->pieceCount < app->maxPieceCapacity)
+    if (app->selectedPiece != NULL) return;
+
+    if (!app->input.mouseLeftPressed)
+        return;
+
+    // UI bar block
+    if (app->input.mouseY >= WINDOW_HEIGHT - 150.0f)
+        return;
+
+    // Convert screen → world
+    float worldX = (app->input.mouseX / app->camera.zoom) + app->camera.x;
+    float worldY = (app->input.mouseY / app->camera.zoom) + app->camera.y;
+
+    int col = (int)(worldX / TILE_SIZE);
+    int row = (int)(worldY / TILE_SIZE);
+
+    if (row < 0 || row >= MAP_ROWS || col < 0 || col >= MAP_COLS)
     {
+        playSound(&app->wrongSound);
+        return;
+    }
 
-        if (app->input.mouseY >= WINDOW_HEIGHT - 150.0f) {
-            return;
-        }
+    if (!pieceSpawnable(app, app->currentPlayer))
+        return;
 
-        if (app->selectedPiece != NULL) 
-        {
-            // Re-calculate the layout parameters used in menu.c dynamically
-            int unitCount = 5; 
-            float spacing = 120.0f;
-            float startX = (WINDOW_WIDTH / 2.0f) - (((unitCount - 1) * spacing) / 2.0f);
-            float sizex = 96.0f;
-            float sizey = 144.0f;
+    if (isPieceAtCap(app, app->currentPlayer, app->selectedPieceType))
+    {
+        playSound(&app->wrongSound);
+        return;
+    }
 
-            SDL_FRect upgradeBtnBound = {
-                startX + ((unitCount - 1) * spacing) + spacing + 20,
-                WINDOW_HEIGHT - 160.0f,
-                sizex,
-                sizey
-            };
+    int cost = pieceCost(app->selectedPieceType);
+    int *playerGold = (app->currentPlayer == 1)
+        ? &app->P1.p1Gold
+        : &app->P2.p2Gold;
 
-            SDL_FPoint mousePt = { app->input.mouseX, app->input.mouseY };
+    if (*playerGold < cost)
+    {
+        app->errorTimer = 1.5f;
+        playSound(&app->wrongSound);
+        return;
+    }
 
-            // If hovering over the upgrade box, drop out silently so menu.c can handle it!
-            if (SDL_PointInRectFloat(&mousePt, &upgradeBtnBound)) {
-                return;
-            }
-        }
+    if (!app->cheats && !inTerritory(app, row, col))
+    {
+        playSound(&app->wrongSound);
+        return;
+    }
 
+    char tile = map_data[row][col];
 
-        // Convert raw screen pixel vectors into absolute world grid coordinates safely
-        float worldX = (app->input.mouseX / app->camera.zoom) + app->camera.x;
-        float worldY = (app->input.mouseY / app->camera.zoom) + app->camera.y;
+    if (!(tile == GRASS_TILE || tile == BRIDGE_TOP_TILE || tile == BRIDGE_BOTTOM_TILE ||
+          tile == UPGRADE_TILE || tile == SPAWN_POINT || tile == TOWN_TILE))
+    {
+        playSound(&app->wrongSound);
+        return;
+    }
 
-        int col = (int)(worldX / TILE_SIZE);
-        int row = (int)(worldY / TILE_SIZE);
+    float targetX = (float)(col * TILE_SIZE);
+    float targetY = (float)(row * TILE_SIZE);
 
-        // 2. HARD GRID INSPECTION: Only evaluate sounds if clicking INSIDE the actual map grid space!
-        if (row >= 0 && row < MAP_ROWS && col >= 0 && col < MAP_COLS)
-        {
-            // Now that we are verified on the map, run lock validations
-            if (pieceSpawnable(app, app->currentPlayer))
-            {
-                int cost = pieceCost(app->selectedPieceType);
-                int *playerGold = (app->currentPlayer == 1) ? &app->P1.p1Gold : &app->P2.p2Gold;
-
-                // Failure condition A: Player cannot afford the unit card
-                if (*playerGold < cost)
-                {
-                    app->errorTimer = 1.5f;
-                    playSound(&app->wrongSound);
-                    return;
-                }
-
-                // Failure condition B: Not playing with cheats, and clicked outside base territory
-                if(!app->cheats && !inTerritory(app, row, col))
-                { 
-                    playSound(&app->wrongSound);
-                    return; 
-                }
-
-                char tile = map_data[row][col];
-
-                // Validate tile layer terrain accessibility types
-                if (tile == GRASS_TILE || tile == BRIDGE_TOP_TILE || tile == BRIDGE_BOTTOM_TILE || 
-                    tile == UPGRADE_TILE || tile == SPAWN_POINT || tile == TOWN_TILE)
-                {
-                    float targetX = (float)(col * TILE_SIZE);
-                    float targetY = (float)(row * TILE_SIZE);
-
-                    // Occupancy Check loop
-                    bool occupied = false;
-                    for (int j = 0; j < app->maxPieceCapacity; j++)
-                    {
-                        if (app->pieces[j].active &&
-                            app->pieces[j].pieceX == targetX &&
-                            app->pieces[j].pieceY == targetY)
-                        {
-                            occupied = true;
-                            break;
-                        }
-                    }
-
-                    if (occupied)
-                    {
-                        playSound(&app->wrongSound);
-                        return;
-                    }
-
-                    for (int i = 0; i < app->maxPieceCapacity; i++)
-                    {
-                        if (!app->pieces[i].active)
-                        {
-                            app->pieces[i].pieceX = targetX;
-                            app->pieces[i].pieceY = targetY;
-                            app->pieces[i].col = col;
-                            app->pieces[i].row = row;
-                            app->pieces[i].active = true;
-
-                            app->pieces[i].type = app->selectedPieceType;
-                            app->pieces[i].owner = app->currentPlayer;
-
-                            *playerGold -= cost;
-                            app->pieceCount++;
-
-                            if (app->currentPlayer == 1) app->P1.pieceCount++;
-                            else app->P2.pieceCount++;
-
-                            app->lastInteractedPiece = &app->pieces[i];
-
-                            app->selectedPieceType = KING; // King cannot be spawned manually, resets card selector
-
-                            break;
-                        }
-                    }
-                }
-                else 
-                {
-                    playSound(&app->wrongSound);
-                }
-            }
-        }
-        else 
+    // Occupancy check
+    for (int j = 0; j < app->maxPieceCapacity; j++)
+    {
+        if (app->pieces[j].active &&
+            app->pieces[j].pieceX == targetX &&
+            app->pieces[j].pieceY == targetY)
         {
             playSound(&app->wrongSound);
+            return;
+        }
+    }
+
+    // Spawn
+    for (int i = 0; i < app->maxPieceCapacity; i++)
+    {
+        if (!app->pieces[i].active)
+        {
+            app->pieces[i].pieceX = targetX;
+            app->pieces[i].pieceY = targetY;
+            app->pieces[i].col = col;
+            app->pieces[i].row = row;
+            app->pieces[i].active = true;
+
+            app->pieces[i].type = app->selectedPieceType;
+            app->pieces[i].owner = app->currentPlayer;
+
+            *playerGold -= cost;
+
+            app->pieceCount++;
+
+            if (app->currentPlayer == 1)
+                app->P1.pieceCount++;
+            else
+                app->P2.pieceCount++;
+
+            app->lastInteractedPiece = &app->pieces[i];
+
+            app->selectedPieceType = KING;
+
+            break;
         }
     }
 }
-
 
 void renderPiece(AppState *app)
 {
@@ -310,8 +280,6 @@ bool pieceOnUpgradeTile(Piece *piece)
 bool pieceSpawnable(AppState *app, int player)
 {
     if (app->pieceCount >= app->maxPieceCapacity){return false;}
-    int count = (player == 1) ? app->P1.pieceCount : app->P2.pieceCount;
-    if (count >= app->maxPlayerPieces)return false;
 
     TechTree *tree = (player == 1) ? &app->techTreeP1 : &app->techTreeP2;
     //add unlock checks here for pieces
@@ -418,16 +386,6 @@ int pieceCost(pieceType type){
     }
 }
 
-int countPiecesByType(AppState *app, int player, pieceType type) {
-    int total = 0;
-    for (int i = 0; i < app->maxPieceCapacity; i++) {
-        if (app->pieces[i].active && app->pieces[i].owner == player && app->pieces[i].type == type) {
-            total++;
-        }
-    }
-    return total;
-}
-
 bool pieceUnlocked(AppState *app, pieceType type)
 {
     TechTree *tree;
@@ -471,66 +429,6 @@ bool pieceUnlocked(AppState *app, pieceType type)
         default:
             return false;
     }
-}
-
-bool pieceCountReached(AppState *app, pieceType type)
-{
-    int player =
-        app->currentPlayer;
-
-    int count =
-        countPiecesByType(app, player, type);
-
-    int towns =
-        (player == 1)
-        ? app->P1.towns + 1
-        : app->P2.towns + 1;
-
-    int maxAllowed = 0;
-
-    switch(type)
-    {
-        case PAWN:
-            maxAllowed = towns * 8;
-            break;
-
-        case KNIGHT:
-            maxAllowed = towns * 2;
-            break;
-
-        case BISHOP:
-            maxAllowed = towns * 2;
-            break;
-
-        case ROOK:
-            maxAllowed = towns * 2;
-            break;
-
-        case QUEEN:
-            maxAllowed = towns;
-            break;
-
-        case ENVOY:
-            maxAllowed = towns * 2;
-            break;
-
-        case LANCER:
-            maxAllowed = towns * 2;
-            break;
-
-        case MAGE:
-            maxAllowed = towns * 2;
-            break;
-
-        case CATAPULT:
-            maxAllowed = towns * 1;
-            break;
-
-        default:
-            return false;
-    }
-
-    return count >= maxAllowed;
 }
 
 pieceType getUpgradeType(pieceType type)
@@ -662,4 +560,32 @@ void useUpgradePlatform(AppState *app, Piece *piece)
     piece->moved = true;
 
     printf("Upgrade Platform rolled: %d\n", newType);
+}
+
+int getFamilyCount(AppState *app, int player, pieceType type)
+{
+    switch (type)
+    {
+        case PAWN:
+            return countPiecesByType(app, player, PAWN)
+                 + countPiecesByType(app, player, ENVOY);
+
+        case KNIGHT:
+            return countPiecesByType(app, player, KNIGHT)
+                 + countPiecesByType(app, player, LANCER);
+
+        case BISHOP:
+            return countPiecesByType(app, player, BISHOP)
+                 + countPiecesByType(app, player, MAGE);
+
+        case ROOK:
+            return countPiecesByType(app, player, ROOK)
+                 + countPiecesByType(app, player, CATAPULT);
+
+        case QUEEN:
+            return countPiecesByType(app, player, QUEEN);
+
+        default:
+            return 0;
+    }
 }

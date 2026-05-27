@@ -64,4 +64,13 @@ pieceType getUpgradeType(pieceType type);
 SDL_Texture *getPieceTexture(AppState *app, pieceType type, UIState state);
 void drawButton(AppState *app, SDL_FRect *buttonRect, const char *text, float x, float y);
 void drawBackButton(AppState *app, SDL_FRect *buttonRect, const char *text, float x, float y);
+
+
+bool isMouseOverUI(AppState *app);
+
+int getBasePieceCap(pieceType type);
+int getMaxPiecesForType(AppState *app, int playerNum, pieceType type);
+int countPiecesByType(AppState *app, int playerNum, pieceType type);
+bool isPieceAtCap(AppState *app, int player, pieceType type);
+
 #endif 

@@ -562,8 +562,8 @@ bool LoadAllGameAudio(AppState *app)
         {&app->ambience,      "Assets/audio/ambience.wav"},
         {&app->wrongSound,      "Assets/audio/wrong.wav"},
         {&app->captureSound,      "Assets/audio/capture.wav"},
-        {&app->moveSound,      "Assets/audio/move2.wav"},
-        {&app->winMusic,      "Assets/audio/Win.wav"},
+        {&app->moveSound,      "Assets/audio/move.wav"},
+        {&app->winSound,      "Assets/audio/win.wav"},
         // {&app->clickSFX,   "Assets/audio/click.wav"}
     };
 
@@ -588,7 +588,8 @@ void CleanupAllAudio(AppState *app)
         &app->techTreeMusic,
         &app->ambience,
         &app->wrongSound,
-        &app->captureSound
+        &app->captureSound,
+        &app->winSound
         // Keep this strictly aligned with your loading registry array pointers
     };
 
