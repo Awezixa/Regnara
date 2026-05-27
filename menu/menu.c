@@ -324,7 +324,7 @@ void gameUI(AppState *app)
     endTurnButton(app);
 }
 
-UIState getPieceUIState(AppState *app, pieceType type)
+UIState getPieceUIState(AppState *app, PieceType type)
 {
     if (!pieceUnlocked(app, type))
         return UI_LOCKED;
@@ -556,7 +556,7 @@ snprintf(pieceCap,
 
     if (app->selectedPiece != NULL)
     {
-        pieceType upgradeType =
+        PieceType upgradeType =
             getUpgradeType(app->selectedPiece->type);
 
         if (upgradeType != KING)
@@ -872,7 +872,7 @@ void drawSinglePlayerStatus(AppState *app, SDL_FRect panel, const char* title, i
     drawText(app, app->fontLarge, goldStr, goldRect);
 }
 
-SDL_Texture *getPieceTexture(AppState *app, pieceType type, UIState state)
+SDL_Texture *getPieceTexture(AppState *app, PieceType type, UIState state)
 {
     // Decide player-based color set first
     int isPlayer1 = (app->currentPlayer == 1);
@@ -1061,7 +1061,7 @@ bool isMouseOverUI(AppState *app)
     return false;
 }
 
-int getBasePieceCap(pieceType type)
+int getBasePieceCap(PieceType type)
 {
     switch (type)
     {
@@ -1075,7 +1075,7 @@ int getBasePieceCap(pieceType type)
     }
 }
 
-int getMaxPiecesForType(AppState *app, int playerNum, pieceType type)
+int getMaxPiecesForType(AppState *app, int playerNum, PieceType type)
 {
     if (type == KING) return 1;
 
@@ -1107,7 +1107,7 @@ int getMaxPiecesForType(AppState *app, int playerNum, pieceType type)
     return base;
 }
 
-int countPiecesByType(AppState *app, int player, pieceType type) {
+int countPiecesByType(AppState *app, int player, PieceType type) {
     int total = 0;
     // Walk the entire structural array buffer using your native variable
     for (int i = 0; i < app->maxPieceCapacity; i++) {
@@ -1118,7 +1118,7 @@ int countPiecesByType(AppState *app, int player, pieceType type) {
     return total;
 }
 
-bool isPieceAtCap(AppState *app, int player, pieceType type)
+bool isPieceAtCap(AppState *app, int player, PieceType type)
 {
     int count = 0;
 

@@ -17,7 +17,7 @@ Piece costs
 
 
 
-typedef enum pieceType{
+typedef enum PieceType{
     KING,
     QUEEN,
     PAWN,
@@ -28,7 +28,7 @@ typedef enum pieceType{
     MAGE,
     CATAPULT, 
     LANCER
-} pieceType;
+} PieceType;
 
 typedef struct Piece
 {
@@ -38,7 +38,7 @@ typedef struct Piece
     int dy;
     int owner; // 1 = p1, 2 = p2
     bool active;
-    pieceType type;
+    PieceType type;
     bool moved;
     bool abilityUsed;
 } Piece;
@@ -61,12 +61,12 @@ bool isTileWalkable(int row, int col);
 bool pieceOnUpgradeTile(Piece *piece);
 bool pieceSpawnable(AppState *app, int player);
 bool inTerritory(AppState *app, int row, int col);
-int pieceCost(pieceType type);
-bool pieceUnlocked(AppState *app, pieceType type);
+int pieceCost(PieceType type);
+bool pieceUnlocked(AppState *app, PieceType type);
 
-pieceType rollUpgradePlatformPiece(AppState *app);
+PieceType rollUpgradePlatformPiece(AppState *app);
 void useUpgradePlatform(AppState *app, Piece *piece);
 
-int getFamilyCount(AppState *app, int player, pieceType type);
+int getFamilyCount(AppState *app, int player, PieceType type);
 
 #endif

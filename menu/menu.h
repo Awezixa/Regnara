@@ -9,8 +9,8 @@ typedef struct AppState AppState;
 
 typedef struct
 {
-    pieceType baseType;
-    pieceType upgradeType;
+    PieceType baseType;
+    PieceType upgradeType;
 
     SDL_FRect *button;
 
@@ -59,18 +59,18 @@ void pauseOptionsButton(AppState *app);
 void endMainMenuButton(AppState *app);
 void endQuitButton(AppState *app);
 //Tiago
-UIState getPieceUIState(AppState *app, pieceType type);
-pieceType getUpgradeType(pieceType type);
-SDL_Texture *getPieceTexture(AppState *app, pieceType type, UIState state);
+UIState getPieceUIState(AppState *app, PieceType type);
+PieceType getUpgradeType(PieceType type);
+SDL_Texture *getPieceTexture(AppState *app, PieceType type, UIState state);
 void drawButton(AppState *app, SDL_FRect *buttonRect, const char *text, float x, float y);
 void drawBackButton(AppState *app, SDL_FRect *buttonRect, const char *text, float x, float y);
 
 
 bool isMouseOverUI(AppState *app);
 
-int getBasePieceCap(pieceType type);
-int getMaxPiecesForType(AppState *app, int playerNum, pieceType type);
-int countPiecesByType(AppState *app, int playerNum, pieceType type);
-bool isPieceAtCap(AppState *app, int player, pieceType type);
+int getBasePieceCap(PieceType type);
+int getMaxPiecesForType(AppState *app, int playerNum, PieceType type);
+int countPiecesByType(AppState *app, int playerNum, PieceType type);
+bool isPieceAtCap(AppState *app, int player, PieceType type);
 
 #endif 

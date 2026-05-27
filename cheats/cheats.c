@@ -49,7 +49,7 @@ void presetMatch(AppState *app) {
             app->P2.towns++;
         }
     }
-    struct {int r; int c; pieceType type; int owner;} presets[] = {
+    struct {int r; int c; PieceType type; int owner;} presets[] = {
         {14, 9, KING, 1}, {14, 6, KNIGHT, 1}, {10, 39, BISHOP, 1}, {24, 10, ROOK, 1}, {9, 37, KNIGHT, 1}, {8, 42, ENVOY, 1},{23, 12, CATAPULT, 1},{12, 12, ENVOY, 1},// P1 Pieces
         {32, 8, KING, 2}, {30, 9, KNIGHT, 2}, {29, 43, BISHOP, 2}, {26, 14, ROOK, 2}, {32, 45, ENVOY, 2}, {12, 35, QUEEN, 2}, {23, 15, LANCER, 2}, {25, 17, ENVOY, 2}, // P2 Pieces
     };

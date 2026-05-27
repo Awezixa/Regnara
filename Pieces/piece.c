@@ -371,7 +371,7 @@ bool inTerritory(AppState *app, int row, int col){
     
 }
 
-int pieceCost(pieceType type){
+int pieceCost(PieceType type){
     switch(type){
         case PAWN: return 1;break;
         case KNIGHT:return 2;break;
@@ -386,7 +386,7 @@ int pieceCost(pieceType type){
     }
 }
 
-bool pieceUnlocked(AppState *app, pieceType type)
+bool pieceUnlocked(AppState *app, PieceType type)
 {
     TechTree *tree;
 
@@ -431,7 +431,7 @@ bool pieceUnlocked(AppState *app, pieceType type)
     }
 }
 
-pieceType getUpgradeType(pieceType type)
+PieceType getUpgradeType(PieceType type)
 {
     switch(type)
     {
@@ -454,7 +454,7 @@ pieceType getUpgradeType(pieceType type)
 
 
 
-pieceType rollUpgradePlatformPiece(AppState *app)
+PieceType rollUpgradePlatformPiece(AppState *app)
 {
     TechTree *tree =
         (app->currentPlayer == 1)
@@ -548,7 +548,7 @@ void useUpgradePlatform(AppState *app, Piece *piece)
     // Need at least level 1
     if (tree->upgradePlatformLevel <= 0) return;
 
-    pieceType newType =
+    PieceType newType =
         rollUpgradePlatformPiece(app);
 
     piece->type = newType;
@@ -562,7 +562,7 @@ void useUpgradePlatform(AppState *app, Piece *piece)
     printf("Upgrade Platform rolled: %d\n", newType);
 }
 
-int getFamilyCount(AppState *app, int player, pieceType type)
+int getFamilyCount(AppState *app, int player, PieceType type)
 {
     switch (type)
     {
