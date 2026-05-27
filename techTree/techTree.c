@@ -48,7 +48,7 @@ void initTechTree(TechTree *tree)
     tree->upgrades[3].required1 = -1;
     tree->upgrades[3].required2 = -1;
     strcpy(tree->upgrades[3].description, "A platform of magical powers that can improve your pieces");
-    strcpy(tree->upgrades[3].unlocksText, "- Upgrade platform II effects\n- UPG PLAT III effects");
+    strcpy(tree->upgrades[3].unlocksText, "- Upgrade platform II effects");
     strcpy(tree->upgrades[3].givesText, "Gives a random chance of upgrading a piece to a better piece");
 
     // Index 4: Rook (Needs Knight)
@@ -111,7 +111,7 @@ void initTechTree(TechTree *tree)
     tree->upgrades[10].required1 = 2; // Extra Money
     tree->upgrades[10].required2 = -1;
     strcpy(tree->upgrades[10].description, "Army growth for longevity");
-    strcpy(tree->upgrades[10].givesText, "Increase Unit cap by 5");
+    strcpy(tree->upgrades[10].givesText, "Increase Unit cap");
 
     // Index 11: UPG Platform II (Needs UPG Platform I)
     strcpy(tree->upgrades[11].name, "UPG PLAT II");
@@ -129,7 +129,7 @@ void initTechTree(TechTree *tree)
     tree->upgrades[12].required2 = -1;
     strcpy(tree->upgrades[12].description, "A platform of magical powers that can improve your pieces");
     strcpy(tree->upgrades[12].unlocksText, "An outlet for your inner gambler");
-    strcpy(tree->upgrades[12].givesText, "Improves upgrade chances for a Queen, Catapult and Mage");
+    strcpy(tree->upgrades[12].givesText, "Improved upgrade chances for a Queen, Catapult and Mage");
 
     tree->upgradePlatformLevel = 0;
 
