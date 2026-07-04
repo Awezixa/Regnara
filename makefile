@@ -6,6 +6,13 @@
 # make build     -> creates Build/ folder with exe + assets (+ DLLs on MSYS2)
 # make clean     -> deletes .o, .d, and app
 
+WINDRES := windres
+
+RES := icon.o
+
+$(RES): icon.rc
+	$(WINDRES) $< -O coff -o $@
+
 # ---------------- Build bundle config ----------------
 # PATH THAT WILL BE CREATED
 BUILD_DIR := Build
@@ -84,8 +91,8 @@ release: CFLAGS := $(CSTD) $(WARN) $(REL) $(DEPS) $(INC) $(PKG_CFLAGS)
 release: LDFLAGS := $(PKG_LIBS)
 release: $(BIN_EXE)
 
-$(BIN_EXE): $(OBJ)
-	$(CC) $(OBJ) $(LDFLAGS) -o $@
+$(BIN_EXE): $(OBJ) $(RES)
+	$(CC) $(OBJ) $(RES) $(LDFLAGS) -o $@
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
