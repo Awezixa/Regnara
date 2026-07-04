@@ -18,8 +18,8 @@ typedef struct {
 
     //descriptions
     char description[256];
+    char needsText[128];
     char unlocksText[128];
-    char givesText[128];
 } Upgrade;
 
 typedef struct {

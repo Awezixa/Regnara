@@ -383,6 +383,8 @@ typedef struct AppState
     SDL_Texture *buttonOff;
     SDL_Texture *backButtonOn;
     SDL_Texture *backButtonOff;
+    SDL_Texture *confirmButtonOn;
+    SDL_Texture *confirmButtonOff;
     SDL_Texture *goldTexture;
     SDL_Texture *techTreeBackgroundBlue;
     SDL_Texture *techTreeBackgroundRed;
@@ -394,6 +396,8 @@ typedef struct AppState
     SDL_FRect optionsbutton;
     SDL_FRect mainmenubutton;
     SDL_FRect endTurnButton;
+    SDL_FRect confirmYesButton;
+    SDL_FRect confirmNoButton;
     SDL_FRect turnCount;
     SDL_FRect pauseTxt;
     SDL_FRect techTreeButton;
@@ -434,6 +438,7 @@ typedef struct AppState
     //variables for the ranged attacks
     SDL_Point possibleAttacks[64];
     int possibleAttackCount;
+    bool confirmMainMenu;
     
 } AppState;
 
@@ -447,6 +452,6 @@ void startGame(AppState *app);
 void increaseTroopLimit(AppState *app, int extraSlots);
 void snapToKing(AppState *app);
 bool drawSlider(AppState *app, float x, float y, float w, float h, float *volumeValue, const char *label);
-
+void confirmMainMenu(AppState *app);
 
 #endif

@@ -46,7 +46,7 @@ void unitIconUI(AppState *app);
 void drawEndScreen(AppState *app);
 void mainMenuButton(AppState *app);
 void optionsButton(AppState *app);
-void quitPauseButton(AppState *app);
+void resumePauseButton(AppState *app);
 void techTreeButton(AppState *app);
 void optionsBackButton(AppState *app);
 void techTreeBackButton(AppState *app);
@@ -64,6 +64,7 @@ PieceType getUpgradeType(PieceType type);
 SDL_Texture *getPieceTexture(AppState *app, PieceType type, UIState state);
 void drawButton(AppState *app, SDL_FRect *buttonRect, const char *text, float x, float y);
 void drawBackButton(AppState *app, SDL_FRect *buttonRect, const char *text, float x, float y);
+void drawConfirmButton(AppState *app, SDL_FRect *buttonRect, const char *text, float x, float y);
 
 
 bool isMouseOverUI(AppState *app);

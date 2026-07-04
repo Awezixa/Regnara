@@ -76,6 +76,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 
     //other game initializations
     app->gameState = STATE_MENU;
+    app->confirmMainMenu = false;
     loadMap("Assets/maps/map1.txt");
     app->piecePlaced = false;
     //world size initializations
@@ -451,16 +452,17 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     case STATE_PAUSED:
     {
         drawPauseMenu(app);
-
+        
         if (app->input.keyPressed[SDL_SCANCODE_ESCAPE]){
             app->gameState = STATE_PLAYING;
         }
         if (app->input.mouseLeftPressed)
         {
+
             SDL_FPoint mousePos = {app->input.mouseX, app->input.mouseY};
             if (SDL_PointInRectFloat(&mousePos, &app->quitbutton)){
             //add confirmation quit screen
-            return SDL_APP_SUCCESS;
+            app->gameState = STATE_PLAYING;
             }
             if (SDL_PointInRectFloat(&mousePos, &app->optionsbutton)){
             app->gameState = STATE_OPTIONS;
@@ -468,18 +470,56 @@ SDL_AppResult SDL_AppIterate(void *appstate)
                     app->gameState = STATE_PAUSED;
                 }
             }
-            if (SDL_PointInRectFloat(&mousePos, &app->mainmenubutton)){
-                //add confirmation quit screen
-                stopSound(&app->techTreeMusic);
-                stopSound(&app->ambience);
-                
-                // Restart and re-loop the title screen menu music
-                playSound(&app->menuMusic);
-                
-                app->gameState = STATE_MENU;
+            if (SDL_PointInRectFloat(&mousePos, &app->mainmenubutton))
+            {
+                app->gameState = STATE_CONFIRM_MENU;
             }
 
         }    
+
+        break;
+    }
+
+    case STATE_CONFIRM_MENU:
+    {
+        drawPauseMenu(app);
+
+        SDL_SetRenderDrawBlendMode(app->renderer, SDL_BLENDMODE_BLEND);
+        SDL_SetRenderDrawColor(app->renderer, 0, 0, 0, 180);
+
+        SDL_FRect screen = {0,0,WINDOW_WIDTH,WINDOW_HEIGHT};
+        SDL_RenderFillRect(app->renderer, &screen);
+
+        confirmMainMenu(app);
+
+        if (app->input.keyPressed[SDL_SCANCODE_ESCAPE])
+        {
+            app->gameState = STATE_PAUSED;
+        }
+
+        if (app->input.mouseLeftPressed)
+        {
+            SDL_FPoint mousePos =
+            {
+                app->input.mouseX,
+                app->input.mouseY
+            };
+
+            if (SDL_PointInRectFloat(&mousePos, &app->confirmYesButton))
+            {
+                stopSound(&app->techTreeMusic);
+                stopSound(&app->ambience);
+
+                playSound(&app->menuMusic);
+
+                app->gameState = STATE_MENU;
+            }
+
+            if (SDL_PointInRectFloat(&mousePos, &app->confirmNoButton))
+            {
+                app->gameState = STATE_PAUSED;
+            }
+        }
 
         break;
     }
@@ -907,6 +947,8 @@ void winCondition(AppState *app)
 }
 
 void resetGame(AppState *app) {
+
+    app->confirmMainMenu = false;
    
     for (int i = 0; i < app->tTowns; i++) {
         app->towns[i].owner = 0;
@@ -1053,4 +1095,41 @@ void snapToKing(AppState *app) {
             app->worldSize.y
         );
     }
+}
+
+void confirmMainMenu(AppState *app)
+{
+    SDL_FRect box =
+    {
+        WINDOW_WIDTH/2 - 250,
+        WINDOW_HEIGHT/2 - 120,
+        500,
+        240
+    };
+
+    SDL_SetRenderDrawColor(app->renderer, 70,70,70,255);
+    SDL_RenderFillRect(app->renderer,&box);
+
+    SDL_SetRenderDrawColor(app->renderer,255,255,255,255);
+    SDL_RenderRect(app->renderer,&box);
+
+    SDL_FRect text =
+    {
+        box.x,
+        box.y + 50,
+        box.w,
+        40
+    };
+
+    drawText(app, app->font,
+             "RETURN TO MAIN MENU?",
+             text);
+
+    SDL_FPoint mousePos = {
+        app->input.mouseX,
+        app->input.mouseY
+    };
+
+    drawConfirmButton(app, &app->confirmNoButton, "NO", box.x + 310, box.y + 150);
+    drawConfirmButton(app, &app->confirmYesButton, "YES", box.x + 40, box.y + 150);
 }

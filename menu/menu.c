@@ -38,12 +38,12 @@ void optionsButton(AppState *app){
 
 void optionsBackButton(AppState *app)
 {
-    drawBackButton(app, &app->optionsBackButton, "X", 45, 45);
+    drawBackButton(app, &app->optionsBackButton, "X", WINDOW_WIDTH-150, 45);
 }
 
 void techTreeBackButton(AppState *app)
 {
-    drawBackButton(app, &app->techTreeBackButton, "X", 45, 45);
+    drawBackButton(app, &app->techTreeBackButton, "X", WINDOW_WIDTH-150, 45);
 }
 
 
@@ -257,6 +257,92 @@ void drawBackButton(AppState *app, SDL_FRect *buttonRect, const char *text, floa
     SDL_DestroyTexture(textTexture);
 }
 
+void drawConfirmButton(AppState *app, SDL_FRect *buttonRect, const char *text, float x, float y){
+    SDL_FPoint mousePoint = {
+        app->input.mouseX,
+        app->input.mouseY
+    };
+
+    // Set position first
+    buttonRect->x = x;
+    buttonRect->y = y;
+
+    // Detect hover
+    bool hovered =
+        SDL_PointInRectFloat(&mousePoint, buttonRect);
+
+    // Pick texture
+    SDL_Texture *buttonTex =
+        hovered ? app->confirmButtonOn : app->confirmButtonOff;
+
+    buttonRect->w = 150;
+    buttonRect->h = 55;
+
+    // Re-check hover now that size exists
+    hovered =
+        SDL_PointInRectFloat(&mousePoint, buttonRect);
+
+    // Re-pick texture
+    buttonTex =
+        hovered ? app->confirmButtonOn : app->confirmButtonOff;
+
+    // Draw button
+    SDL_RenderTexture(app->renderer,
+                      buttonTex,
+                      NULL,
+                      buttonRect);
+
+    // Text color
+    SDL_Color textColor;
+
+    if (hovered)
+    {
+        textColor = (SDL_Color){0, 0, 0, 255};
+    }
+    else
+    {
+        textColor = (SDL_Color){255, 255, 255, 255};
+    }
+
+    // Create text surface
+    SDL_Surface *surface =
+        TTF_RenderText_Blended(app->font,
+                               text,
+                               0,
+                               textColor);
+
+    if (!surface)
+        return;
+
+    // Create text texture
+    SDL_Texture *textTexture =
+        SDL_CreateTextureFromSurface(app->renderer,
+                                     surface);
+
+    SDL_DestroySurface(surface);
+
+    if (!textTexture)
+        return;
+
+    // Center text
+    float textW, textH;
+    SDL_GetTextureSize(textTexture, &textW, &textH);
+
+    SDL_FRect textRect = {
+        buttonRect->x + (buttonRect->w - textW) / 2.0f,
+        buttonRect->y + (buttonRect->h - textH) / 2.0f,
+        textW,
+        textH
+    };
+
+    // Draw text
+    SDL_RenderTexture(app->renderer,
+                      textTexture,
+                      NULL,
+                      &textRect);
+
+    SDL_DestroyTexture(textTexture);
+}
 
 void endTurnButton(AppState *app)
 {
@@ -290,7 +376,7 @@ void drawPauseMenu(AppState *app)
 
     drawText(app, app->font, pauseUI, app->pauseTxt);
     // add resume button
-    quitPauseButton(app);
+    resumePauseButton(app);
     mainMenuButton(app);
     pauseOptionsButton(app);
 }
@@ -559,7 +645,13 @@ snprintf(pieceCap,
         PieceType upgradeType =
             getUpgradeType(app->selectedPiece->type);
 
-        if (upgradeType != KING)
+        bool canUpgrade =
+            app->selectedPiece->type == PAWN ||
+            app->selectedPiece->type == KNIGHT ||
+            app->selectedPiece->type == BISHOP ||
+            app->selectedPiece->type == ROOK;
+
+        if (canUpgrade)
         {
         SDL_FRect upgradeButton = {
             startX + ((unitCount - 1) * spacing) + spacing + 20,
@@ -631,14 +723,14 @@ void drawEndScreen(AppState *app){
 }
 
 // pause UI
-void quitPauseButton(AppState *app){
+void resumePauseButton(AppState *app){
 
-    drawButton(app, &app->quitbutton, "QUIT", (float)(WINDOW_WIDTH / 2) - (app->quitbutton.w/2), 500.0f);
+    drawButton(app, &app->quitbutton, "RESUME", (float)(WINDOW_WIDTH / 2) - (app->quitbutton.w/2), 300.0f);
 }
 
 void mainMenuButton(AppState *app){
 
-    drawButton(app, &app->mainmenubutton, "MAIN MENU", (float)(WINDOW_WIDTH / 2) - (app->mainmenubutton.w/2), 300.0f);
+    drawButton(app, &app->mainmenubutton, "MAIN MENU", (float)(WINDOW_WIDTH / 2) - (app->mainmenubutton.w/2), 500.0f);
 }
 
 void pauseOptionsButton(AppState *app){

@@ -11,6 +11,7 @@ typedef enum GameState{
     TECH_TREE,// can remove (ask cesar)
     STATE_PAUSED,
     STATE_OPTIONS,
+    STATE_CONFIRM_MENU,
     STATE_END
 } GameState;
 

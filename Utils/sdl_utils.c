@@ -222,6 +222,8 @@ bool LoadAllGameTextures(AppState *app) {
         {&app->buttonOff, "Assets/UI/menus/buttonOff.png"},
         {&app->backButtonOff, "Assets/UI/backButton/Off.png"},
         {&app->backButtonOn, "Assets/UI/backButton/On.png"},
+        {&app->confirmButtonOff, "Assets/UI/confirmButton/Off.png"},
+        {&app->confirmButtonOn, "Assets/UI/confirmButton/On.png"},
         {&app->blueInfoBox, "Assets/UI/inRound/goldBlue.png"},
         {&app->redInfoBox, "Assets/UI/inRound/goldRed.png"},
         {&app->techTreeBackgroundBlue, "Assets/techTree/techTreeBackgroundBlue.png"},
@@ -544,7 +546,7 @@ void CleanupAllTextures(AppState *app) {
         app->UIRedUpgPlatAvailable,app->UIRedUpgPlatLocked,app->UIRedUpgPlatUnavailable,
         app->mainMenuBackground, app->winner1, app->winner2,
         app->townOverlayTexture, app->bridgeBottomOverlayTexture,
-        app->backButtonOn, app->backButtonOff
+        app->backButtonOn, app->backButtonOff, app->confirmButtonOff, app->confirmButtonOn
     };
 
     int count = sizeof(allTextures) / sizeof(SDL_Texture*);

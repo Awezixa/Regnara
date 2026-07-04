@@ -22,6 +22,7 @@ void spawnPiece(AppState *app)
     if (row < 0 || row >= MAP_ROWS || col < 0 || col >= MAP_COLS)
     {
         playSound(&app->wrongSound);
+        app->selectedPieceType = KING;
         return;
     }
 
@@ -31,6 +32,7 @@ void spawnPiece(AppState *app)
     if (isPieceAtCap(app, app->currentPlayer, app->selectedPieceType))
     {
         playSound(&app->wrongSound);
+        app->selectedPieceType = KING;
         return;
     }
 
@@ -43,12 +45,14 @@ void spawnPiece(AppState *app)
     {
         app->errorTimer = 1.5f;
         playSound(&app->wrongSound);
+        app->selectedPieceType = KING;
         return;
     }
 
     if (!app->cheats && !inTerritory(app, row, col))
     {
         playSound(&app->wrongSound);
+        app->selectedPieceType = KING;
         return;
     }
 
@@ -58,6 +62,7 @@ void spawnPiece(AppState *app)
           tile == UPGRADE_TILE || tile == SPAWN_POINT || tile == TOWN_TILE))
     {
         playSound(&app->wrongSound);
+        app->selectedPieceType = KING;
         return;
     }
 
@@ -72,6 +77,7 @@ void spawnPiece(AppState *app)
             app->pieces[j].pieceY == targetY)
         {
             playSound(&app->wrongSound);
+            app->selectedPieceType = KING;
             return;
         }
     }
@@ -89,6 +95,9 @@ void spawnPiece(AppState *app)
 
             app->pieces[i].type = app->selectedPieceType;
             app->pieces[i].owner = app->currentPlayer;
+
+            app->pieces[i].moved = true;
+            app->pieces[i].abilityUsed = false;
 
             *playerGold -= cost;
 
