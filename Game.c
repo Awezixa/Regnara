@@ -193,8 +193,7 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
         //right mouse button checks
         else if (event->button.button == SDL_BUTTON_RIGHT)
         {
-            if (!in->mouseRightDown)
-                in->mouseRightPressed = true;
+            if (!in->mouseRightDown) in->mouseRightPressed = true;
             in->mouseRightDown = true;
         }
         else if (event->button.button == SDL_BUTTON_MIDDLE) {
@@ -617,14 +616,14 @@ void UpdateCamera(AppState *app){
     camera2d_zoom_to_mouse(&app->camera, zoomDelta * app->dt, 0.4f, 5.0f, app->input.mouseX, app->input.mouseY);//adjusts camera clamp range then follows player with new clamped range
 
     //drag logic
-    if (in->mouseMiddlePressed)
+    if (in->mouseRightPressed)
     {
         app->pivotX = in->mouseX;
         app->pivotY = in->mouseY;
         app->camX = camera->x;
         app->camY = camera->y;
     }
-    if (in->mouseMiddleDown)
+    if (in->mouseRightDown)
     {
         float mouseDeltaX = in->mouseX - app->pivotX;
         float mouseDeltaY = in->mouseY - app->pivotY;
